@@ -1,0 +1,221 @@
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    padding-top: env(safe-area-inset-top);
+    border-bottom: 1px solid var(--border);
+    background: rgba(2, 12, 0, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.site-nav {
+    position: relative;
+    display: flex;
+    min-height: 4rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.site-wordmark {
+    display: inline-flex;
+    min-height: var(--control-size);
+    align-items: center;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.site-wordmark:hover {
+    color: var(--text);
+}
+
+.site-wordmark span {
+    color: var(--accent);
+    animation: cursor-pulse 1.6s step-end infinite;
+}
+
+.nav-toggle {
+    display: grid;
+    width: var(--control-size);
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+    place-items: center;
+    padding: 0;
+    border: var(--border-thin);
+    border-radius: var(--radius-md);
+    background: var(--surface-1);
+    color: var(--text);
+    transition: opacity var(--duration-fast) var(--ease-enter), transform var(--duration-fast) var(--ease-enter);
+}
+
+.nav-toggle:active {
+    transform: scale(0.97);
+}
+
+.nav-toggle-lines,
+.nav-toggle-lines::before,
+.nav-toggle-lines::after {
+    display: block;
+    width: 1.1rem;
+    height: 1px;
+    background: currentColor;
+    content: "";
+}
+
+.nav-toggle-lines {
+    position: relative;
+}
+
+.nav-toggle-lines::before,
+.nav-toggle-lines::after {
+    position: absolute;
+    left: 0;
+    transition: opacity var(--duration-fast) var(--ease-enter), transform var(--duration-fast) var(--ease-enter);
+}
+
+.nav-toggle-lines::before {
+    transform: translateY(-0.34rem);
+}
+
+.nav-toggle-lines::after {
+    transform: translateY(0.34rem);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-lines {
+    background: transparent;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-lines::before {
+    transform: rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-lines::after {
+    transform: rotate(-45deg);
+}
+
+.nav-links {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 0;
+    left: 0;
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: var(--space-2);
+    border: var(--border-thin);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-raised);
+    list-style: none;
+    animation: nav-menu-enter var(--duration-fast) var(--ease-enter) backwards;
+}
+
+.nav-links a {
+    position: relative;
+    display: flex;
+    min-height: var(--control-size);
+    align-items: center;
+    padding-inline: var(--space-3);
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nav-links a::after {
+    position: absolute;
+    right: var(--space-3);
+    bottom: 0.45rem;
+    left: var(--space-3);
+    height: 1px;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: var(--accent);
+    content: "";
+    transition: transform var(--duration-fast) var(--ease-enter);
+}
+
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+    color: var(--accent);
+}
+
+.nav-links a[aria-current="page"]::after {
+    transform: scaleX(1);
+}
+
+@keyframes cursor-pulse {
+    0%,
+    48% {
+        opacity: 1;
+    }
+
+    49%,
+    100% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes nav-menu-enter {
+    from {
+        transform: translateY(-0.35rem);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .nav-toggle:hover {
+        transform: translateY(-1px);
+        opacity: 0.88;
+    }
+}
+
+@media (min-width: 45.0625rem) {
+    .site-nav {
+        min-height: 4.5rem;
+    }
+
+    .nav-toggle {
+        display: none;
+    }
+
+    .nav-links {
+        position: static;
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        animation: none;
+    }
+
+    .nav-links a {
+        padding-inline: 0;
+        font-size: var(--font-size-xs);
+    }
+
+    .nav-links a::after {
+        right: 0;
+        bottom: 0.35rem;
+        left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-wordmark span {
+        opacity: 1;
+    }
+}

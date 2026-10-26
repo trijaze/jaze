@@ -1,0 +1,17 @@
+[
+  {
+    "slug": "local-first-cve-research-notes",
+    "title": "A Local-First Workflow for CVE Research Notes",
+    "excerpt": "A practical template for keeping vulnerability research notes structured, reviewable, and available without depending on a live API.",
+    "publishedAt": "2026-10-25",
+    "updatedAt": "2026-10-25",
+    "tags": [
+      "cve",
+      "research",
+      "workflow"
+    ],
+    "readingMinutes": 4,
+    "featured": true,
+    "status": "published"
+  }
+]

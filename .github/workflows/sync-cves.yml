@@ -1,0 +1,61 @@
+name: Sync CVE data
+
+on:
+  schedule:
+    # Refresh CVE records from MITRE every 6 hours
+    - cron: '37 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-cves
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Refresh MITRE records
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out default branch
+        uses: actions/checkout@v4
+
+      - name: Check out V1T source data
+        uses: actions/checkout@v4
+        with:
+          repository: xuanlockun/v1t
+          path: vendor/v1t
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync the validated V1T snapshot
+        run: node scripts/sync-v1t-data.js --source vendor/v1t
+
+      - name: Refresh CVE cache from MITRE
+        run: node scripts/update-cves.js
+
+      - name: Validate data after refresh
+        run: npm run validate
+
+      - name: Verify production build
+        run: npm run build
+
+      - name: Open or update the CVE data pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/sync-cve-data
+          delete-branch: true
+          commit-message: "chore(cve): sync validated V1T and MITRE data"
+          title: "chore(cve): sync validated CVE data"
+          body: |
+            Automated refresh from the V1T source snapshot and MITRE CVE API.
+
+            The workflow ran data validation, unit tests, and the production build before opening this pull request.

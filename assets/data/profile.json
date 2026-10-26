@@ -1,0 +1,16 @@
+{
+  "memberId": "jaze",
+  "displayName": "Jaze",
+  "headline": "Security Researcher at V1T",
+  "bio": "",
+  "avatar": "/assets/images/jaze_v1t.png",
+  "focus": [],
+  "socials": [
+    {
+      "label": "CTFtime",
+      "url": "https://ctftime.org/user/172832"
+    }
+  ],
+  "availableFor": [],
+  "location": null
+}

@@ -1,0 +1,24 @@
+{
+  "name": "jaze-security-research",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static security research profile, blog, and CVE archive for Jaze.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trijaze/jaze.git"
+  },
+  "homepage": "https://jaze.v1t.site/",
+  "scripts": {
+    "dev": "node scripts/serve.js",
+    "build": "node scripts/generate-site.js",
+    "sync:v1t": "node scripts/sync-v1t-data.js",
+    "check:syntax": "node scripts/check-syntax.js",
+    "validate:data": "node scripts/validate-data.js",
+    "test": "node --test",
+    "validate": "npm run check:syntax && npm run validate:data && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

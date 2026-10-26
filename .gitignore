@@ -1,0 +1,16 @@
+# Ignore agents and local skills recursively
+**/.agents/
+**/.agents/**
+
+**/note-jaze/
+**/note-jaze/**
+
+**/.note-jaze/
+**/.note-jaze/**
+
+node_modules/
+dist/
+vendor/
+.cache/
+.tmp/
+*.log

@@ -1,0 +1,265 @@
+[
+  {
+    "id": "rawr",
+    "name": "Rawr",
+    "role": "Duck",
+    "avatar": "assets/images/v1t_2026.png",
+    "quote": "\";-;\"",
+    "quoteClass": "quote",
+    "blog": "https://rawr.v1t.site/",
+    "ctftime": "https://ctftime.org/user/183484",
+    "aliases": [
+      "rawr",
+      "v1t"
+    ]
+  },
+  {
+    "id": "jaze",
+    "name": "Jaze",
+    "role": "Security Researcher",
+    "avatar": "assets/images/jaze_v1t.png",
+    "quote": "\"Fuzzy Duck | Ducky Fuzz\"",
+    "quoteClass": "quote01",
+    "blog": "https://www.google.com/search?q=who+is+jaze+in+cyber+security",
+    "ctftime": "https://ctftime.org/user/172832",
+    "aliases": [
+      "jaze"
+    ]
+  },
+  {
+    "id": "longpham",
+    "name": "LongPham+",
+    "role": "Security Researcher",
+    "avatar": "assets/images/bachkhi.png",
+    "quote": "\"Optimus Prime uu ee ac ac\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": "https://ctftime.org/user/213437",
+    "aliases": [
+      "longpham+",
+      "longpham",
+      "bachkhi"
+    ]
+  },
+  {
+    "id": "arasu",
+    "name": "Arasu",
+    "role": "Security Researcher",
+    "avatar": "assets/images/student.png",
+    "quote": "\"A f*cking man\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": null,
+    "aliases": [
+      "arasu",
+      "student"
+    ]
+  },
+  {
+    "id": "n4n4s1",
+    "name": "n4n4s1",
+    "role": "CTF Team Lead",
+    "avatar": "assets/images/binz.png",
+    "quote": "\"Give me ur coke\"",
+    "quoteClass": "quote",
+    "blog": "https://nanasi.v1t.site/",
+    "ctftime": "https://ctftime.org/user/223280",
+    "aliases": [
+      "n4n4s1",
+      "nanasi",
+      "binz"
+    ]
+  },
+  {
+    "id": "kero",
+    "name": "Kero",
+    "role": "System Duck",
+    "avatar": "assets/images/kero.png",
+    "quote": "\"Only one thing is certain is nothing is certain\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": null,
+    "aliases": [
+      "kero"
+    ]
+  },
+  {
+    "id": "shah_ji",
+    "name": "Shah_Ji",
+    "role": "Malware Research Intern",
+    "avatar": "assets/images/shahji.png",
+    "quote": "\"Just here\"",
+    "quoteClass": "quote",
+    "blog": "https://syedjazib.vercel.app/",
+    "ctftime": "https://ctftime.org/user/219123",
+    "aliases": [
+      "shah_ji",
+      "shahji"
+    ]
+  },
+  {
+    "id": "maro",
+    "name": "Maro",
+    "role": "Former CTF Player",
+    "avatar": "assets/images/maro.png",
+    "quote": "\"❤️‍🔥كالقابض علي الجمر\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": "https://ctftime.org/user/206379",
+    "aliases": [
+      "maro"
+    ]
+  },
+  {
+    "id": "basim",
+    "name": "Basim Mehdi",
+    "role": "Pwn",
+    "avatar": "assets/images/hacker.png",
+    "quote": "\"Somethings Are Just Never Meant To Be ...\"",
+    "quoteClass": "quote",
+    "blog": "https://basimmehdi.vercel.app/",
+    "ctftime": "https://ctftime.org/user/218749",
+    "aliases": [
+      "basim mehdi",
+      "basim",
+      "hacker"
+    ]
+  },
+  {
+    "id": "vjz3r",
+    "name": "vjz3r",
+    "role": "Osint",
+    "avatar": "assets/images/ninja.png",
+    "quote": "\"Not Safe For Flag\"",
+    "quoteClass": "quote",
+    "blog": "https://vjz3r.github.io/",
+    "ctftime": "https://ctftime.org/user/141944",
+    "aliases": [
+      "vjz3r",
+      "ninja"
+    ]
+  },
+  {
+    "id": "emkhoi",
+    "name": "emKhoi2k10",
+    "role": "Rev",
+    "avatar": "assets/images/spy.png",
+    "quote": "\"Dancing nihilist\"",
+    "quoteClass": "quote",
+    "blog": "https://emkhoi2k10.v1t.site/",
+    "ctftime": "https://ctftime.org/user/165731",
+    "aliases": [
+      "emkhoi2k10",
+      "emkhoi",
+      "spy"
+    ]
+  },
+  {
+    "id": "deroise",
+    "name": "deroise2306",
+    "role": "Crypto",
+    "avatar": "assets/images/deroise.png",
+    "quote": "\"sceebeedee\"",
+    "quoteClass": "quote",
+    "blog": "https://deroise2306.v1t.site/",
+    "ctftime": "https://ctftime.org/user/219785",
+    "aliases": [
+      "deroise2306",
+      "deroise"
+    ]
+  },
+  {
+    "id": "dreamybull",
+    "name": "dreamybullXXL",
+    "role": "Misc",
+    "avatar": "assets/images/anime.png",
+    "quote": "\"Quack quack !\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": null,
+    "aliases": [
+      "dreamybullxxl",
+      "dreamybull",
+      "anime"
+    ]
+  },
+  {
+    "id": "shirajuki",
+    "name": "Shirajuki",
+    "role": "Misc",
+    "avatar": "assets/images/cow.png",
+    "quote": "\"M0o Mo0 !\"",
+    "quoteClass": "quote",
+    "blog": "https://shirajuki.js.org/",
+    "ctftime": null,
+    "aliases": [
+      "shirajuki",
+      "cow"
+    ]
+  },
+  {
+    "id": "jayce",
+    "name": "Jayce",
+    "role": "BugBounty Hunter",
+    "avatar": "assets/images/jayce.png",
+    "quote": "\"Mốc 7 học viện\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": "https://ctftime.org/user/168272",
+    "aliases": [
+      "jayce"
+    ]
+  },
+  {
+    "id": "winky",
+    "name": "Winky",
+    "role": "Vulnerability Researcher",
+    "avatar": "assets/images/winky.png",
+    "quote": "\"Just a noob\"",
+    "quoteClass": "quote",
+    "blog": "https://threalwinky.github.io/",
+    "ctftime": null,
+    "aliases": [
+      "winky"
+    ]
+  },
+  {
+    "id": "qth24",
+    "name": "Qth24",
+    "role": "Forensics",
+    "avatar": "assets/images/qth24.png",
+    "quote": "\"Newbie to ctf\"",
+    "quoteClass": "quote",
+    "blog": "https://thinhdq.site/",
+    "ctftime": null,
+    "aliases": [
+      "qth24"
+    ]
+  },
+  {
+    "id": "r1muru",
+    "name": "R1muru",
+    "role": "Crypto",
+    "avatar": "assets/images/r1muru.png",
+    "quote": "\"AI slopper\"",
+    "quoteClass": "quote",
+    "blog": "https://r1muru2006.github.io/",
+    "ctftime": null,
+    "aliases": [
+      "r1muru"
+    ]
+  },
+  {
+    "id": "coldB",
+    "name": "ColdB",
+    "role": "Forensics",
+    "avatar": "assets/images/coldB.png",
+    "quote": "\"Damn\"",
+    "quoteClass": "quote",
+    "blog": null,
+    "ctftime": null,
+    "aliases": [
+      "coldb"
+    ]
+  }
+]
