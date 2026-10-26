@@ -16,7 +16,7 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const compactViewport = window.matchMedia('(max-width: 63.99rem)');
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const geometry = createMobiusGeometry(150, 32);
+    const geometry = createMobiusGeometry(220, 48);
 
     const motion = {
         pointerX: 0,
@@ -100,8 +100,8 @@
     }
 
     function renderFrame() {
-        const columns = 110;
-        const rows = 48;
+        const columns = 140;
+        const rows = 62;
         const cells = new Array(columns * rows).fill(' ');
         const depth = new Float32Array(columns * rows);
         const xRotation = -0.36 + motion.tiltX;
@@ -111,8 +111,8 @@
             const projected = rotate(point, xRotation, yRotation);
             const normal = rotate(point.normal, xRotation, yRotation);
             const inverseDepth = 1 / (projected.z + 4.2);
-            const column = Math.round(columns / 2 + projected.x * inverseDepth * 84);
-            const row = Math.round(rows / 2 - projected.y * inverseDepth * 84 * 0.46);
+            const column = Math.round(columns / 2 + projected.x * inverseDepth * 112);
+            const row = Math.round(rows / 2 - projected.y * inverseDepth * 112 * 0.75);
             if (column < 0 || column >= columns || row < 0 || row >= rows) continue;
 
             const index = column + row * columns;

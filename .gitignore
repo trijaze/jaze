@@ -14,3 +14,4 @@ vendor/
 .cache/
 .tmp/
 *.log
+.tmp*
