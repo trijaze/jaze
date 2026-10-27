@@ -94,7 +94,7 @@
 
     --z-base: 0;
     --z-raised: 10;
-    --z-sticky: 20;
-    --z-overlay: 30;
-    --z-skip-link: 40;
+    --z-sticky: 1000;
+    --z-overlay: 1100;
+    --z-skip-link: 1200;
 }

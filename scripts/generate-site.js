@@ -230,23 +230,52 @@ function renderHomePage(siteData, cves) {
     ];
 
     const body = `
+    <!-- Spatial 3D ASCII Background System -->
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
+    </div>
+
+    <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
+    <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior">
+        <span class="singularity-star__core"></span>
+        <span class="singularity-star__aura"></span>
+        <span class="singularity-star__tooltip" aria-hidden="true">Toggle 3D View</span>
+    </button>
+
+    <!-- Minimalist Intro Loader (Countdown only) -->
+    <div class="intro-loader" id="intro-loader" aria-live="polite">
+        <span class="intro-loader__clock" data-loader-clock aria-hidden="true">00:03.00</span>
+    </div>
+
     <main class="page-main site-shell home-page" id="main-content">
         <!-- Hero Section -->
         <section class="home-hero" aria-labelledby="hero-title">
             <div class="home-hero__content">
-                <div class="hero-identity">
-                    <img class="hero-avatar" src="${escapeHtml(profile.avatar || '/assets/images/jaze_v1t.png')}" alt="Portrait of Jaze" width="72" height="72" fetchpriority="high">
-                    <div class="hero-meta-kicker">
-                        <span class="hero-kicker">Security Research</span>
-                        <span class="hero-status-pill">V1T Team Member</span>
+                <!-- Bespoke 3-Tier Kinetic JAZE Logo -->
+                <div class="jaze-logo-stage" aria-label="JAZE">
+                    <div class="jaze-logo-line jaze-logo-line--sub jaze-logo-line--top" aria-hidden="true" data-logo-sub="top">
+                        <span class="jaze-char" data-char="j">J</span>
+                        <span class="jaze-char" data-char="a">A</span>
+                        <span class="jaze-char" data-char="z">Z</span>
+                        <span class="jaze-char" data-char="e">E</span>
+                    </div>
+
+                    <h1 id="hero-title" class="jaze-logo-line jaze-logo-line--main" translate="no">
+                        <span class="jaze-char jaze-char--main-j">J</span>
+                        <span class="jaze-char jaze-char--main-a">A</span>
+                        <span class="jaze-char jaze-char--main-z">Z</span>
+                        <span class="jaze-char jaze-char--main-e">E</span>
+                    </h1>
+
+                    <div class="jaze-logo-line jaze-logo-line--sub jaze-logo-line--bottom" aria-hidden="true" data-logo-sub="bottom">
+                        <span class="jaze-char" data-char="j">J</span>
+                        <span class="jaze-char" data-char="a">A</span>
+                        <span class="jaze-char" data-char="z">Z</span>
+                        <span class="jaze-char" data-char="e">E</span>
                     </div>
                 </div>
 
-                <div>
-                    <h1 id="hero-title" class="hero-title" translate="no">JAZE<span class="hero-cursor" aria-hidden="true">_</span></h1>
-                    <p class="hero-role">${escapeHtml(profile.headline || 'Security Researcher at V1T')}</p>
-                </div>
-
+                <p class="hero-role">${escapeHtml(profile.headline || 'Security Researcher at V1T')}</p>
                 <p class="hero-bio">${escapeHtml(profileSummary)}</p>
 
                 <div class="hero-actions">
@@ -260,15 +289,6 @@ function renderHomePage(siteData, cves) {
                     `).join('')}
                     <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T Org ↗</a>
                 </div>
-            </div>
-
-            <div class="hero-ascii" data-ascii-hero aria-label="Decorative Möbius strip visualization">
-                <pre class="hero-ascii__glyphs" data-ascii-output aria-hidden="true">${escapeHtml(STATIC_MOBIUS_FRAME)}</pre>
-                <div class="hero-ascii__meta">
-                    <span>möbius / continuous surface</span>
-                    <button class="hero-ascii__toggle" type="button" data-ascii-toggle aria-pressed="false" hidden>Pause motion</button>
-                </div>
-                <span class="visually-hidden" data-ascii-status aria-live="polite"></span>
             </div>
         </section>
 
@@ -339,8 +359,8 @@ function renderHomePage(siteData, cves) {
         pathname: '/',
         activePage: 'profile',
         body,
-        styles: ['home.css'],
-        scripts: ['ascii-3d-bg.js'],
+        styles: ['home.css', 'intro-loader.css'],
+        scripts: ['intro-loader.js'],
         structuredData
     });
 }

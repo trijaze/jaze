@@ -6,7 +6,9 @@ const path = require('node:path');
 
 const projectRoot = path.resolve(__dirname, '..');
 const generatedRoot = path.join(projectRoot, 'dist');
-const siteRoot = fs.existsSync(path.join(generatedRoot, 'index.html')) ? generatedRoot : projectRoot;
+function getSiteRoot() {
+    return fs.existsSync(path.join(generatedRoot, 'index.html')) ? generatedRoot : projectRoot;
+}
 const port = Number.parseInt(process.env.PORT || '4177', 10);
 
 const MIME_TYPES = Object.freeze({
@@ -48,6 +50,7 @@ function resolveRequestPath(urlValue) {
         }
     }
 
+    const siteRoot = getSiteRoot();
     const candidate = path.resolve(siteRoot, relativePath || 'index.html');
     if (!candidate.startsWith(siteRoot + path.sep) && candidate !== siteRoot) return null;
 
@@ -62,6 +65,7 @@ function resolveRequestPath(urlValue) {
 }
 
 const server = http.createServer((request, response) => {
+    const siteRoot = getSiteRoot();
     const requestedFile = resolveRequestPath(request.url || '/');
     const fallbackFile = path.join(siteRoot, '404.html');
     const filePath = requestedFile && fs.existsSync(requestedFile) ? requestedFile : fallbackFile;
@@ -84,5 +88,5 @@ const server = http.createServer((request, response) => {
 
 server.listen(port, '127.0.0.1', () => {
     console.log(`Jaze site available at http://127.0.0.1:${port}`);
-    console.log(`Serving ${siteRoot}`);
+    console.log(`Serving ${getSiteRoot()}`);
 });

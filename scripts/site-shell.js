@@ -31,9 +31,16 @@ function renderNavigation(activePage = '') {
     <header class="site-header">
         <nav class="site-nav site-shell" aria-label="Primary navigation">
             <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
-            <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
-                <span class="nav-toggle-lines" aria-hidden="true"></span>
-            </button>
+            <div class="nav-actions">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                    <span class="nav-blur-switch__track" aria-hidden="true">
+                        <span class="nav-blur-switch__thumb"></span>
+                    </span>
+                </button>
+                <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
+                    <span class="nav-toggle-lines" aria-hidden="true"></span>
+                </button>
+            </div>
             <ul class="nav-links" id="primary-menu" data-nav-menu>${links}</ul>
         </nav>
     </header>`;
@@ -99,6 +106,11 @@ function renderDocument({
         "worker-src 'none'"
     ].join('; ');
 
+    const hasIntro = scripts.includes('intro-loader.js');
+    const bodyClasses = ['bg-blur-active'];
+    if (hasIntro) bodyClasses.push('intro-active');
+    const bodyClass = ` class="${bodyClasses.join(' ')}"`;
+
     return `<!doctype html>
 <html lang="en">
 <head>
@@ -128,8 +140,9 @@ ${stylesheetLinks}
 ${schemas}
 ${scriptTags}
 </head>
-<body data-page="${escapeHtml(activePage)}">
+<body${bodyClass} data-page="${escapeHtml(activePage)}">
     <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 ${renderNavigation(activePage)}
 ${body}
 ${renderFooter()}

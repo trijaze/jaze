@@ -9,88 +9,169 @@
    ========================================================================== */
 
 .home-hero {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: var(--space-6);
-    padding-bottom: clamp(var(--space-8), 5vw, var(--space-12));
+    min-height: clamp(30rem, 62vh, 42rem);
+    padding-block: clamp(var(--space-6), 5vh, var(--space-10));
+    margin-inline: auto;
+    width: 100%;
 }
 
 .home-hero__content {
-    display: grid;
-    align-content: center;
-    gap: var(--space-6);
-    max-width: 52rem;
-}
-
-.hero-identity {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-}
-
-.hero-avatar {
-    width: 4.5rem;
-    height: 4.5rem;
-    flex-shrink: 0;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-strong);
-    background: var(--surface-floating);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 16px rgba(36, 215, 0, 0.12);
-    object-fit: cover;
-}
-
-.hero-meta-kicker {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-4);
+    max-width: 52rem;
+    margin-inline: auto;
+    width: 100%;
 }
 
-.hero-kicker {
-    color: var(--accent);
-    font-family: var(--font-display);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.hero-status-pill {
+/* 3-Tier Kinetic JAZE Logo System */
+.jaze-logo-stage {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    color: var(--text-soft);
-    font-family: var(--font-display);
-    font-size: var(--font-size-xs);
-}
-
-.hero-status-pill::before {
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    content: "";
-}
-
-.hero-title {
-    font-family: var(--font-display);
-    font-size: var(--font-size-display);
-    font-weight: 600;
+    justify-content: center;
+    text-align: center;
+    user-select: none;
     line-height: 1;
-    letter-spacing: -0.03em;
-    color: var(--text);
+    margin-inline: auto;
+    padding-block: clamp(2.5rem, 5.5vw, 4.2rem);
 }
 
-.hero-cursor {
-    color: var(--accent);
-    animation: cursor-pulse 1.4s step-end infinite;
+.jaze-logo-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(4.4rem, 12vw, 8.8rem);
+    font-weight: 400 !important;
+    line-height: 1;
+    white-space: nowrap;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Tăng khoảng cách giữa các ký tự */
+    gap: clamp(1.4rem, 3.8vw, 3.2rem);
+}
+
+/* Main Line: Front, stationary, clean solid color, nét mảnh không in đậm, no glow */
+.jaze-logo-line--main {
+    position: relative;
+    z-index: 3;
+    font-weight: 400 !important;
+    color: var(--text, #f0f6ee);
+    text-shadow: none !important;
+}
+
+/* Cố định kích thước slot cho từng ký tự để không bị thò thụt khi đổi font */
+.jaze-char {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: clamp(3.8rem, 10vw, 6.8rem);
+    height: 1.3em;
+    font-weight: 400 !important;
+    flex-shrink: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Main Line Character Fonts - Nét mảnh tao nhã, cân bằng thị giác */
+.jaze-char--main-j {
+    font-family: 'Alex Brush', cursive;
+    font-size: 1.15em;
+    font-weight: 400;
+}
+
+.jaze-char--main-a {
+    font-family: 'Italianno', cursive;
+    font-size: 1.35em;
+    font-weight: 400;
+}
+
+/* Riêng chữ Z tăng lên để cân bằng kích thước với các chữ xung quanh */
+.jaze-char--main-z {
+    font-family: 'Luxurious Script', cursive;
+    font-size: 1.5em;
+    font-weight: 400;
+}
+
+.jaze-char--main-e {
+    font-family: 'Italianno', cursive;
+    font-size: 1.35em;
+    font-weight: 400;
+}
+
+/* Sub Lines: Màu xám tạo hiệu ứng fade, mờ nhẹ, tuyệt đối cố định trục ngang theo dòng main */
+.jaze-logo-line--sub {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    color: #9aa2aa;
+    color: rgba(160, 170, 180, 0.42);
+    text-shadow: none;
+    filter: blur(1.2px);
+    opacity: 0.45;
+    pointer-events: none;
+    font-size: clamp(4.4rem, 12vw, 8.8rem);
+    font-weight: 400 !important;
+}
+
+.jaze-logo-line--top {
+    top: 0.15rem;
+    animation: logo-float-top 5.8s ease-in-out infinite;
+}
+
+.jaze-logo-line--bottom {
+    bottom: 0.15rem;
+    animation: logo-float-bottom 6.8s ease-in-out infinite;
+    animation-delay: -3.4s;
+}
+
+@keyframes logo-float-top {
+    0%, 100% {
+        transform: translate(-50%, 0);
+        opacity: 0.35;
+    }
+    50% {
+        transform: translate(-50%, -8px);
+        opacity: 0.55;
+    }
+}
+
+@keyframes logo-float-bottom {
+    0%, 100% {
+        transform: translate(-50%, 0);
+        opacity: 0.35;
+    }
+    50% {
+        transform: translate(-50%, 8px);
+        opacity: 0.55;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .jaze-logo-line--top,
+    .jaze-logo-line--bottom {
+        animation: none;
+    }
 }
 
 .hero-role {
-    margin-top: var(--space-2);
+    margin-top: var(--space-1);
     color: var(--text-soft);
     font-family: var(--font-display);
     font-size: var(--font-size-md);
     font-weight: 500;
+    text-align: center;
 }
 
 .hero-bio {
@@ -98,12 +179,15 @@
     color: var(--text-soft);
     font-size: var(--font-size-base);
     line-height: var(--line-height-body);
+    text-align: center;
+    margin-inline: auto;
 }
 
 .hero-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: var(--space-3);
     padding-top: var(--space-2);
 }
@@ -186,7 +270,7 @@
     place-items: center;
     margin: 0;
     color: var(--accent);
-    font: 700 clamp(0.18rem, 0.24vw, 0.30rem)/0.72 var(--font-display);
+    font: 700 clamp(0.12rem, 0.16vw, 0.22rem)/0.70 var(--font-display);
     letter-spacing: -0.025em;
     text-align: center;
     text-shadow: 0 0 2.5px rgba(36, 215, 0, 0.35);
@@ -349,13 +433,8 @@
 
 @media (min-width: 64rem) {
     .home-hero {
-        grid-template-columns: minmax(0, 1fr) minmax(25rem, 0.86fr);
-        align-items: stretch;
-    }
-
-    .hero-ascii {
-        display: grid;
-        grid-template-rows: 1fr auto;
+        max-width: 58rem;
+        margin-inline: auto;
     }
 }
 
