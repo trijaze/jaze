@@ -34,6 +34,10 @@ function resolveRequestPath(urlValue) {
         const galleryCandidate = path.join(projectRoot, 'note-jaze', 'ascii-model-gallery.html');
         if (fs.existsSync(galleryCandidate)) return galleryCandidate;
     }
+    if (relativePath === 'sample-fonts' || relativePath === 'sample-fonts.html' || relativePath === 'fonts' || relativePath === 'fonts.html') {
+        const fontsCandidate = path.join(projectRoot, 'note-jaze', 'sample-fonts.html');
+        if (fs.existsSync(fontsCandidate)) return fontsCandidate;
+    }
     if (relativePath === 'ascii-model-gallery.css' || relativePath === 'ascii-model-gallery.js') {
         const assetCandidate = path.join(projectRoot, 'note-jaze', relativePath);
         if (fs.existsSync(assetCandidate)) return assetCandidate;

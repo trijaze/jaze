@@ -141,7 +141,6 @@ ${schemas}
 ${scriptTags}
 </head>
 <body${bodyClass} data-page="${escapeHtml(activePage)}">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 ${renderNavigation(activePage)}
 ${body}

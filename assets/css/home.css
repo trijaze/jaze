@@ -1,7 +1,7 @@
 .home-page {
     display: grid;
     gap: clamp(var(--space-12), 7vw, var(--space-20));
-    padding-top: clamp(var(--space-6), 4vw, var(--space-12));
+    padding-top: 0;
 }
 
 /* ==========================================================================
@@ -16,7 +16,8 @@
     text-align: center;
     gap: var(--space-6);
     min-height: clamp(30rem, 62vh, 42rem);
-    padding-block: clamp(var(--space-6), 5vh, var(--space-10));
+    padding-top: 0;
+    padding-bottom: clamp(var(--space-6), 5vh, var(--space-10));
     margin-inline: auto;
     width: 100%;
 }
@@ -43,7 +44,9 @@
     user-select: none;
     line-height: 1;
     margin-inline: auto;
-    padding-block: clamp(2.5rem, 5.5vw, 4.2rem);
+    /* Khoảng đệm đối xứng tinh tế cho 2 dòng phụ trên và dưới */
+    padding-top: clamp(1.8rem, 3.8vw, 2.6rem);
+    padding-bottom: clamp(1.8rem, 3.8vw, 2.6rem);
 }
 
 .jaze-logo-line {
@@ -57,11 +60,11 @@
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Tăng khoảng cách giữa các ký tự */
+    /* Khoảng cách giữa các ký tự */
     gap: clamp(1.4rem, 3.8vw, 3.2rem);
 }
 
-/* Main Line: Front, stationary, clean solid color, nét mảnh không in đậm, no glow */
+/* Main Line: Front, stationary, clean solid color, nét mảnh không in đậm, no glow, style nghiêng thanh thoát */
 .jaze-logo-line--main {
     position: relative;
     z-index: 3;
@@ -83,78 +86,81 @@
     transition: opacity 0.3s ease;
 }
 
-/* Main Line Character Fonts - Nét mảnh tao nhã, cân bằng thị giác */
-.jaze-char--main-j {
+/* Đồng bộ glyphs ký tự cho cả dòng chính và 2 dòng phụ để tạo hiệu ứng echo chuẩn xác */
+.jaze-char--main-j,
+.jaze-logo-line--sub .jaze-char[data-char="j"] {
     font-family: 'Alex Brush', cursive;
     font-size: 1.15em;
     font-weight: 400;
 }
 
-.jaze-char--main-a {
+.jaze-char--main-a,
+.jaze-logo-line--sub .jaze-char[data-char="a"] {
     font-family: 'Italianno', cursive;
     font-size: 1.35em;
     font-weight: 400;
 }
 
 /* Riêng chữ Z tăng lên để cân bằng kích thước với các chữ xung quanh */
-.jaze-char--main-z {
+.jaze-char--main-z,
+.jaze-logo-line--sub .jaze-char[data-char="z"] {
     font-family: 'Luxurious Script', cursive;
     font-size: 1.5em;
     font-weight: 400;
 }
 
-.jaze-char--main-e {
+.jaze-char--main-e,
+.jaze-logo-line--sub .jaze-char[data-char="e"] {
     font-family: 'Italianno', cursive;
     font-size: 1.35em;
     font-weight: 400;
 }
 
-/* Sub Lines: Màu xám tạo hiệu ứng fade, mờ nhẹ, tuyệt đối cố định trục ngang theo dòng main */
+/* Sub Lines: Tinh giản, sắc nét, không glow, không blur, mờ ảo thanh nhã */
 .jaze-logo-line--sub {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1;
-    color: #9aa2aa;
-    color: rgba(160, 170, 180, 0.42);
-    text-shadow: none;
-    filter: blur(1.2px);
-    opacity: 0.45;
+    color: rgba(195, 215, 190, 0.22);
+    text-shadow: none !important;
+    filter: none !important;
+    opacity: 0.28;
     pointer-events: none;
     font-size: clamp(4.4rem, 12vw, 8.8rem);
     font-weight: 400 !important;
 }
 
 .jaze-logo-line--top {
-    top: 0.15rem;
-    animation: logo-float-top 5.8s ease-in-out infinite;
+    top: 0;
+    animation: logo-float-top 5.6s ease-in-out infinite;
 }
 
 .jaze-logo-line--bottom {
-    bottom: 0.15rem;
-    animation: logo-float-bottom 6.8s ease-in-out infinite;
-    animation-delay: -3.4s;
+    bottom: 0;
+    animation: logo-float-bottom 5.6s ease-in-out infinite;
+    animation-delay: -2.8s;
 }
 
 @keyframes logo-float-top {
     0%, 100% {
         transform: translate(-50%, 0);
-        opacity: 0.35;
+        opacity: 0.20;
     }
     50% {
-        transform: translate(-50%, -8px);
-        opacity: 0.55;
+        transform: translate(-50%, -5px);
+        opacity: 0.35;
     }
 }
 
 @keyframes logo-float-bottom {
     0%, 100% {
         transform: translate(-50%, 0);
-        opacity: 0.35;
+        opacity: 0.20;
     }
     50% {
-        transform: translate(-50%, 8px);
-        opacity: 0.55;
+        transform: translate(-50%, 5px);
+        opacity: 0.35;
     }
 }
 
@@ -168,17 +174,21 @@
 .hero-role {
     margin-top: var(--space-1);
     color: var(--text-soft);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-md);
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-align: center;
 }
 
 .hero-bio {
-    max-width: 48ch;
+    max-width: 50ch;
     color: var(--text-soft);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-base);
+    font-weight: 400;
     line-height: var(--line-height-body);
+    letter-spacing: 0.035em;
     text-align: center;
     margin-inline: auto;
 }
@@ -230,14 +240,14 @@
     background: var(--accent);
     color: var(--accent-ink);
     font-weight: 600;
-    box-shadow: 0 4px 20px rgba(36, 215, 0, 0.25);
+    box-shadow: 0 4px 16px rgba(25, 168, 0, 0.20);
 }
 
 .hero-link--primary:hover {
     background: var(--accent-strong);
     border-color: var(--accent-strong);
     color: var(--accent-ink);
-    box-shadow: 0 6px 24px rgba(36, 215, 0, 0.35);
+    box-shadow: 0 6px 20px rgba(25, 168, 0, 0.28);
 }
 
 .hero-link--ghost {
@@ -273,7 +283,7 @@
     font: 700 clamp(0.12rem, 0.16vw, 0.22rem)/0.70 var(--font-display);
     letter-spacing: -0.025em;
     text-align: center;
-    text-shadow: 0 0 2.5px rgba(36, 215, 0, 0.35);
+    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
     user-select: none;
 }
 
@@ -315,7 +325,7 @@
     padding: var(--space-5) var(--space-6);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(17, 45, 17, 0.28);
+    background: rgba(17, 45, 17, 0.52);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
     font-family: var(--font-display);
 }
@@ -386,7 +396,7 @@
     flex-direction: column;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(17, 45, 17, 0.22);
+    background: rgba(17, 45, 17, 0.52);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
     overflow: hidden;
 }
@@ -396,7 +406,7 @@
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(17, 45, 17, 0.22);
+    background: rgba(17, 45, 17, 0.52);
 }
 
 .home-post-row {
@@ -416,7 +426,7 @@
 }
 
 .home-post-row:hover {
-    background: rgba(36, 215, 0, 0.06);
+    background: rgba(25, 168, 0, 0.05);
 }
 
 .home-post-row time,
@@ -468,7 +478,7 @@
 }
 
 .cve-row:hover {
-    background: rgba(36, 215, 0, 0.06);
+    background: rgba(25, 168, 0, 0.05);
     padding-left: calc(var(--space-4) + 4px);
 }
 

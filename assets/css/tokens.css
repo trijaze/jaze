@@ -1,29 +1,30 @@
 :root {
     color-scheme: dark;
 
-    --bg: #020c00;
-    --surface-floating: rgba(2, 12, 0, 0.55);
-    --surface-1: rgba(17, 45, 17, 0.45);
-    --surface-2: rgba(29, 53, 28, 0.58);
-    --surface-3: #193518;
-    --surface-inset: #020c00;
+    --bg: #010400;
+    --surface-floating: rgba(1, 5, 1, 0.65);
+    --surface-1: rgba(7, 20, 7, 0.45);
+    --surface-2: rgba(12, 28, 12, 0.58);
+    --surface-3: #0a180a;
+    --surface-inset: #000200;
 
-    --border: rgba(67, 89, 64, 0.32);
-    --border-strong: rgba(110, 128, 107, 0.48);
-    --border-subtle: rgba(46, 71, 44, 0.24);
+    --border: rgba(38, 56, 36, 0.32);
+    --border-strong: rgba(62, 85, 59, 0.45);
+    --border-subtle: rgba(26, 40, 24, 0.24);
 
     --text: #f0f6ee;
     --text-soft: #c8d4c6;
-    --muted: #6e806b;
-    --muted-low: #435940;
+    --muted: #62755f;
+    --muted-low: #374a34;
 
-    --accent: #24d700;
-    --accent-strong: #1caa00;
-    --accent-deep: #157d00;
-    --accent-ink: #021200;
-    --accent-soft: rgba(36, 215, 0, 0.08);
-    --accent-line: rgba(36, 215, 0, 0.32);
-    --accent-glow: 0 0 20px rgba(36, 215, 0, 0.25);
+    --accent: #19a800;
+    --accent-strong: #158a00;
+    --accent-deep: #0f6200;
+    --accent-ink: #010800;
+    --accent-soft: rgba(25, 168, 0, 0.07);
+    --accent-line: rgba(25, 168, 0, 0.24);
+    --accent-glow: 0 0 14px rgba(25, 168, 0, 0.18);
+    --model-3d-color: #148500;
 
     --danger: #ff6678;
     --danger-soft: rgba(255, 102, 120, 0.1);
@@ -31,8 +32,8 @@
     --warning-soft: rgba(245, 196, 81, 0.1);
     --info: #66b7ff;
     --info-soft: rgba(102, 183, 255, 0.1);
-    --success: #24d700;
-    --success-soft: rgba(36, 215, 0, 0.1);
+    --success: #19a800;
+    --success-soft: rgba(25, 168, 0, 0.08);
 
     --severity-critical: #ff6678;
     --severity-high: #ff9a62;
@@ -40,8 +41,8 @@
     --severity-low: #66b7ff;
     --severity-none: #6e806b;
 
-    --focus-ring: #24d700;
-    --selection-bg: rgba(36, 215, 0, 0.22);
+    --focus-ring: #19a800;
+    --selection-bg: rgba(25, 168, 0, 0.18);
 
     --font-display: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
     --font-body: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
@@ -96,5 +97,4 @@
     --z-raised: 10;
     --z-sticky: 1000;
     --z-overlay: 1100;
-    --z-skip-link: 1200;
 }

@@ -16,7 +16,6 @@
     const loaderClock = document.querySelector('[data-loader-clock]');
     const loaderName = document.querySelector('[data-loader-name]');
     const loaderProgress = document.querySelector('[data-loader-progress]');
-    const loaderSkip = document.querySelector('[data-loader-skip]');
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -610,10 +609,6 @@
                 starTooltip.textContent = 'Zoom Out';
             }
         }
-    }
-
-    if (loaderSkip) {
-        loaderSkip.addEventListener('click', completeIntro);
     }
 
     window.addEventListener('keydown', event => {

@@ -25,6 +25,38 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Chakra Petch';
+    src: url('/assets/fonts/Chakra_Petch/ChakraPetch-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Chakra Petch';
+    src: url('/assets/fonts/Chakra_Petch/ChakraPetch-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Chakra Petch';
+    src: url('/assets/fonts/Chakra_Petch/ChakraPetch-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Chakra Petch';
+    src: url('/assets/fonts/Chakra_Petch/ChakraPetch-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 *,
 *::before,
 *::after {
@@ -48,8 +80,8 @@ body {
     overflow-x: clip;
     background-color: var(--bg);
     background-image: 
-        radial-gradient(ellipse 700px 500px at 90% 10%, rgba(36, 215, 0, 0.03) 0%, transparent 70%),
-        radial-gradient(ellipse 600px 450px at 10% 85%, rgba(29, 53, 28, 0.35) 0%, transparent 65%);
+        radial-gradient(ellipse 700px 500px at 90% 10%, rgba(25, 168, 0, 0.02) 0%, transparent 70%),
+        radial-gradient(ellipse 600px 450px at 10% 85%, rgba(12, 28, 12, 0.25) 0%, transparent 65%);
     background-attachment: fixed;
     color: var(--text);
     font-size: var(--font-size-base);
@@ -75,7 +107,7 @@ body {
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background: rgba(2, 12, 0, 0.40);
+    background: rgba(1, 4, 1, 0.55);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     opacity: 0;
@@ -222,27 +254,6 @@ hr {
 
 :focus:not(:focus-visible) {
     outline: none;
-}
-
-.skip-link {
-    position: fixed;
-    top: max(var(--space-3), env(safe-area-inset-top));
-    left: max(var(--space-3), env(safe-area-inset-left));
-    z-index: var(--z-skip-link);
-    min-height: var(--control-size);
-    padding: var(--space-2) var(--space-4);
-    transform: translateY(-180%);
-    border: var(--border-accent);
-    border-radius: var(--radius-sm);
-    background: var(--surface-1);
-    color: var(--text);
-    font-family: var(--font-display);
-    text-decoration: none;
-    transition: transform var(--duration-fast) var(--ease-enter);
-}
-
-.skip-link:focus {
-    transform: translateY(0);
 }
 
 .visually-hidden,

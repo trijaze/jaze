@@ -13,7 +13,7 @@
     pointer-events: none;
     overflow: hidden;
     user-select: none;
-    background: #020c00;
+    background: #010400;
 }
 
 body.intro-active .site-spatial-bg {
@@ -31,7 +31,7 @@ body.intro-active .site-spatial-bg {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    color: var(--accent, #24d700);
+    color: var(--model-3d-color, #148500);
     font-family: var(--font-code, "IBM Plex Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace);
     font-size: clamp(0.10rem, 0.135vw, 0.19rem);
     font-weight: 700;
@@ -42,8 +42,8 @@ body.intro-active .site-spatial-bg {
     line-height: 0.70;
     text-align: center;
     white-space: pre;
-    text-shadow: 0 0 2.5px rgba(36, 215, 0, 0.45);
-    opacity: 0.92;
+    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
+    opacity: 0.62;
     transition: opacity 0.8s ease, filter 0.8s ease, top 0.7s cubic-bezier(0.16, 1, 0.3, 1), left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -63,18 +63,18 @@ body.intro-active .site-spatial-bg {
 }
 
 .site-spatial-bg--intro .site-spatial-ascii {
-    opacity: 0.96;
-    text-shadow: 0 0 2.8px rgba(36, 215, 0, 0.55);
+    opacity: 0.72;
+    text-shadow: 0 0 1.8px rgba(20, 133, 0, 0.32);
 }
 
 .site-spatial-bg--interior .site-spatial-ascii {
-    opacity: 0.82;
-    text-shadow: 0 0 2.2px rgba(36, 215, 0, 0.40);
+    opacity: 0.52;
+    text-shadow: 0 0 1.2px rgba(20, 133, 0, 0.20);
 }
 
 .site-spatial-bg--exterior .site-spatial-ascii {
-    opacity: 0.96;
-    text-shadow: 0 0 2.5px rgba(36, 215, 0, 0.50);
+    opacity: 0.62;
+    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
 }
 
 /* Persistent Center Singularity Star */
@@ -114,10 +114,10 @@ body.intro-active .singularity-star {
     border-radius: 50%;
     background: #ffffff;
     box-shadow:
-        0 0 4px #ffffff,
-        0 0 10px #24d700,
-        0 0 22px rgba(85, 245, 138, 0.85),
-        0 0 36px rgba(36, 215, 0, 0.45);
+        0 0 3px #ffffff,
+        0 0 7px #19a800,
+        0 0 14px rgba(45, 175, 75, 0.65),
+        0 0 22px rgba(25, 168, 0, 0.28);
     animation: star-pulse 2.2s infinite ease-in-out;
 }
 
@@ -148,19 +148,19 @@ body.intro-active .singularity-star {
     position: absolute;
     inset: 4px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(36, 215, 0, 0.25) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(25, 168, 0, 0.16) 0%, transparent 70%);
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.45;
     animation: aura-breathe 3s infinite ease-in-out;
 }
 
 /* Star hover & active states */
 .singularity-star--interactive:hover .singularity-star__core {
     box-shadow:
-        0 0 6px #ffffff,
-        0 0 14px #24d700,
-        0 0 28px rgba(85, 245, 138, 1),
-        0 0 48px rgba(36, 215, 0, 0.7);
+        0 0 5px #ffffff,
+        0 0 10px #19a800,
+        0 0 20px rgba(45, 175, 75, 0.85),
+        0 0 32px rgba(25, 168, 0, 0.45);
     transform: scale(1.25);
 }
 
@@ -173,7 +173,7 @@ body.intro-active .singularity-star {
 }
 
 .singularity-star--interactive:focus-visible {
-    outline: 2px solid var(--accent, #24d700);
+    outline: 2px solid var(--accent, #19a800);
     outline-offset: 4px;
 }
 
@@ -247,8 +247,8 @@ body.intro-active .site-footer {
     font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: 0.16em;
-    color: var(--accent, #24d700);
-    text-shadow: 0 0 12px rgba(36, 215, 0, 0.6);
+    color: var(--accent, #19a800);
+    text-shadow: 0 0 10px rgba(25, 168, 0, 0.45);
     opacity: 0.85;
 }
 
@@ -257,18 +257,18 @@ body.intro-active .site-footer {
     0%, 100% {
         transform: scale(1);
         box-shadow:
-            0 0 4px #ffffff,
-            0 0 10px #24d700,
-            0 0 20px rgba(85, 245, 138, 0.8),
-            0 0 32px rgba(36, 215, 0, 0.4);
+            0 0 3px #ffffff,
+            0 0 7px #19a800,
+            0 0 14px rgba(45, 175, 75, 0.6),
+            0 0 22px rgba(25, 168, 0, 0.25);
     }
     50% {
         transform: scale(1.15);
         box-shadow:
-            0 0 6px #ffffff,
-            0 0 14px #24d700,
-            0 0 26px rgba(85, 245, 138, 0.95),
-            0 0 42px rgba(36, 215, 0, 0.6);
+            0 0 5px #ffffff,
+            0 0 10px #19a800,
+            0 0 18px rgba(45, 175, 75, 0.75),
+            0 0 28px rgba(25, 168, 0, 0.35);
     }
 }
 
