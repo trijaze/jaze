@@ -28,7 +28,7 @@ body.intro-active .site-spatial-bg {
     opacity: 1;
     pointer-events: none;
     background: transparent;
-    filter: none !important;
+    transition: filter 0.35s ease;
 }
 
 .site-spatial-ascii {
@@ -61,19 +61,12 @@ body.intro-active .site-spatial-bg {
         left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.site-spatial-bg--interior {
+.site-spatial-bg--interior,
+.site-spatial-bg--exterior {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-}
-
-.site-spatial-bg--exterior {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
 }
 
 .site-spatial-bg--intro .site-spatial-ascii {

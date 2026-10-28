@@ -120,6 +120,11 @@ body.bg-blur-active:not(.intro-active) .site-backdrop-blur {
     visibility: visible;
 }
 
+body.bg-blur-active .site-spatial-canvas {
+    filter: brightness(1.45) contrast(1.12);
+    transition: filter 0.35s ease;
+}
+
 body.bg-blur-active:not(.intro-active) .site-spatial-ascii {
     filter: blur(1.5px);
     transition: filter 0.35s ease;

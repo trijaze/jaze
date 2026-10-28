@@ -32,7 +32,14 @@
         { id: 'superformula', name: 'Supershape 3D Crystal' }
     ];
 
-    // Select via URL parameter (?model=neovius / gyroid / lissajous / superformula) or pick 1 randomly
+    const MODEL_ENVELOPES = {
+        neovius: { maxProjX: 0.80, maxProjY: 0.80 },
+        gyroid: { maxProjX: 1.00, maxProjY: 1.08 },
+        lissajous: { maxProjX: 0.84, maxProjY: 0.91 },
+        superformula: { maxProjX: 0.485, maxProjY: 0.47 }
+    };
+
+    // Select via URL parameter (?model=neovius / gyroid / lissajous / superformula) or pick 1 randomly excluding the previously loaded model
     const urlParams = new URLSearchParams(window.location.search);
     const requestedModel = (
         urlParams.get('model') ||
@@ -40,8 +47,24 @@
         ''
     ).toLowerCase();
     const matchedSpecimen = CANDIDATE_MODELS.find(m => m.id === requestedModel);
-    const selectedSpecimen = matchedSpecimen || CANDIDATE_MODELS[Math.floor(Math.random() * CANDIDATE_MODELS.length)];
+
+    let selectedSpecimen = matchedSpecimen;
+    if (!selectedSpecimen) {
+        let lastModelId = null;
+        try {
+            lastModelId = sessionStorage.getItem('jaze_last_model') || localStorage.getItem('jaze_last_model');
+        } catch (e) {}
+
+        const pool = CANDIDATE_MODELS.filter(m => m.id !== lastModelId);
+        const candidateList = pool.length > 0 ? pool : CANDIDATE_MODELS;
+        selectedSpecimen = candidateList[Math.floor(Math.random() * candidateList.length)];
+    }
+
     let currentModelId = selectedSpecimen.id;
+    try {
+        sessionStorage.setItem('jaze_last_model', currentModelId);
+        localStorage.setItem('jaze_last_model', currentModelId);
+    } catch (e) {}
 
     if (loaderName) {
         loaderName.textContent = selectedSpecimen.name;
@@ -53,7 +76,7 @@
     // Density: Nano 2.2px (supersample 2)
     // Perspective States:
     //   Exterior (thu nhỏ): cameraZ 2.4, scale 1.0, surfaceFill 40% (0.40), color #148500 (20, 133, 0)
-    //   Interior (phóng to): cameraZ 1.45, scale 1.25, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
+    //   Interior (phóng to): cameraZ 0.70, scale 1.35, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
     let activeEngine = 'webgl';
     let viewMode = 'exterior';
 
@@ -68,7 +91,7 @@
     let targetR = 20, targetG = 133, targetB = 0;
 
     let spinPhase = 0.55;
-    let spinVelocity = 0.18;
+    let spinVelocity = 0.22;
     let targetTiltX = 0;
     let targetTiltY = 0;
     let currentTiltX = 0;
@@ -332,9 +355,22 @@
     }
 
     function updateScaleCalibration() {
-        const halfCols = (cols - 1) / 2;
-        const FIT_TARGET = 0.96;
-        fitScaleX = (halfCols * FIT_TARGET) / (cachedMaxProjX || 0.001);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        const env = MODEL_ENVELOPES[currentModelId] || { maxProjX: 0.82, maxProjY: 0.82 };
+        cachedMaxProjX = env.maxProjX;
+        cachedMaxProjY = env.maxProjY;
+
+        // Strictly fit the model inside all 4 edges of the viewport (top, bottom, left, right)
+        // With an 8% safety margin so no parts ever touch or bleed past the screen borders
+        const MARGIN = 0.92;
+        const focalX = (width * 0.5 * MARGIN) / cachedMaxProjX;
+        const focalY = (height * 0.5 * MARGIN) / cachedMaxProjY;
+        const focal = Math.min(focalX, focalY);
+
+        fitScaleX = focal / cellW;
+        cols = Math.max(1, Math.floor(width / cellW));
+        rows = Math.max(1, Math.floor(height / cellH));
     }
 
     function ensureCanvas2dBuffers() {
@@ -394,7 +430,12 @@
         const found = CANDIDATE_MODELS.find(m => m.id === modelId);
         if (!found) return;
         currentModelId = found.id;
+        try {
+            sessionStorage.setItem('jaze_last_model', currentModelId);
+            localStorage.setItem('jaze_last_model', currentModelId);
+        } catch (e) {}
         if (loaderName) loaderName.textContent = found.name;
+        updateScaleCalibration();
         if (activeEngine === 'webgl' && webglRenderer && !webglRenderer.getStats().lost) {
             webglRenderer.setModel(currentModelId);
         } else if (activeEngine === 'canvas') {
@@ -463,7 +504,6 @@
             targetCameraZ = 2.4;
             targetScaleMultiplier = 1.0;
             targetSurfaceFill = 0.40; // 40% surface fill in overview
-            targetR = 20; targetG = 133; targetB = 0; // Normal tone #148500
 
             if (starTooltip) starTooltip.textContent = 'Dive Inside';
             if (starButton) {
@@ -475,15 +515,14 @@
         } else {
             // Switch to Interior (Zoom In / Phóng to)
             viewMode = 'interior';
-            targetCameraZ = 1.45;
-            targetScaleMultiplier = 1.25;
+            targetCameraZ = 0.70;
+            targetScaleMultiplier = 1.35;
             targetSurfaceFill = 1.00; // 100% surface fill in zoom in
-            targetR = 36; targetG = 215; targetB = 0; // +2 tones brighter #24d700
 
             if (starTooltip) starTooltip.textContent = 'Zoom Out';
             if (starButton) {
                 starButton.setAttribute('aria-label', 'View 3D exterior overview');
-                starButton.setAttribute('title', 'Click: Zoom out to fit screen width');
+                starButton.setAttribute('title', 'Click: Zoom out to fit screen bounds');
             }
             spatialBg.classList.remove('site-spatial-bg--exterior');
             spatialBg.classList.add('site-spatial-bg--interior');
@@ -513,14 +552,22 @@
             }, 800);
         }
 
+        // Revealing web in interior zoom-in state
+        viewMode = 'interior';
+        targetCameraZ = 0.70;
+        targetScaleMultiplier = 1.35;
+        targetSurfaceFill = 1.00;
+        spatialBg.classList.remove('site-spatial-bg--exterior');
+        spatialBg.classList.add('site-spatial-bg--interior');
+
         updateStarPosition();
 
         if (starButton) {
             starButton.classList.add('singularity-star--interactive');
-            starButton.setAttribute('aria-label', 'View 3D interior (Dive inside)');
-            starButton.setAttribute('title', 'Click: Dive inside model');
+            starButton.setAttribute('aria-label', 'View 3D exterior overview');
+            starButton.setAttribute('title', 'Click: Zoom out to fit screen bounds');
             if (starTooltip) {
-                starTooltip.textContent = 'Dive Inside';
+                starTooltip.textContent = 'Zoom Out';
             }
         }
     }
@@ -676,6 +723,9 @@
         const dt = lastTime ? clamp((timestamp - lastTime) / 1000, 0, 0.05) : 0.016;
         lastTime = timestamp;
 
+        // Constant steady rotation from start to finish
+        spinVelocity = 0.22;
+
         // Intro Phase (0s - 3s)
         if (!introFinished) {
             const progress = clamp(elapsed / INTRO_DURATION_MS, 0, 1);
@@ -691,23 +741,36 @@
                 loaderProgress.style.width = `${(progress * 100).toFixed(1)}%`;
             }
 
-            // Smooth intro spin choreography
-            if (progress < 0.60) {
-                spinVelocity = 0.52 + progress * 0.45;
-            } else if (progress < 0.85) {
-                const norm = (progress - 0.60) / 0.25;
-                spinVelocity = 0.79 - norm * 0.55;
+            // Cinematic choreography:
+            // 0s - 1s (elapsed < 1000): Normal rotation at overview bounds
+            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into zoom-in interior point
+            if (elapsed < 1000) {
+                targetCameraZ = 2.4;
+                targetScaleMultiplier = 1.0;
+                targetSurfaceFill = 0.40;
             } else {
-                spinVelocity = 0.24 - (progress - 0.85) * 0.4;
+                const zoomProgress = clamp((elapsed - 1000) / 2000, 0, 1);
+                const ease = zoomProgress * zoomProgress * (3 - 2 * zoomProgress);
+                targetCameraZ = 2.4 + (0.70 - 2.4) * ease;
+                targetScaleMultiplier = 1.0 + (1.35 - 1.0) * ease;
+                targetSurfaceFill = 0.40 + (1.00 - 0.40) * ease;
             }
 
             if (elapsed >= INTRO_DURATION_MS) {
                 completeIntro();
             }
+        }
+
+        // Color & Brightness: Boosted when Background Blur switch is active
+        const isBlurActive = document.body.classList.contains('bg-blur-active');
+        if (viewMode === 'interior') {
+            targetR = isBlurActive ? 56 : 36;
+            targetG = isBlurActive ? 255 : 215;
+            targetB = isBlurActive ? 30 : 0;
         } else {
-            // Post-intro ambient drift
-            const targetSpeed = 0.18;
-            spinVelocity += (targetSpeed - spinVelocity) * (1 - Math.exp(-3 * dt));
+            targetR = isBlurActive ? 38 : 20;
+            targetG = isBlurActive ? 210 : 133;
+            targetB = isBlurActive ? 10 : 0;
         }
 
         // Smooth Exponential Damping for Camera, Scale, Surface Fill, and Color
@@ -716,25 +779,10 @@
         currentScaleMultiplier += (targetScaleMultiplier - currentScaleMultiplier) * cameraBlend;
         currentSurfaceFill += (targetSurfaceFill - currentSurfaceFill) * cameraBlend;
 
-        // Vertical Alignment Calculation:
-        // Loading screen (!introFinished): Centered horizontally & vertically across viewport (shift = 0)
-        // Post-intro Exterior (thu nhỏ): Highest point sits exactly 50px below the bottom of nav
-        // Post-intro Interior (phóng to): Centered for immersive inspection (shift = 0)
-        if (!introFinished) {
-            targetPixelShiftY = 0;
-        } else if (viewMode === 'exterior') {
-            const navEl = document.querySelector('.site-header') || document.querySelector('.site-nav');
-            const navBottom = navEl ? (navEl.getBoundingClientRect().bottom || navEl.offsetHeight || 72) : 72;
-            const focal = fitScaleX * cellW * currentScaleMultiplier;
-            const topSpanPx = cachedMaxProjY * focal;
-            const targetCenterY = navBottom + 50 + topSpanPx;
-            targetPixelShiftY = targetCenterY - (height / 2);
-        } else {
-            targetPixelShiftY = 0;
-        }
-
+        // Model is always centered at (0, 0, 0) -> NDC (0, 0)
+        targetPixelShiftY = 0;
         currentPixelShiftY += (targetPixelShiftY - currentPixelShiftY) * cameraBlend;
-        const ndcOffsetY = height > 0 ? (-2.0 * currentPixelShiftY / height) : 0;
+        const ndcOffsetY = 0;
 
         currentR += (targetR - currentR) * (1 - Math.exp(-4 * dt));
         currentG += (targetG - currentG) * (1 - Math.exp(-4 * dt));
@@ -778,90 +826,6 @@
         }
     }
 
-    // Kinetic 3-Tier JAZE Logo Sub-Lines Engine (Calligraphy font mutation)
-    function initHeroLogoAnimation() {
-        const topChars = Array.from(document.querySelectorAll('[data-logo-sub="top"] .jaze-char'));
-        const bottomChars = Array.from(document.querySelectorAll('[data-logo-sub="bottom"] .jaze-char'));
-        if (!topChars.length && !bottomChars.length) return;
-
-        const SCRIPT_FONTS = [
-            "'Alex Brush', cursive",
-            "'Italianno', cursive",
-            "'Luxurious Script', cursive"
-        ];
-
-        const SCRIPT_GLYPHS = {
-            j: ['J'],
-            a: ['A'],
-            z: ['Z'],
-            e: ['E']
-        };
-
-        function getNextFont(currentFont) {
-            const cleanCurrent = (currentFont || '').toLowerCase();
-            const pool = SCRIPT_FONTS.filter(f => {
-                const name = f.split(',')[0].replace(/['"]/g, '').toLowerCase();
-                return !cleanCurrent.includes(name);
-            });
-            if (pool.length > 0) {
-                return pool[Math.floor(Math.random() * pool.length)];
-            }
-            return SCRIPT_FONTS[Math.floor(Math.random() * SCRIPT_FONTS.length)];
-        }
-
-        function mutateChar(charEl) {
-            if (!charEl) return;
-            const charType = charEl.getAttribute('data-char') || 'j';
-            const glyphs = SCRIPT_GLYPHS[charType] || ['J'];
-            const nextGlyph = glyphs[Math.floor(Math.random() * glyphs.length)];
-            const nextFont = getNextFont(charEl.style.fontFamily);
-
-            charEl.textContent = nextGlyph;
-            charEl.style.fontFamily = nextFont;
-
-            if (nextFont.includes('Italianno')) {
-                charEl.style.fontSize = '1.35em';
-            } else if (nextFont.includes('Luxurious Script')) {
-                charEl.style.fontSize = '1.75em';
-            } else {
-                charEl.style.fontSize = '1.15em';
-            }
-        }
-
-        topChars.concat(bottomChars).forEach((charEl, idx) => {
-            const initialFont = SCRIPT_FONTS[idx % SCRIPT_FONTS.length];
-            charEl.style.fontFamily = initialFont;
-            if (initialFont.includes('Italianno')) {
-                charEl.style.fontSize = '1.35em';
-            } else if (initialFont.includes('Luxurious Script')) {
-                charEl.style.fontSize = '1.75em';
-            } else {
-                charEl.style.fontSize = '1.15em';
-            }
-        });
-
-        if (reducedMotion.matches) return;
-
-        let nextTarget = 'top';
-        let lastSlotIndex = -1;
-
-        function tickSingleMutation() {
-            const targetList = nextTarget === 'top' ? topChars : bottomChars;
-            nextTarget = nextTarget === 'top' ? 'bottom' : 'top';
-            if (!targetList.length) return;
-
-            let slotIndex = Math.floor(Math.random() * targetList.length);
-            if (slotIndex === lastSlotIndex && targetList.length > 1) {
-                slotIndex = (slotIndex + 1) % targetList.length;
-            }
-            lastSlotIndex = slotIndex;
-
-            mutateChar(targetList[slotIndex]);
-        }
-
-        window.setInterval(tickSingleMutation, 400);
-    }
-
     // Expose control API for testing / debugging
     window.jaze3d = Object.freeze({
         getModel: () => currentModelId,
@@ -875,6 +839,11 @@
             targetPixelShiftY,
             topSpanPx: cachedMaxProjY * fitScaleX * cellW * currentScaleMultiplier,
             cachedMaxProjY,
+            cachedMaxProjX,
+            fitScaleX,
+            cellW,
+            cellH,
+            focal: fitScaleX * cellW,
             introFinished
         })
     });
@@ -884,7 +853,6 @@
     updateScaleCalibration();
     initEngine();
     updateStarPosition();
-    initHeroLogoAnimation();
 
     window.requestAnimationFrame(tick);
 }());

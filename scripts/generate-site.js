@@ -253,28 +253,14 @@ function renderHomePage(siteData, cves) {
         <!-- Hero Section -->
         <section class="home-hero" aria-labelledby="hero-title">
             <div class="home-hero__content">
-                <!-- Bespoke 3-Tier Kinetic JAZE Logo -->
+                <!-- Pure Single-Tier JAZE Logo -->
                 <div class="jaze-logo-stage" aria-label="JAZE">
-                    <div class="jaze-logo-line jaze-logo-line--sub jaze-logo-line--top" aria-hidden="true" data-logo-sub="top">
-                        <span class="jaze-char" data-char="j">J</span>
-                        <span class="jaze-char" data-char="a">A</span>
-                        <span class="jaze-char" data-char="z">Z</span>
-                        <span class="jaze-char" data-char="e">E</span>
-                    </div>
-
                     <h1 id="hero-title" class="jaze-logo-line jaze-logo-line--main" translate="no">
                         <span class="jaze-char jaze-char--main-j">J</span>
                         <span class="jaze-char jaze-char--main-a">A</span>
                         <span class="jaze-char jaze-char--main-z">Z</span>
                         <span class="jaze-char jaze-char--main-e">E</span>
                     </h1>
-
-                    <div class="jaze-logo-line jaze-logo-line--sub jaze-logo-line--bottom" aria-hidden="true" data-logo-sub="bottom">
-                        <span class="jaze-char" data-char="j">J</span>
-                        <span class="jaze-char" data-char="a">A</span>
-                        <span class="jaze-char" data-char="z">Z</span>
-                        <span class="jaze-char" data-char="e">E</span>
-                    </div>
                 </div>
 
                 <p class="hero-role">${escapeHtml(profile.headline || 'Security Researcher at V1T')}</p>

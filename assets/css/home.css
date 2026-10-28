@@ -14,10 +14,10 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: var(--space-6);
-    min-height: clamp(30rem, 62vh, 42rem);
-    padding-top: 0;
-    padding-bottom: clamp(var(--space-6), 5vh, var(--space-10));
+    gap: var(--space-3);
+    min-height: auto;
+    padding-top: clamp(1rem, 3vh, 2.5rem);
+    padding-bottom: clamp(1rem, 3vh, 2.5rem);
     margin-inline: auto;
     width: 100%;
 }
@@ -28,23 +28,23 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: var(--space-4);
+    gap: var(--space-2);
     max-width: min(94vw, 72rem);
     margin-inline: auto;
     width: 100%;
 }
 
-/* 3-Tier Kinetic JAZE Logo System */
+/* Pure Single-Tier JAZE Logo System */
 .jaze-logo-stage {
     position: relative;
-    display: inline-grid;
-    grid-template-areas: "stage";
-    place-items: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     user-select: none;
     line-height: 1;
     margin-inline: auto;
-    margin-top: clamp(1.8rem, 4vw, 3rem);
-    margin-bottom: clamp(2.4rem, 5.5vw, 3.6rem);
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
     padding: 0;
 }
 
@@ -65,7 +65,6 @@
 
 /* Main Line: Front, stationary, clean solid color, nét mảnh không in đậm, no glow, style nghiêng thanh thoát */
 .jaze-logo-line--main {
-    grid-area: stage;
     position: relative;
     z-index: 3;
     font-weight: 400 !important;
@@ -73,7 +72,7 @@
     text-shadow: none !important;
 }
 
-/* Cố định kích thước slot cho từng ký tự để không bị thò thụt khi đổi font */
+/* Cố định kích thước slot cho từng ký tự */
 .jaze-char {
     display: inline-flex;
     align-items: center;
@@ -86,86 +85,28 @@
     transition: opacity 0.3s ease;
 }
 
-/* Đồng bộ glyphs ký tự cho cả dòng chính và 2 dòng phụ để tạo hiệu ứng echo chuẩn xác */
-.jaze-char--main-j,
-.jaze-logo-line--sub .jaze-char[data-char="j"] {
+.jaze-char--main-j {
     font-family: 'Alex Brush', cursive;
     font-size: 1.15em;
     font-weight: 400;
 }
 
-.jaze-char--main-a,
-.jaze-logo-line--sub .jaze-char[data-char="a"] {
+.jaze-char--main-a {
     font-family: 'Italianno', cursive;
     font-size: 1.35em;
     font-weight: 400;
 }
 
-/* Riêng chữ Z tăng lên để cân bằng kích thước với các chữ xung quanh */
-.jaze-char--main-z,
-.jaze-logo-line--sub .jaze-char[data-char="z"] {
+.jaze-char--main-z {
     font-family: 'Luxurious Script', cursive;
     font-size: 1.5em;
     font-weight: 400;
 }
 
-.jaze-char--main-e,
-.jaze-logo-line--sub .jaze-char[data-char="e"] {
+.jaze-char--main-e {
     font-family: 'Italianno', cursive;
     font-size: 1.35em;
     font-weight: 400;
-}
-
-/* Sub Lines: Tinh giản, sắc nét, không glow, không blur, mờ ảo thanh nhã, cố định đối xứng với dòng main */
-.jaze-logo-line--sub {
-    grid-area: stage;
-    z-index: 1;
-    color: rgba(195, 215, 190, 0.28);
-    text-shadow: none !important;
-    filter: none !important;
-    pointer-events: none;
-    font-size: clamp(4.4rem, 12vw, 8.8rem);
-    font-weight: 400 !important;
-}
-
-.jaze-logo-line--top {
-    transform: translateY(-0.42em);
-    animation: logo-float-top 5.6s ease-in-out infinite;
-}
-
-.jaze-logo-line--bottom {
-    transform: translateY(0.42em);
-    animation: logo-float-bottom 5.6s ease-in-out infinite;
-    animation-delay: -2.8s;
-}
-
-@keyframes logo-float-top {
-    0%, 100% {
-        transform: translateY(-0.42em);
-        opacity: 0.22;
-    }
-    50% {
-        transform: translateY(calc(-0.42em - 4px));
-        opacity: 0.38;
-    }
-}
-
-@keyframes logo-float-bottom {
-    0%, 100% {
-        transform: translateY(0.42em);
-        opacity: 0.22;
-    }
-    50% {
-        transform: translateY(calc(0.42em + 4px));
-        opacity: 0.38;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .jaze-logo-line--top,
-    .jaze-logo-line--bottom {
-        animation: none;
-    }
 }
 
 .hero-role {
