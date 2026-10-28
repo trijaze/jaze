@@ -25,6 +25,7 @@
     --accent-line: rgba(25, 168, 0, 0.24);
     --accent-glow: 0 0 14px rgba(25, 168, 0, 0.18);
     --model-3d-color: #148500;
+    --model-3d-color-zoom: #24d700;
 
     --danger: #ff6678;
     --danger-soft: rgba(255, 102, 120, 0.1);

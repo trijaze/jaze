@@ -44,7 +44,13 @@ body.intro-active .site-spatial-bg {
     white-space: pre;
     text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
     opacity: 0.62;
-    transition: opacity 0.8s ease, filter 0.8s ease, top 0.7s cubic-bezier(0.16, 1, 0.3, 1), left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition:
+        color 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        text-shadow 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.85s ease,
+        filter 0.85s ease,
+        top 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .site-spatial-bg--interior {
@@ -63,18 +69,23 @@ body.intro-active .site-spatial-bg {
 }
 
 .site-spatial-bg--intro .site-spatial-ascii {
+    color: var(--model-3d-color, #148500);
     opacity: 0.72;
     text-shadow: 0 0 1.8px rgba(20, 133, 0, 0.32);
 }
 
+/* Trạng thái Zoom In trong giao diện web: sáng hơn 2 tone */
 .site-spatial-bg--interior .site-spatial-ascii {
-    opacity: 0.52;
-    text-shadow: 0 0 1.2px rgba(20, 133, 0, 0.20);
+    color: var(--model-3d-color-zoom, #24d700);
+    opacity: 0.72;
+    text-shadow: 0 0 2px rgba(36, 215, 0, 0.35);
 }
 
+/* Trạng thái Thu nhỏ lại: chuyển mượt mà về màu hiện tại */
 .site-spatial-bg--exterior .site-spatial-ascii {
-    opacity: 0.62;
-    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
+    color: var(--model-3d-color, #148500);
+    opacity: 0.60;
+    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.22);
 }
 
 /* Persistent Center Singularity Star */

@@ -29,7 +29,7 @@
     justify-content: center;
     text-align: center;
     gap: var(--space-4);
-    max-width: 52rem;
+    max-width: min(94vw, 72rem);
     margin-inline: auto;
     width: 100%;
 }
@@ -37,16 +37,14 @@
 /* 3-Tier Kinetic JAZE Logo System */
 .jaze-logo-stage {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    display: inline-grid;
+    grid-template-areas: "stage";
+    place-items: center;
     user-select: none;
     line-height: 1;
     margin-inline: auto;
-    /* Khoảng đệm đối xứng tinh tế cho 2 dòng phụ trên và dưới */
-    padding-top: clamp(1.8rem, 3.8vw, 2.6rem);
-    padding-bottom: clamp(1.8rem, 3.8vw, 2.6rem);
+    margin-top: clamp(1.8rem, 4vw, 3rem);
+    padding: 0;
 }
 
 .jaze-logo-line {
@@ -66,6 +64,7 @@
 
 /* Main Line: Front, stationary, clean solid color, nét mảnh không in đậm, no glow, style nghiêng thanh thoát */
 .jaze-logo-line--main {
+    grid-area: stage;
     position: relative;
     z-index: 3;
     font-weight: 400 !important;
@@ -116,51 +115,48 @@
     font-weight: 400;
 }
 
-/* Sub Lines: Tinh giản, sắc nét, không glow, không blur, mờ ảo thanh nhã */
+/* Sub Lines: Tinh giản, sắc nét, không glow, không blur, mờ ảo thanh nhã, cố định đối xứng với dòng main */
 .jaze-logo-line--sub {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    grid-area: stage;
     z-index: 1;
-    color: rgba(195, 215, 190, 0.22);
+    color: rgba(195, 215, 190, 0.28);
     text-shadow: none !important;
     filter: none !important;
-    opacity: 0.28;
     pointer-events: none;
     font-size: clamp(4.4rem, 12vw, 8.8rem);
     font-weight: 400 !important;
 }
 
 .jaze-logo-line--top {
-    top: 0;
+    transform: translateY(-0.42em);
     animation: logo-float-top 5.6s ease-in-out infinite;
 }
 
 .jaze-logo-line--bottom {
-    bottom: 0;
+    transform: translateY(0.42em);
     animation: logo-float-bottom 5.6s ease-in-out infinite;
     animation-delay: -2.8s;
 }
 
 @keyframes logo-float-top {
     0%, 100% {
-        transform: translate(-50%, 0);
-        opacity: 0.20;
+        transform: translateY(-0.42em);
+        opacity: 0.22;
     }
     50% {
-        transform: translate(-50%, -5px);
-        opacity: 0.35;
+        transform: translateY(calc(-0.42em - 4px));
+        opacity: 0.38;
     }
 }
 
 @keyframes logo-float-bottom {
     0%, 100% {
-        transform: translate(-50%, 0);
-        opacity: 0.20;
+        transform: translateY(0.42em);
+        opacity: 0.22;
     }
     50% {
-        transform: translate(-50%, 5px);
-        opacity: 0.35;
+        transform: translateY(calc(0.42em + 4px));
+        opacity: 0.38;
     }
 }
 
@@ -172,25 +168,43 @@
 }
 
 .hero-role {
-    margin-top: var(--space-1);
+    margin-top: clamp(2.8rem, 6vw, 4.2rem);
     color: var(--text-soft);
     font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-md);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-align: center;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+@media (max-width: 28rem) {
+    .hero-role {
+        white-space: normal;
+    }
 }
 
 .hero-bio {
-    max-width: 50ch;
+    max-width: 100%;
     color: var(--text-soft);
     font-family: 'Chakra Petch', sans-serif;
-    font-size: var(--font-size-base);
+    font-size: clamp(0.92rem, 1.35vw, var(--font-size-base));
     font-weight: 400;
     line-height: var(--line-height-body);
     letter-spacing: 0.035em;
     text-align: center;
     margin-inline: auto;
+    /* Luôn giữ trên 1 dòng, hạn chế xuống dòng */
+    white-space: nowrap;
+}
+
+@media (max-width: 44rem) {
+    .hero-bio {
+        /* Chỉ cho phép xuống dòng khi màn hình quá nhỏ để tránh tràn ra ngoài màn hình */
+        white-space: normal;
+        max-width: 92vw;
+    }
 }
 
 .hero-actions {
@@ -325,7 +339,7 @@
     padding: var(--space-5) var(--space-6);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(17, 45, 17, 0.52);
+    background: rgba(0, 21, 0, 0.51);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
     font-family: var(--font-display);
 }
@@ -396,7 +410,7 @@
     flex-direction: column;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(17, 45, 17, 0.52);
+    background: rgba(0, 21, 0, 0.51);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
     overflow: hidden;
 }
@@ -406,7 +420,7 @@
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(17, 45, 17, 0.52);
+    background: rgba(0, 21, 0, 0.51);
 }
 
 .home-post-row {
@@ -443,7 +457,7 @@
 
 @media (min-width: 64rem) {
     .home-hero {
-        max-width: 58rem;
+        max-width: 72rem;
         margin-inline: auto;
     }
 }

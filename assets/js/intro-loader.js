@@ -425,24 +425,31 @@
         const docCenterY = Math.round((headerTop + footerBottom) / 2);
         const docCenterX = Math.round(window.innerWidth / 2);
 
-        // Hero center
-        const hero = document.querySelector('.home-hero') || document.querySelector('.page-header') || document.querySelector('.page-main');
-        let heroCenterY = docCenterY;
-        let heroCenterX = docCenterX;
+        // 1. JAZE Main Center Detection:
+        // Luôn định vị chính xác tâm điểm của dòng chữ JAZE main
+        const jazeMain = document.querySelector('.jaze-logo-line--main') || document.getElementById('hero-title');
+        let jazeCenterY = docCenterY;
+        let jazeCenterX = docCenterX;
 
-        if (hero) {
-            const heroRect = hero.getBoundingClientRect();
-            heroCenterY = Math.round(heroRect.top - bodyRect.top + heroRect.height / 2);
-            heroCenterX = Math.round(heroRect.left - bodyRect.left + heroRect.width / 2);
+        if (jazeMain) {
+            const jazeRect = jazeMain.getBoundingClientRect();
+            jazeCenterY = Math.round(jazeRect.top - bodyRect.top + jazeRect.height / 2);
+            jazeCenterX = Math.round(jazeRect.left - bodyRect.left + jazeRect.width / 2);
+        } else {
+            const hero = document.querySelector('.home-hero') || document.querySelector('.page-header') || document.querySelector('.page-main');
+            if (hero) {
+                const heroRect = hero.getBoundingClientRect();
+                jazeCenterY = Math.round(heroRect.top - bodyRect.top + heroRect.height / 2);
+                jazeCenterX = Math.round(heroRect.left - bodyRect.left + heroRect.width / 2);
+            }
         }
 
-        // 1. Singularity Star Anchor:
-        // Always strictly anchored at the exact center of .home-hero on both desktop and mobile!
-        // Its position is 100% decoupled from the 3D model, never dragged down or shifted away.
+        // Singularity Star Anchor:
+        // Luôn nằm chính giữa chữ JAZE main trên cả desktop và mobile!
         if (starButton) {
             starButton.style.position = 'absolute';
-            starButton.style.top = `${heroCenterY}px`;
-            starButton.style.left = `${heroCenterX}px`;
+            starButton.style.top = `${jazeCenterY}px`;
+            starButton.style.left = `${jazeCenterX}px`;
             starButton.style.transform = 'translate(-50%, -50%)';
             starButton.style.zIndex = '50';
         }
@@ -475,11 +482,11 @@
             spatialBg.style.width = '100%';
 
             if (isMobile) {
-                // Mobile ở trạng thái không zoom: căn ở giữa hero và 2 cạnh bên màn hình.
-                // Đứng yên ở giữa hero và cuộn tự nhiên theo hero khi lướt trang.
+                // Mobile ở trạng thái không zoom: căn ở giữa chữ JAZE main và 2 cạnh bên màn hình.
+                // Đứng yên ở giữa chữ JAZE main và cuộn tự nhiên theo hero khi lướt trang.
                 spatialOutput.style.position = 'absolute';
-                spatialOutput.style.top = `${heroCenterY}px`;
-                spatialOutput.style.left = `${heroCenterX}px`;
+                spatialOutput.style.top = `${jazeCenterY}px`;
+                spatialOutput.style.left = `${jazeCenterX}px`;
                 spatialOutput.style.transform = 'translate(-50%, -50%)';
             } else {
                 // Desktop ở trạng thái không zoom: căn ở giữa toàn bộ trang web theo chiều dọc (docCenterY),
@@ -515,6 +522,11 @@
     window.addEventListener('load', () => {
         updateHeroAnchors();
     }, { passive: true });
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            updateHeroAnchors();
+        });
+    }
 
     if (typeof ResizeObserver !== 'undefined') {
         const docResizeObserver = new ResizeObserver(() => {
