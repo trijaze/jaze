@@ -70,8 +70,9 @@
             }
         }
 
-        // Default state: true (enabled)
-        let initialEnabled = true;
+        // Default state: disabled on homepage for 100% transparent and crisp 3D model
+        const isHomePage = document.body.dataset.page === 'profile';
+        let initialEnabled = !isHomePage;
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored !== null) {

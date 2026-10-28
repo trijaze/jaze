@@ -4,11 +4,10 @@
 
 /* Fullscreen Spatial 3D ASCII Background */
 .site-spatial-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
@@ -17,10 +16,19 @@
 }
 
 body.intro-active .site-spatial-bg {
-    position: fixed;
-    inset: 0;
-    height: 100vh !important;
     z-index: 10;
+}
+
+.site-spatial-canvas {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    pointer-events: none;
+    background: transparent;
+    filter: none !important;
 }
 
 .site-spatial-ascii {

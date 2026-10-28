@@ -232,7 +232,9 @@ function renderHomePage(siteData, cves) {
     const body = `
     <!-- Spatial 3D ASCII Background System -->
     <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
-        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
     </div>
 
     <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
@@ -360,7 +362,7 @@ function renderHomePage(siteData, cves) {
         activePage: 'profile',
         body,
         styles: ['home.css', 'intro-loader.css'],
-        scripts: ['intro-loader.js'],
+        scripts: ['ascii-webgl-renderer.js', 'intro-loader.js'],
         structuredData
     });
 }

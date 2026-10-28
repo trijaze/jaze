@@ -21,6 +21,8 @@ const MIME_TYPES = Object.freeze({
     '.svg': 'image/svg+xml',
     '.webp': 'image/webp',
     '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+    '.otf': 'font/otf',
     '.xml': 'application/xml; charset=utf-8',
     '.md': 'text/markdown; charset=utf-8'
 });
@@ -37,6 +39,10 @@ function resolveRequestPath(urlValue) {
     if (relativePath === 'sample-fonts' || relativePath === 'sample-fonts.html' || relativePath === 'fonts' || relativePath === 'fonts.html') {
         const fontsCandidate = path.join(projectRoot, 'note-jaze', 'sample-fonts.html');
         if (fs.existsSync(fontsCandidate)) return fontsCandidate;
+    }
+    if (relativePath === 'canvas-3d' || relativePath === 'canvas' || relativePath === 'sample-canvas' || relativePath === 'sample-canvas.html' || relativePath === 'sample-canvas-3d.html' || relativePath === 'sample-canvas-3d') {
+        const canvasCandidate = path.join(projectRoot, 'note-jaze', 'sample-canvas-3d.html');
+        if (fs.existsSync(canvasCandidate)) return canvasCandidate;
     }
     if (relativePath === 'ascii-model-gallery.css' || relativePath === 'ascii-model-gallery.js') {
         const assetCandidate = path.join(projectRoot, 'note-jaze', relativePath);

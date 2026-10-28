@@ -107,9 +107,9 @@ body {
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background: rgba(1, 4, 1, 0.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(1, 4, 1, 0.18);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.35s ease, visibility 0.35s ease;
@@ -121,7 +121,7 @@ body.bg-blur-active:not(.intro-active) .site-backdrop-blur {
 }
 
 body.bg-blur-active:not(.intro-active) .site-spatial-ascii {
-    filter: blur(3.5px);
+    filter: blur(1.5px);
     transition: filter 0.35s ease;
 }
 

@@ -107,9 +107,10 @@ function renderDocument({
     ].join('; ');
 
     const hasIntro = scripts.includes('intro-loader.js');
-    const bodyClasses = ['bg-blur-active'];
+    const bodyClasses = [];
+    if (!hasIntro) bodyClasses.push('bg-blur-active');
     if (hasIntro) bodyClasses.push('intro-active');
-    const bodyClass = ` class="${bodyClasses.join(' ')}"`;
+    const bodyClass = bodyClasses.length ? ` class="${bodyClasses.join(' ')}"` : '';
 
     return `<!doctype html>
 <html lang="en">
