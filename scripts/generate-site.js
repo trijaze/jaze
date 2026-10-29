@@ -216,7 +216,7 @@ function renderHomePage(siteData, cves) {
                 '@type': 'Person',
                 '@id': `${SITE_ORIGIN}/#person`,
                 name: profile.displayName || 'Jaze',
-                jobTitle: profile.headline || 'Security Researcher at V1T',
+                jobTitle: profile.headline || 'A Security Researcher From V1T',
                 url: `${SITE_ORIGIN}/`,
                 image: `${SITE_ORIGIN}${profile.avatar || '/assets/images/jaze_v1t.png'}`,
                 affiliation: {
@@ -253,17 +253,14 @@ function renderHomePage(siteData, cves) {
         <!-- Hero Section -->
         <section class="home-hero" aria-labelledby="hero-title">
             <div class="home-hero__content">
-                <!-- Pure Single-Tier JAZE Logo -->
-                <div class="jaze-logo-stage" aria-label="JAZE">
-                    <h1 id="hero-title" class="jaze-logo-line jaze-logo-line--main" translate="no">
-                        <span class="jaze-char jaze-char--main-j">J</span>
-                        <span class="jaze-char jaze-char--main-a">A</span>
-                        <span class="jaze-char jaze-char--main-z">Z</span>
-                        <span class="jaze-char jaze-char--main-e">E</span>
-                    </h1>
+                <div class="hero-kicker">
+                    <span class="hero-role">${escapeHtml(profile.headline || 'A Security Researcher From V1T')}</span>
                 </div>
 
-                <p class="hero-role">${escapeHtml(profile.headline || 'Security Researcher at V1T')}</p>
+                <div class="jaze-logo-stage" aria-label="JAZE">
+                    <h1 id="hero-title" class="hero-title jaze-logo-line--main" translate="no">JAZE</h1>
+                </div>
+
                 <p class="hero-bio">${escapeHtml(profileSummary)}</p>
 
                 <div class="hero-actions">
@@ -887,12 +884,12 @@ async function generateSite(options = {}) {
         return await verifyBuild({ distRoot });
     } catch (error) {
         if (!installed && hadExistingBuild) {
-            await fs.rename(backupRoot, distRoot).catch(() => {});
+            await fs.rename(backupRoot, distRoot).catch(() => { });
         }
         throw error;
     } finally {
-        await fs.rm(stagingRoot, { recursive: true, force: true }).catch(() => {});
-        if (installed) await fs.rm(backupRoot, { recursive: true, force: true }).catch(() => {});
+        await fs.rm(stagingRoot, { recursive: true, force: true }).catch(() => { });
+        if (installed) await fs.rm(backupRoot, { recursive: true, force: true }).catch(() => { });
     }
 }
 

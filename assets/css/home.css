@@ -5,7 +5,7 @@
 }
 
 /* ==========================================================================
-   Hero Section
+   Hero Section — Focused Centerpiece with Anta Brand Typography
    ========================================================================== */
 
 .home-hero {
@@ -14,12 +14,13 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: var(--space-3);
     min-height: auto;
-    padding-top: clamp(1rem, 3vh, 2.5rem);
-    padding-bottom: clamp(1rem, 3vh, 2.5rem);
+    padding-top: clamp(1.2rem, 3.5vh, 2.5rem);
+    padding-bottom: clamp(1.2rem, 3.5vh, 2.5rem);
     margin-inline: auto;
     width: 100%;
+    position: relative;
+    z-index: 10;
 }
 
 .home-hero__content {
@@ -28,134 +29,103 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: var(--space-2);
-    max-width: min(94vw, 72rem);
+    gap: clamp(0.45rem, 1.2vh, 0.75rem);
+    max-width: min(94vw, 50rem);
     margin-inline: auto;
     width: 100%;
 }
 
-/* Pure Single-Tier JAZE Logo System */
+/* Eyebrow Kicker / Role Tag */
+.hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    line-height: 1;
+}
+
+.hero-role {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.22rem 0.8rem;
+    border: 1px solid var(--accent-line, rgba(25, 168, 0, 0.28));
+    border-radius: var(--radius-full, 9999px);
+    background: rgba(25, 168, 0, 0.08);
+    color: var(--accent);
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: clamp(0.72rem, 0.9vw, 0.82rem);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1.4;
+    box-shadow: 0 0 14px rgba(25, 168, 0, 0.12);
+}
+
+/* Centerpiece — JAZE Brand (Anta Font) */
 .jaze-logo-stage {
     position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;
     line-height: 1;
     margin-inline: auto;
-    margin-top: 0.25rem;
-    margin-bottom: 0.25rem;
+    margin: 0;
     padding: 0;
 }
 
-.jaze-logo-line {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(4.4rem, 12vw, 8.8rem);
+.hero-title,
+.jaze-logo-line--main {
+    font-family: var(--font-logo, 'Anta', sans-serif);
+    font-size: clamp(4.4rem, 72vw, 11.8rem); 
     font-weight: 400 !important;
-    line-height: 1;
+    line-height: 0.92;
+    letter-spacing: clamp(0.12em, 0.35vw, 0.24em);
+    margin-right: calc(-1 * clamp(0.12em, 0.35vw, 0.24em));
+    text-transform: uppercase;
+    color: var(--text, #f0f6ee);
+    margin-block: 0;
     white-space: nowrap;
-    margin: 0;
+    text-align: center;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Khoảng cách giữa các ký tự */
-    gap: clamp(1.4rem, 3.8vw, 3.2rem);
-}
-
-/* Main Line: Front, stationary, clean solid color, nét mảnh không in đậm, no glow, style nghiêng thanh thoát */
-.jaze-logo-line--main {
+    text-shadow: none !important;
     position: relative;
     z-index: 3;
-    font-weight: 400 !important;
-    color: var(--text, #f0f6ee);
-    text-shadow: none !important;
 }
 
-/* Cố định kích thước slot cho từng ký tự */
-.jaze-char {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: clamp(3.8rem, 10vw, 6.8rem);
-    height: 1.3em;
-    font-weight: 400 !important;
-    flex-shrink: 0;
-    transition: opacity 0.3s ease;
-}
-
-.jaze-char--main-j {
-    font-family: 'Alex Brush', cursive;
-    font-size: 1.15em;
-    font-weight: 400;
-}
-
-.jaze-char--main-a {
-    font-family: 'Italianno', cursive;
-    font-size: 1.35em;
-    font-weight: 400;
-}
-
-.jaze-char--main-z {
-    font-family: 'Luxurious Script', cursive;
-    font-size: 1.5em;
-    font-weight: 400;
-}
-
-.jaze-char--main-e {
-    font-family: 'Italianno', cursive;
-    font-size: 1.35em;
-    font-weight: 400;
-}
-
-.hero-role {
-    margin: 0;
-    color: var(--text-soft);
-    font-family: 'Chakra Petch', sans-serif;
-    font-size: var(--font-size-md);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-align: center;
-    white-space: nowrap;
-    max-width: 100%;
-}
-
-@media (max-width: 28rem) {
-    .hero-role {
-        white-space: normal;
+@media (max-width: 48rem) {
+    .hero-title,
+    .jaze-logo-line--main {
+        font-size: 7.8rem;
     }
 }
 
+/* Bio Summary */
 .hero-bio {
-    max-width: 100%;
+    max-width: min(92vw, 42rem);
     color: var(--text-soft);
     font-family: 'Chakra Petch', sans-serif;
-    font-size: clamp(0.92rem, 1.35vw, var(--font-size-base));
+    font-size: clamp(0.92rem, 1.25vw, 1.05rem);
     font-weight: 400;
-    line-height: var(--line-height-body);
-    letter-spacing: 0.035em;
+    line-height: 1.45;
+    letter-spacing: 0.02em;
     text-align: center;
-    margin-inline: auto;
-    /* Luôn giữ trên 1 dòng, hạn chế xuống dòng */
-    white-space: nowrap;
+    margin: 0 auto;
+    white-space: normal;
 }
 
-@media (max-width: 44rem) {
-    .hero-bio {
-        /* Chỉ cho phép xuống dòng khi màn hình quá nhỏ để tránh tràn ra ngoài màn hình */
-        white-space: normal;
-        max-width: 92vw;
-    }
-}
-
+/* Actions CTAs */
 .hero-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: var(--space-3);
-    padding-top: var(--space-2);
+    gap: var(--space-2);
+    margin: 0;
+    padding-top: 0.2rem;
 }
 
 .hero-link {
@@ -168,7 +138,7 @@
     border-radius: var(--radius-md);
     background: rgba(17, 45, 17, 0.38);
     color: var(--text);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-sm);
     font-weight: 500;
     text-decoration: none;
@@ -192,18 +162,19 @@
 }
 
 .hero-link--primary {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
     font-weight: 600;
-    box-shadow: 0 4px 16px rgba(25, 168, 0, 0.20);
+    box-shadow: 0 0 14px rgba(25, 168, 0, 0.16);
 }
 
 .hero-link--primary:hover {
-    background: var(--accent-strong);
-    border-color: var(--accent-strong);
-    color: var(--accent-ink);
-    box-shadow: 0 6px 20px rgba(25, 168, 0, 0.28);
+    background: rgba(25, 168, 0, 0.14);
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: 0 0 22px rgba(25, 168, 0, 0.35);
+    transform: translateY(-1px);
 }
 
 .hero-link--ghost {
@@ -219,57 +190,6 @@
     border-color: var(--border-subtle);
 }
 
-.hero-ascii {
-    display: none;
-    min-width: 0;
-    align-self: stretch;
-    padding: var(--space-4);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    background: linear-gradient(145deg, rgba(17, 45, 17, 0.28), rgba(2, 12, 0, 0.74));
-    overflow: hidden;
-}
-
-.hero-ascii__glyphs {
-    display: grid;
-    min-height: 22rem;
-    place-items: center;
-    margin: 0;
-    color: var(--accent);
-    font: 700 clamp(0.12rem, 0.16vw, 0.22rem)/0.70 var(--font-display);
-    letter-spacing: -0.025em;
-    text-align: center;
-    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
-    user-select: none;
-}
-
-.hero-ascii__meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--border-subtle);
-    color: var(--muted);
-    font-family: var(--font-display);
-    font-size: var(--font-size-xs);
-}
-
-.hero-ascii__toggle {
-    min-height: var(--control-size);
-    padding-inline: var(--space-3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--text-soft);
-    font: inherit;
-}
-
-.hero-ascii__toggle:hover {
-    border-color: var(--border-strong);
-    color: var(--accent);
-}
-
 /* ==========================================================================
    Terminal Stats Strip (Floating minimal bar)
    ========================================================================== */
@@ -283,7 +203,7 @@
     border-radius: var(--radius-lg);
     background: rgba(0, 21, 0, 0.51);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
 }
 
 @media (min-width: 42rem) {
@@ -337,7 +257,7 @@
 
 .section-header-compact .view-all {
     color: var(--accent);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-xs);
     font-weight: 500;
     text-decoration: none;
@@ -388,7 +308,7 @@
 .home-post-row time,
 .home-empty-note {
     color: var(--muted);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-sm);
 }
 
@@ -404,11 +324,6 @@
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .hero-cursor {
-        animation: none;
-    }
-}
 
 .cve-row {
     display: grid;
@@ -440,7 +355,7 @@
 
 .cve-row__id {
     color: var(--text);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-sm);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -460,7 +375,7 @@
 }
 
 .cve-row__badge {
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-xs);
     font-weight: 600;
     padding: 0.15rem 0.45rem;
@@ -487,7 +402,7 @@
 .cve-row__date {
     display: none;
     color: var(--muted);
-    font-family: var(--font-display);
+    font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-xs);
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -497,4 +412,14 @@
     .cve-row__date {
         display: block;
     }
+}
+
+/* Content Typography (PT Sans Caption) */
+.home-cves,
+.home-posts,
+.home-cves .section-header-compact,
+.home-posts .section-header-compact,
+.cve-row,
+.home-post-row {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
 }

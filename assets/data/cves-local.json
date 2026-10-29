@@ -12290,5 +12290,1234 @@
         ]
       }
     }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-116400",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-26T10:03:13.835Z",
+      "datePublished": "2026-10-26T17:27:17.642Z",
+      "dateUpdated": "2026-10-26T17:57:32.849Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T17:27:18.089Z"
+        },
+        "title": "WordPress Button Block plugin <= 1.2.7 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T17:27:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Button Block button-block allows Stored XSS.This issue affects Button Block: from n/a through 1.2.7.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Button Block button-block allows Stored XSS.<p>This issue affects Button Block: from n/a through 1.2.7.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "Button Block",
+            "packageName": "button-block",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "1.2.7",
+                "changes": [
+                  {
+                    "at": "1.2.8",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/button-block/vulnerability/wordpress-button-block-plugin-1-2-7-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress Button Block plugin to the latest available version (at least 1.2.8).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress Button Block plugin to the latest available version (at least 1.2.8)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-116400",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T17:45:32.836946Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T17:57:32.849Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-116398",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-26T10:03:13.834Z",
+      "datePublished": "2026-10-26T17:26:48.798Z",
+      "dateUpdated": "2026-10-26T17:57:33.053Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T17:27:49.173Z"
+        },
+        "title": "WordPress Content Slider Block plugin <= 3.2.1 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T17:26:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Content Slider Block content-slider-block allows Stored XSS.This issue affects Content Slider Block: from n/a through 3.2.1.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Content Slider Block content-slider-block allows Stored XSS.<p>This issue affects Content Slider Block: from n/a through 3.2.1.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "Content Slider Block",
+            "packageName": "content-slider-block",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "3.2.1",
+                "changes": [
+                  {
+                    "at": "3.2.2",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/content-slider-block/vulnerability/wordpress-content-slider-block-plugin-3-2-1-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress Content Slider Block plugin to the latest available version (at least 3.2.2).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress Content Slider Block plugin to the latest available version (at least 3.2.2)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-116398",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T17:45:18.577484Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T17:57:33.053Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-116395",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-26T10:03:13.834Z",
+      "datePublished": "2026-10-26T16:46:39.501Z",
+      "dateUpdated": "2026-10-26T17:37:09.389Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T16:47:39.839Z"
+        },
+        "title": "WordPress LightBox Block plugin <= 1.2.0 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T16:46:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins LightBox Block lightbox-block allows Stored XSS.This issue affects LightBox Block: from n/a through 1.2.0.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins LightBox Block lightbox-block allows Stored XSS.<p>This issue affects LightBox Block: from n/a through 1.2.0.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "LightBox Block",
+            "packageName": "lightbox-block",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "1.2.0",
+                "changes": [
+                  {
+                    "at": "1.2.1",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/lightbox-block/vulnerability/wordpress-lightbox-block-plugin-1-2-0-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress LightBox Block plugin to the latest available version (at least 1.2.1).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress LightBox Block plugin to the latest available version (at least 1.2.1)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-116395",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T17:23:46.700861Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T17:37:09.389Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-115966",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-24T00:18:41.994Z",
+      "datePublished": "2026-10-26T17:27:49.307Z",
+      "dateUpdated": "2026-10-26T17:57:32.653Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T17:28:50.050Z"
+        },
+        "title": "WordPress Typing Text – Give your texts many typing effects plugin <= 2.2.0 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T17:27:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Typing Text – Give your texts many typing effects text-typing allows Stored XSS.This issue affects Typing Text – Give your texts many typing effects: from n/a through 2.2.0.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Typing Text – Give your texts many typing effects text-typing allows Stored XSS.<p>This issue affects Typing Text – Give your texts many typing effects: from n/a through 2.2.0.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "Typing Text – Give your texts many typing effects",
+            "packageName": "text-typing",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "2.2.0",
+                "changes": [
+                  {
+                    "at": "2.2.1",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/text-typing/vulnerability/wordpress-typing-text-give-your-texts-many-typing-effects-plugin-2-2-0-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress Typing Text – Give your texts many typing effects plugin to the latest available version (at least 2.2.1).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress Typing Text – Give your texts many typing effects plugin to the latest available version (at least 2.2.1)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-115966",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T17:45:25.676019Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T17:57:32.653Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-115961",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-24T00:18:41.994Z",
+      "datePublished": "2026-10-26T10:34:10.476Z",
+      "dateUpdated": "2026-10-26T12:54:33.589Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T10:35:10.759Z"
+        },
+        "title": "WordPress B Slider plugin <= 2.2.2 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T10:33:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins B Slider b-slider allows Stored XSS.This issue affects B Slider: from n/a through 2.2.2.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins B Slider b-slider allows Stored XSS.<p>This issue affects B Slider: from n/a through 2.2.2.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "B Slider",
+            "packageName": "b-slider",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "2.2.2",
+                "changes": [
+                  {
+                    "at": "2.2.4",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/b-slider/vulnerability/wordpress-b-slider-plugin-2-2-2-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress B Slider plugin to the latest available version (at least 2.2.4).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress B Slider plugin to the latest available version (at least 2.2.4)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-115961",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T12:44:59.723151Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T12:54:33.589Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-115956",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-24T00:18:41.994Z",
+      "datePublished": "2026-10-26T10:34:34.613Z",
+      "dateUpdated": "2026-10-26T12:54:33.447Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T10:35:36.052Z"
+        },
+        "title": "WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin <= 1.8.3 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T10:34:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Panorama Viewer – 360 Degree Image + Video Viewer panorama allows Stored XSS.This issue affects Panorama Viewer – 360 Degree Image + Video Viewer: from n/a through 1.8.3.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Panorama Viewer – 360 Degree Image + Video Viewer panorama allows Stored XSS.<p>This issue affects Panorama Viewer – 360 Degree Image + Video Viewer: from n/a through 1.8.3.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "Panorama Viewer – 360 Degree Image + Video Viewer",
+            "packageName": "panorama",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "1.8.3",
+                "changes": [
+                  {
+                    "at": "1.8.4",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/panorama/vulnerability/wordpress-panorama-viewer-360-degree-image-video-viewer-plugin-1-8-3-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin to the latest available version (at least 1.8.4).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin to the latest available version (at least 1.8.4)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-115956",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T12:45:04.914380Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T12:54:33.447Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.2",
+    "cveMetadata": {
+      "cveId": "CVE-2026-115955",
+      "assignerOrgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+      "state": "PUBLISHED",
+      "assignerShortName": "Patchstack",
+      "dateReserved": "2026-10-24T00:18:41.993Z",
+      "datePublished": "2026-10-26T10:35:04.514Z",
+      "dateUpdated": "2026-10-26T12:54:33.290Z"
+    },
+    "containers": {
+      "cna": {
+        "providerMetadata": {
+          "orgId": "21595511-bba5-4825-b968-b78d1f9984a3",
+          "shortName": "Patchstack",
+          "dateUpdated": "2026-10-26T10:36:04.744Z"
+        },
+        "title": "WordPress Advanced Post Block - Post Grid for WordPress block editor plugin <= 2.5.1 - Cross Site Scripting (XSS) vulnerability",
+        "datePublic": "2026-10-26T10:34:00.000Z",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Advanced Post Block - Post Grid for WordPress block editor advanced-post-block allows Stored XSS.This issue affects Advanced Post Block - Post Grid for WordPress block editor: from n/a through 2.5.1.",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins Advanced Post Block - Post Grid for WordPress block editor advanced-post-block allows Stored XSS.<p>This issue affects Advanced Post Block - Post Grid for WordPress block editor: from n/a through 2.5.1.</p>"
+              }
+            ]
+          }
+        ],
+        "affected": [
+          {
+            "vendor": "bPlugins",
+            "product": "Advanced Post Block - Post Grid for WordPress block editor",
+            "packageName": "advanced-post-block",
+            "collectionURL": "https://wordpress.org/plugins",
+            "defaultStatus": "unaffected",
+            "versions": [
+              {
+                "version": "0",
+                "versionType": "custom",
+                "status": "affected",
+                "lessThanOrEqual": "2.5.1",
+                "changes": [
+                  {
+                    "at": "2.5.2",
+                    "status": "unaffected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://patchstack.com/database/wordpress/plugin/advanced-post-block/vulnerability/wordpress-advanced-post-block-post-grid-for-wordpress-block-editor-plugin-2-5-1-cross-site-scripting-xss-vulnerability?_s_id=cve",
+            "tags": [
+              "vdb-entry"
+            ]
+          }
+        ],
+        "credits": [
+          {
+            "lang": "en",
+            "value": "V1T | Patchstack Bug Bounty Program",
+            "type": "finder"
+          }
+        ],
+        "metrics": [
+          {
+            "format": "CVSS",
+            "scenarios": [
+              {
+                "lang": "en",
+                "value": "GENERAL"
+              }
+            ],
+            "cvssV3_1": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:L",
+              "baseScore": 6.5,
+              "baseSeverity": "MEDIUM",
+              "attackVector": "NETWORK",
+              "attackComplexity": "LOW",
+              "privilegesRequired": "LOW",
+              "userInteraction": "REQUIRED",
+              "scope": "CHANGED",
+              "confidentialityImpact": "LOW",
+              "integrityImpact": "LOW",
+              "availabilityImpact": "LOW"
+            }
+          }
+        ],
+        "problemTypes": [
+          {
+            "descriptions": [
+              {
+                "cweId": "CWE-79",
+                "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                "lang": "en",
+                "type": "CWE"
+              }
+            ]
+          }
+        ],
+        "impacts": [
+          {
+            "capecId": "CAPEC-592",
+            "descriptions": [
+              {
+                "lang": "en",
+                "value": "Stored XSS"
+              }
+            ]
+          }
+        ],
+        "solutions": [
+          {
+            "lang": "en",
+            "value": "Update the WordPress Advanced Post Block - Post Grid for WordPress block editor plugin to the latest available version (at least 2.5.2).",
+            "supportingMedia": [
+              {
+                "type": "text/html",
+                "base64": false,
+                "value": "Update the WordPress Advanced Post Block - Post Grid for WordPress block editor plugin to the latest available version (at least 2.5.2)."
+              }
+            ]
+          }
+        ],
+        "tags": [
+          "x_open-source"
+        ]
+      },
+      "adp": [
+        {
+          "metrics": [
+            {
+              "other": {
+                "type": "ssvc",
+                "content": {
+                  "id": "CVE-2026-115955",
+                  "role": "CISA Coordinator",
+                  "options": [
+                    {
+                      "Exploitation": "none"
+                    },
+                    {
+                      "Automatable": "no"
+                    },
+                    {
+                      "Technical Impact": "partial"
+                    }
+                  ],
+                  "version": "2.0.3",
+                  "timestamp": "2026-10-26T12:44:47.182156Z"
+                }
+              }
+            }
+          ],
+          "title": "CISA ADP Vulnrichment",
+          "providerMetadata": {
+            "orgId": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+            "shortName": "CISA-ADP",
+            "dateUpdated": "2026-10-26T12:54:33.290Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.1",
+    "cveMetadata": {
+      "cveId": "CVE-2026-115607",
+      "state": "RESERVED"
+    },
+    "containers": {}
+  },
+  {
+    "dataType": "CVE_RECORD",
+    "dataVersion": "5.1",
+    "cveMetadata": {
+      "cveId": "CVE-2026-115606",
+      "state": "RESERVED"
+    },
+    "containers": {}
   }
 ]

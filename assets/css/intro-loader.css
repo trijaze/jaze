@@ -15,6 +15,10 @@
     background: #010400;
 }
 
+body.intro-active {
+    overflow: hidden !important;
+}
+
 body.intro-active .site-spatial-bg {
     z-index: 10;
 }

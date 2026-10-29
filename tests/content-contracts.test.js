@@ -21,7 +21,7 @@ function createProfile(overrides = {}) {
     return {
         memberId: 'jaze',
         displayName: 'Jaze',
-        headline: 'Security Researcher at V1T',
+        headline: 'A Security Researcher From V1T',
         bio: '',
         avatar: '/assets/images/jaze_v1t.png',
         focus: [],
@@ -115,7 +115,7 @@ test('the checked-in profile is truthful, normalized, and linked to a known V1T 
 
     assert.equal(normalized.memberId, 'jaze');
     assert.equal(normalized.displayName, 'Jaze');
-    assert.equal(normalized.headline, 'Security Researcher at V1T');
+    assert.equal(normalized.headline, 'A Security Researcher From V1T');
     assert.equal(normalized.bio, '');
     assert.deepEqual(normalized.focus, []);
     assert.deepEqual(normalized.availableFor, []);

@@ -3,39 +3,276 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Jaze — Security Researcher</title>
-    <meta name="description" content="Security research profile, publications, and CVE archive for Jaze.">
+    <meta name="theme-color" content="#020c00">
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-3qrCDm8MFbDtdC7GjhJtHJn6xS+r8QDtnupuXJoMW6Y=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://jaze.v1t.site/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="alternate" type="application/rss+xml" title="Jaze research feed" href="/feed.xml">
+    <title>Jaze — Security Researcher · V1T</title>
+    <meta name="description" content="Security research profile, verified CVE disclosures, and vulnerability publications for Jaze at V1T.">
+    <meta name="author" content="Jaze">
+    <meta property="og:site_name" content="Jaze Security Research">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Jaze — Security Researcher · V1T">
+    <meta property="og:description" content="Security research profile, verified CVE disclosures, and vulnerability publications for Jaze at V1T.">
+    <meta property="og:url" content="https://jaze.v1t.site/">
+    <meta property="og:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
+    <meta property="og:image:alt" content="Jaze security research profile">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jaze — Security Researcher · V1T">
+    <meta name="twitter:description" content="Security research profile, verified CVE disclosures, and vulnerability publications for Jaze at V1T.">
+    <meta name="twitter:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
     <link rel="stylesheet" href="/assets/css/tokens.css">
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/nav.css">
     <link rel="stylesheet" href="/assets/css/home.css">
+    <link rel="stylesheet" href="/assets/css/intro-loader.css">
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "@id": "https://jaze.v1t.site/#profile",
+  "url": "https://jaze.v1t.site/",
+  "name": "Jaze — Security Researcher",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Jaze Security Research",
+    "url": "https://jaze.v1t.site/"
+  },
+  "mainEntity": {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "https://jaze.v1t.site/#person",
+    "name": "Jaze",
+    "jobTitle": "A Security Researcher From V1T",
+    "url": "https://jaze.v1t.site/",
+    "image": "https://jaze.v1t.site/assets/images/jaze_v1t.png",
+    "affiliation": {
+      "@type": "Organization",
+      "name": "V1T",
+      "url": "https://v1t.site/#organization"
+    },
+    "sameAs": [
+      "https://ctftime.org/user/172832"
+    ]
+  }
+}</script>
     <script src="/assets/js/nav.js" defer></script>
+    <script src="/assets/js/ascii-webgl-renderer.js" defer></script>
+    <script src="/assets/js/intro-loader.js" defer></script>
 </head>
-<body>
+<body class="intro-active" data-page="profile">
+    <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
+
     <header class="site-header">
         <nav class="site-nav site-shell" aria-label="Primary navigation">
-            <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span>_</span></a>
-            <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
-                <span class="nav-toggle-lines" aria-hidden="true"></span>
-            </button>
-            <ul class="nav-links" id="primary-menu" data-nav-menu>
-                <li><a href="/" aria-current="page">Profile</a></li>
-                <li><a href="/blog/">Blog</a></li>
-                <li><a href="/cves/">CVEs</a></li>
-                <li><a href="https://v1t.site/" rel="external">V1T</a></li>
-            </ul>
+            <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
+            <div class="nav-actions">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                    <span class="nav-blur-switch__track" aria-hidden="true">
+                        <span class="nav-blur-switch__thumb"></span>
+                    </span>
+                </button>
+                <button class="nav-brightness-btn" id="nav-brightness-btn" type="button" aria-pressed="false" aria-label="Toggle 3x green brightness boost" title="Boost green brightness 3x (L)">
+                    <svg class="nav-brightness-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
+                    <span class="nav-toggle-lines" aria-hidden="true"></span>
+                </button>
+            </div>
+            <ul class="nav-links" id="primary-menu" data-nav-menu><li><a href="/" aria-current="page">Profile</a></li><li><a href="/blog/">Blog</a></li><li><a href="/cves/">CVEs</a></li><li><a href="https://v1t.site/" rel="external">V1T</a></li></ul>
         </nav>
     </header>
-    <main class="page-main site-shell" id="main-content">
-        <section class="route-placeholder" aria-labelledby="page-title">
-            <p class="route-kicker">Profile route initialized</p>
-            <h1 id="page-title">Jaze<span aria-hidden="true">_</span></h1>
-            <p>Security researcher at V1T. Profile, research posts, and verified CVE data will be generated from validated JSON.</p>
+
+    <!-- Spatial 3D ASCII Background System -->
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+    </div>
+
+    <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
+    <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior">
+        <span class="singularity-star__core"></span>
+        <span class="singularity-star__aura"></span>
+        <span class="singularity-star__tooltip" aria-hidden="true">Toggle 3D View</span>
+    </button>
+
+    <!-- Minimalist Intro Loader (Countdown only) -->
+    <div class="intro-loader" id="intro-loader" aria-live="polite">
+        <span class="intro-loader__clock" data-loader-clock aria-hidden="true">00:03.00</span>
+    </div>
+
+    <main class="page-main site-shell home-page" id="main-content">
+        <!-- Hero Section -->
+        <section class="home-hero" aria-labelledby="hero-title">
+            <div class="home-hero__content">
+                <div class="hero-kicker">
+                    <span class="hero-role">A Security Researcher From V1T</span>
+                </div>
+
+                <div class="jaze-logo-stage" aria-label="JAZE">
+                    <h1 id="hero-title" class="hero-title jaze-logo-line--main" translate="no">JAZE</h1>
+                </div>
+
+                <p class="hero-bio">Security researcher credited on 34 coordinated vulnerability records.</p>
+
+                <div class="hero-actions">
+                    <a class="hero-link hero-link--primary" href="/cves/">
+                        <span>CVE Archive</span>
+                        <span class="hero-link__count">(34)</span>
+                    </a>
+                    <a class="hero-link" href="/blog/">Research Notes</a>
+                    
+                        <a class="hero-link hero-link--ghost" href="https://ctftime.org/user/172832" target="_blank" rel="noopener noreferrer">CTFtime ↗</a>
+                    
+                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T Org ↗</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Stats Strip (Clean single-line bar, replaces bulky 4-card grid) -->
+        <section aria-label="Research statistics">
+            <div class="stats-strip">
+                <div class="stats-item">
+                    <span class="stats-item__val stats-item__val--accent">34</span>
+                    <span class="stats-item__label">Total CVEs</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-item__val">31</span>
+                    <span class="stats-item__label">Published MITRE</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-item__val">3</span>
+                    <span class="stats-item__label">Reserved / PoC</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-item__val">1</span>
+                    <span class="stats-item__label">Published Notes</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Disclosures (Dense technical row list) -->
+        <section aria-labelledby="recent-cves-title">
+            <div class="section-header-compact">
+                <h2 id="recent-cves-title">Recent Disclosures</h2>
+                <a class="view-all" href="/cves/">View all 34 CVEs →</a>
+            </div>
+
+            <div class="cve-table">
+                
+                    <a class="cve-row" href="/cves/CVE-2026-116400/">
+                        <span class="cve-row__id">CVE-2026-116400</span>
+                        <span class="cve-row__title">Button Block — WordPress Button Block plugin &lt;= 1.2.7 - Cross Site Scripting (XSS) vulnerability</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-116398/">
+                        <span class="cve-row__id">CVE-2026-116398</span>
+                        <span class="cve-row__title">Content Slider Block — WordPress Content Slider Block plugin &lt;= 3.2.1 - Cross Site Scripting (XSS) vulnerability</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-116395/">
+                        <span class="cve-row__id">CVE-2026-116395</span>
+                        <span class="cve-row__title">LightBox Block — WordPress LightBox Block plugin &lt;= 1.2.0 - Cross Site Scripting (XSS) vulnerability</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-115966/">
+                        <span class="cve-row__id">CVE-2026-115966</span>
+                        <span class="cve-row__title">Typing Text – Give your texts many typing effects — WordPress Typing Text – Give your texts many typing effects plugin &lt;= 2.2.0 - Cross Site Scripting (XSS) vulnerabil…</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-115961/">
+                        <span class="cve-row__id">CVE-2026-115961</span>
+                        <span class="cve-row__title">B Slider — WordPress B Slider plugin &lt;= 2.2.2 - Cross Site Scripting (XSS) vulnerability</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-115956/">
+                        <span class="cve-row__id">CVE-2026-115956</span>
+                        <span class="cve-row__title">Panorama Viewer – 360 Degree Image + Video Viewer — WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin &lt;= 1.8.3 - Cross Site Scripting (XSS) vulnerabil…</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-115955/">
+                        <span class="cve-row__id">CVE-2026-115955</span>
+                        <span class="cve-row__title">Advanced Post Block - Post Grid for WordPress block editor — WordPress Advanced Post Block - Post Grid for WordPress block editor plugin &lt;= 2.5.1 - Cross Site Scripting (XSS) v…</span>
+                        <span class="cve-row__badge" data-severity="medium">
+                            MEDIUM 6.5
+                        </span>
+                        <span class="cve-row__date">Oct 26, 2026</span>
+                    </a>
+                
+                    <a class="cve-row" href="/cves/CVE-2026-115607/">
+                        <span class="cve-row__id">CVE-2026-115607</span>
+                        <span class="cve-row__title">CVE-2026-115607 advisory record</span>
+                        <span class="cve-row__badge" data-severity="pending">
+                            PENDING
+                        </span>
+                        <span class="cve-row__date">Pending</span>
+                    </a>
+                
+            </div>
+        </section>
+
+        <section aria-labelledby="latest-posts-title">
+            <div class="section-header-compact">
+                <h2 id="latest-posts-title">Latest Research Notes</h2>
+                <a class="view-all" href="/blog/">View all notes →</a>
+            </div>
+            
+                <div class="home-post-list">
+                    
+                        <a class="home-post-row" href="/blog/local-first-cve-research-notes/">
+                            <span>A Local-First Workflow for CVE Research Notes</span>
+                            <time datetime="2026-10-25">Oct 25, 2026</time>
+                        </a>
+                    
+                </div>
+            
         </section>
     </main>
+
     <footer class="site-footer">
-        <div class="site-shell">Jaze · Security Research · V1T</div>
+        <div class="site-shell footer-layout">
+            <p>Jaze · Security Research · <a href="https://v1t.site/" rel="external">V1T</a></p>
+            <nav aria-label="Footer navigation">
+                <a href="/feed.xml">RSS</a>
+                <a href="/sitemap.xml">Sitemap</a>
+            </nav>
+        </div>
     </footer>
 </body>
 </html>

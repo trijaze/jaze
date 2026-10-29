@@ -43,6 +43,7 @@
     align-items: center;
     gap: var(--space-2);
     margin-left: auto;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
 }
 
 /* Minimalist Cyber Switch (Pill only, no outer frame/box, no text, no icon) */
@@ -109,6 +110,63 @@
     transform: translateX(0.95rem);
     background: var(--accent, #19a800);
     box-shadow: 0 0 6px #19a800;
+}
+
+
+/* Green Brightness Boost Toggle Button */
+.nav-brightness-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 1.15rem;
+    padding: 0;
+    border: 1px solid rgba(48, 70, 46, 0.65);
+    border-radius: 9999px;
+    background: rgba(25, 168, 0, 0.10);
+    color: var(--muted, #62755f);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+    transition: border-color var(--duration-fast) var(--ease-enter),
+                background var(--duration-fast) var(--ease-enter),
+                color var(--duration-fast) var(--ease-enter),
+                box-shadow var(--duration-fast) var(--ease-enter),
+                transform var(--duration-fast) var(--ease-enter);
+}
+
+.nav-brightness-btn svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    transition: transform var(--duration-fast) var(--ease-enter),
+                filter var(--duration-fast) var(--ease-enter);
+}
+
+.nav-brightness-btn:hover {
+    border-color: rgba(25, 168, 0, 0.55);
+    color: var(--accent);
+}
+
+.nav-brightness-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* Active State (ON - Boosted 3x) */
+.nav-brightness-btn[aria-pressed="true"],
+.nav-brightness-btn.is-active {
+    background: rgba(57, 255, 20, 0.22);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.45), inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.nav-brightness-btn[aria-pressed="true"] svg,
+.nav-brightness-btn.is-active svg {
+    filter: drop-shadow(0 0 4px #39ff14);
 }
 
 .nav-toggle {
@@ -208,7 +266,7 @@
     padding-inline: var(--space-4);
     border-radius: var(--radius-md);
     color: var(--text-soft, #c8d4c6);
-    font-family: var(--font-display);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
     font-weight: 600;
     text-decoration: none;

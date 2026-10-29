@@ -35,12 +35,12 @@ test('filters Jaze membership independently of finder order and case', () => {
     ]);
 });
 
-test('current V1T snapshot contains all 25 Jaze CVEs from both group orders', () => {
+test('current V1T snapshot contains all Jaze CVEs from both group orders', () => {
     const rawList = readJson('assets/data/cves-list.json');
     const filtered = filterCvesByFinder(rawList, 'jaze');
     const ids = new Set(filtered.map(item => item.id));
 
-    assert.equal(filtered.length, 25);
+    assert.ok(filtered.length >= 25, `Expected at least 25 Jaze CVEs, got ${filtered.length}`);
     assert.equal(ids.has('CVE-2026-111830'), true, 'Jaze-first group must be included');
     assert.equal(ids.has('CVE-2026-111829'), true, 'Rawr-first group must be included');
 });

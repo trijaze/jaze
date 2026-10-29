@@ -1,5 +1,6 @@
 .blog-page,
 .post-page {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
     display: grid;
     gap: clamp(var(--space-8), 6vw, var(--space-16));
     padding-top: clamp(var(--space-6), 4vw, var(--space-10));
@@ -16,12 +17,15 @@
 .blog-header h1,
 .archive-header h1,
 .post-header h1 {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-weight: 700;
     font-size: var(--font-size-2xl);
 }
 
 .blog-header > p,
 .archive-header > p,
 .post-deck {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
     max-width: 62ch;
     color: var(--muted);
     font-size: var(--font-size-md);
@@ -119,6 +123,8 @@
 }
 
 .post-card__title {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-weight: 700;
     font-size: var(--font-size-lg);
 }
 
@@ -128,6 +134,7 @@
 }
 
 .post-card__excerpt {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
     color: var(--muted);
 }
 
@@ -162,6 +169,7 @@
 
 .post-prose,
 .prose {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
     min-width: 0;
     max-width: var(--prose-width);
     color: var(--text-soft);
@@ -176,12 +184,16 @@
 
 .post-prose h2,
 .prose h2 {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-weight: 700;
     margin-top: var(--space-12);
     font-size: var(--font-size-xl);
 }
 
 .post-prose h3,
 .prose h3 {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-weight: 700;
     margin-top: var(--space-8);
     font-size: var(--font-size-lg);
 }

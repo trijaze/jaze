@@ -1,5 +1,6 @@
 .cve-page,
 .cve-explorer {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
     display: grid;
     gap: clamp(var(--space-6), 4vw, var(--space-10));
     padding-top: clamp(var(--space-4), 3vw, var(--space-8));
@@ -19,6 +20,8 @@
 }
 
 .cve-header h1 {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-weight: 700;
     font-size: var(--font-size-2xl);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -33,6 +36,7 @@
 }
 
 .cve-header p {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
     color: var(--text-soft);
     font-size: var(--font-size-sm);
 }
@@ -487,4 +491,21 @@
 .cve-hydration-status {
     color: var(--muted);
     font-size: var(--font-size-xs);
+}
+
+/* Content Typography (PT Sans Caption) */
+.cve-row,
+.cve-detail,
+.cve-detail__description,
+.cve-detail__content,
+.cve-desc,
+.cve-description {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+}
+
+.cve-detail h1,
+.cve-detail h2,
+.cve-detail h3 {
+    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-weight: 700;
 }

@@ -1,6 +1,14 @@
 (function initSiteShell() {
     'use strict';
 
+    // Prevent browser from restoring scroll to lower sections (e.g. CVE table) on reload
+    if ('scrollRestoration' in history) {
+        try {
+            history.scrollRestoration = 'manual';
+        } catch (_) {}
+    }
+    window.scrollTo(0, 0);
+
     function initSiteNavigation() {
         const toggle = document.querySelector('[data-nav-toggle]');
         const menu = document.querySelector('[data-nav-menu]');
@@ -102,6 +110,64 @@
         });
     }
 
+    
+    function initGreenBrightnessToggle() {
+        const btn = document.getElementById('nav-brightness-btn');
+        if (!btn) return;
+
+        const STORAGE_KEY = 'jaze_green_boost';
+
+        function setBoostState(enabled, save) {
+            if (enabled) {
+                document.body.classList.add('green-boost-active');
+                btn.setAttribute('aria-pressed', 'true');
+                btn.classList.add('is-active');
+                btn.setAttribute('title', 'Green brightness: 3x BOOST (Active, press L to reset)');
+            } else {
+                document.body.classList.remove('green-boost-active');
+                btn.setAttribute('aria-pressed', 'false');
+                btn.classList.remove('is-active');
+                btn.setAttribute('title', 'Boost green brightness 3x (Press L)');
+            }
+
+            if (save) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false');
+                } catch (_) {}
+            }
+        }
+
+        let initialEnabled = false;
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored !== null) {
+                initialEnabled = stored === 'true';
+            }
+        } catch (_) {}
+
+        setBoostState(initialEnabled, false);
+
+        btn.addEventListener('click', () => {
+            const isCurrentlyActive = document.body.classList.contains('green-boost-active');
+            setBoostState(!isCurrentlyActive, true);
+        });
+
+        // Keyboard shortcut: Press 'l' or 'L' to toggle green brightness boost
+        window.addEventListener('keydown', event => {
+            if (
+                (event.key === 'l' || event.key === 'L') &&
+                !event.ctrlKey &&
+                !event.metaKey &&
+                !event.altKey &&
+                !['input', 'textarea', 'select'].includes(document.activeElement?.tagName?.toLowerCase())
+            ) {
+                const isCurrentlyActive = document.body.classList.contains('green-boost-active');
+                setBoostState(!isCurrentlyActive, true);
+            }
+        });
+    }
+
     initSiteNavigation();
     initBackgroundBlurToggle();
+    initGreenBrightnessToggle();
 })();

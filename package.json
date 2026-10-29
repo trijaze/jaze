@@ -12,6 +12,8 @@
     "dev": "node scripts/serve.js",
     "build": "node scripts/generate-site.js",
     "sync:v1t": "node scripts/sync-v1t-data.js",
+    "check:cves": "node scripts/check-and-sync-cves.js",
+    "prepush": "node scripts/check-and-sync-cves.js --pre-push",
     "check:syntax": "node scripts/check-syntax.js",
     "validate:data": "node scripts/validate-data.js",
     "test": "node --test",

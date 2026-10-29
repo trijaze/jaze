@@ -45,8 +45,11 @@
     --focus-ring: #19a800;
     --selection-bg: rgba(25, 168, 0, 0.18);
 
+    --font-logo: "Anta", sans-serif;
+    --font-tech: "Chakra Petch", sans-serif;
+    --font-content: "PT Sans Caption", sans-serif;
     --font-display: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-    --font-body: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+    --font-body: "PT Sans Caption", sans-serif;
     --font-code: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 
     --font-size-xs: 0.75rem;
@@ -98,4 +101,20 @@
     --z-raised: 10;
     --z-sticky: 1000;
     --z-overlay: 1100;
+}
+
+body.green-boost-active {
+    --accent: #05ff50;
+    --accent-strong: #00ea46;
+    --accent-deep: #00cc3c;
+    --accent-ink: #001200;
+    --accent-soft: rgba(5, 255, 80, 0.16);
+    --accent-line: rgba(5, 255, 80, 0.55);
+    --accent-glow: 0 0 20px rgba(5, 255, 80, 0.7), 0 0 40px rgba(5, 255, 80, 0.35);
+    --model-3d-color: #05ff50;
+    --model-3d-color-zoom: #33ff77;
+    --success: #05ff50;
+    --success-soft: rgba(5, 255, 80, 0.16);
+    --focus-ring: #05ff50;
+    --selection-bg: rgba(5, 255, 80, 0.35);
 }

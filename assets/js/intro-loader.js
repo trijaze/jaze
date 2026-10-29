@@ -1,6 +1,14 @@
 (function initSpatialIntroSystem() {
     'use strict';
 
+    // Ensure page always starts at top (0, 0) and prevents browser from jumping to CVE on refresh
+    if ('scrollRestoration' in history) {
+        try {
+            history.scrollRestoration = 'manual';
+        } catch (_) {}
+    }
+    window.scrollTo(0, 0);
+
     const PI = Math.PI;
     const TAU = PI * 2;
     const SHADE_BYTES = new Uint8Array([32, 46, 58, 45, 61, 43, 42, 35, 37, 64]);
@@ -74,9 +82,9 @@
     // Engine: WebGL2 ASCII with Canvas2D fallback
     // GPU Style: Surface particles
     // Density: Nano 2.2px (supersample 2)
-    // Perspective States:
-    //   Exterior (thu nhỏ): cameraZ 2.4, scale 1.0, surfaceFill 40% (0.40), color #148500 (20, 133, 0)
-    //   Interior (phóng to): cameraZ 0.70, scale 1.35, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
+    // Perspective States (Matching 3D Lab sample-canvas-3d.html):
+    //   Exterior (thu nhỏ): cameraZ 2.4, scale 1.0, surfaceFill 35% (0.35), color #148500 (20, 133, 0)
+    //   Interior (phóng to): cameraZ 1.45, scale 1.25, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
     let activeEngine = 'webgl';
     let viewMode = 'exterior';
 
@@ -84,8 +92,8 @@
     let targetCameraZ = 2.4;
     let currentScaleMultiplier = 1.0;
     let targetScaleMultiplier = 1.0;
-    let currentSurfaceFill = 0.40;
-    let targetSurfaceFill = 0.40;
+    let currentSurfaceFill = 0.35;
+    let targetSurfaceFill = 0.35;
 
     let currentR = 20, currentG = 133, currentB = 0;
     let targetR = 20, targetG = 133, targetB = 0;
@@ -361,12 +369,23 @@
         cachedMaxProjX = env.maxProjX;
         cachedMaxProjY = env.maxProjY;
 
-        // Strictly fit the model inside all 4 edges of the viewport (top, bottom, left, right)
-        // With an 8% safety margin so no parts ever touch or bleed past the screen borders
-        const MARGIN = 0.92;
-        const focalX = (width * 0.5 * MARGIN) / cachedMaxProjX;
-        const focalY = (height * 0.5 * MARGIN) / cachedMaxProjY;
-        const focal = Math.min(focalX, focalY);
+        // Calibrate 3D envelope:
+        // - On Mobile / Portrait: Width is narrow (360px - 430px), so scaling purely by width shrinks the model
+        //   into a tiny 380px square that gets completely obscured behind the massive 7.8rem JAZE title.
+        //   Instead, we scale based on Math.max(width * 1.38, height * 0.65) so the 3D model expands to ~550px - 620px,
+        //   occupying ~65% - 75% of viewport height and fanning out visibly on all 4 sides of the JAZE title.
+        // - On Desktop / Landscape: Scale to 94% of screen width (with a 1.75x height safeguard for ultrawide).
+        const isMobile = width < 768 || (width < height);
+        let focal;
+        if (isMobile) {
+            const targetMobileSize = Math.max(width * 1.38, height * 0.65);
+            focal = (targetMobileSize * 0.5) / (cachedMaxProjY || 0.82);
+        } else {
+            const FIT_TARGET = 0.94;
+            const focalX = (width * 0.5 * FIT_TARGET) / (cachedMaxProjX || 0.82);
+            const maxFocalY = (height * 0.5 * 1.75) / (cachedMaxProjY || 0.82);
+            focal = Math.min(focalX, maxFocalY);
+        }
 
         fitScaleX = focal / cellW;
         cols = Math.max(1, Math.floor(width / cellW));
@@ -503,7 +522,7 @@
             viewMode = 'exterior';
             targetCameraZ = 2.4;
             targetScaleMultiplier = 1.0;
-            targetSurfaceFill = 0.40; // 40% surface fill in overview
+            targetSurfaceFill = 0.35; // 35% surface fill in overview (Cyber particle density)
 
             if (starTooltip) starTooltip.textContent = 'Dive Inside';
             if (starButton) {
@@ -513,11 +532,11 @@
             spatialBg.classList.remove('site-spatial-bg--interior');
             spatialBg.classList.add('site-spatial-bg--exterior');
         } else {
-            // Switch to Interior (Zoom In / Phóng to)
+            // Switch to Interior (Zoom In / Phóng to - matching 3D Lab sample-canvas-3d.html)
             viewMode = 'interior';
-            targetCameraZ = 0.70;
-            targetScaleMultiplier = 1.35;
-            targetSurfaceFill = 1.00; // 100% surface fill in zoom in
+            targetCameraZ = 1.45;
+            targetScaleMultiplier = 1.25;
+            targetSurfaceFill = 1.00; // 100% surface fill in zoom in (All particles 100% full density)
 
             if (starTooltip) starTooltip.textContent = 'Zoom Out';
             if (starButton) {
@@ -542,6 +561,8 @@
         if (introFinished) return;
         introFinished = true;
 
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+
         document.body.classList.remove('intro-active');
         spatialBg.classList.remove('site-spatial-bg--intro');
 
@@ -552,10 +573,10 @@
             }, 800);
         }
 
-        // Revealing web in interior zoom-in state
+        // Revealing web in interior zoom-in state (matching 3D Lab sample-canvas-3d.html)
         viewMode = 'interior';
-        targetCameraZ = 0.70;
-        targetScaleMultiplier = 1.35;
+        targetCameraZ = 1.45;
+        targetScaleMultiplier = 1.25;
         targetSurfaceFill = 1.00;
         spatialBg.classList.remove('site-spatial-bg--exterior');
         spatialBg.classList.add('site-spatial-bg--interior');
@@ -742,18 +763,18 @@
             }
 
             // Cinematic choreography:
-            // 0s - 1s (elapsed < 1000): Normal rotation at overview bounds
-            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into zoom-in interior point
+            // 0s - 1s (elapsed < 1000): Normal rotation at overview bounds (cameraZ 2.4, 35% fill)
+            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into zoom-in interior point (cameraZ 1.45, 100% fill)
             if (elapsed < 1000) {
                 targetCameraZ = 2.4;
                 targetScaleMultiplier = 1.0;
-                targetSurfaceFill = 0.40;
+                targetSurfaceFill = 0.35;
             } else {
                 const zoomProgress = clamp((elapsed - 1000) / 2000, 0, 1);
                 const ease = zoomProgress * zoomProgress * (3 - 2 * zoomProgress);
-                targetCameraZ = 2.4 + (0.70 - 2.4) * ease;
-                targetScaleMultiplier = 1.0 + (1.35 - 1.0) * ease;
-                targetSurfaceFill = 0.40 + (1.00 - 0.40) * ease;
+                targetCameraZ = 2.4 + (1.45 - 2.4) * ease;
+                targetScaleMultiplier = 1.0 + (1.25 - 1.0) * ease;
+                targetSurfaceFill = 0.35 + (1.00 - 0.35) * ease;
             }
 
             if (elapsed >= INTRO_DURATION_MS) {
@@ -761,16 +782,17 @@
             }
         }
 
-        // Color & Brightness: Boosted when Background Blur switch is active
+        // Color & Brightness: Pure Cyber Neon Green (Zero Yellow Cast)
         const isBlurActive = document.body.classList.contains('bg-blur-active');
+        const isBoostActive = document.body.classList.contains('green-boost-active');
         if (viewMode === 'interior') {
-            targetR = isBlurActive ? 56 : 36;
-            targetG = isBlurActive ? 255 : 215;
-            targetB = isBlurActive ? 30 : 0;
+            targetR = isBoostActive ? 0 : (isBlurActive ? 16 : 18);
+            targetG = isBoostActive ? 255 : (isBlurActive ? 245 : 215);
+            targetB = isBoostActive ? 45 : (isBlurActive ? 30 : 15);
         } else {
-            targetR = isBlurActive ? 38 : 20;
-            targetG = isBlurActive ? 210 : 133;
-            targetB = isBlurActive ? 10 : 0;
+            targetR = isBoostActive ? 0 : (isBlurActive ? 10 : 12);
+            targetG = isBoostActive ? 245 : (isBlurActive ? 200 : 133);
+            targetB = isBoostActive ? 35 : (isBlurActive ? 18 : 5);
         }
 
         // Smooth Exponential Damping for Camera, Scale, Surface Fill, and Color
