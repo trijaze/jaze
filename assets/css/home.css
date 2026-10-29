@@ -52,7 +52,7 @@
     border: 1px solid var(--accent-line, rgba(25, 168, 0, 0.28));
     border-radius: var(--radius-full, 9999px);
     background: rgba(25, 168, 0, 0.08);
-    color: var(--accent);
+    color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
     font-size: clamp(0.72rem, 0.9vw, 0.82rem);
     font-weight: 600;
@@ -137,7 +137,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: rgba(17, 45, 17, 0.38);
-    color: var(--text);
+    color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-sm);
     font-weight: 500;
@@ -151,7 +151,8 @@
 
 .hero-link__count {
     font-size: 0.8em;
-    opacity: 0.75;
+    opacity: 0.85;
+    color: #ffffff;
 }
 
 .hero-link:hover {
@@ -164,7 +165,7 @@
 .hero-link--primary {
     border: 1px solid var(--accent);
     background: transparent;
-    color: var(--accent);
+    color: #ffffff;
     font-weight: 600;
     box-shadow: 0 0 14px rgba(25, 168, 0, 0.16);
 }
@@ -172,7 +173,7 @@
 .hero-link--primary:hover {
     background: rgba(25, 168, 0, 0.14);
     border-color: var(--accent);
-    color: var(--text);
+    color: #ffffff;
     box-shadow: 0 0 22px rgba(25, 168, 0, 0.35);
     transform: translateY(-1px);
 }
@@ -181,11 +182,11 @@
     border-color: transparent;
     background: transparent;
     box-shadow: none;
-    color: var(--muted);
+    color: #ffffff;
 }
 
 .hero-link--ghost:hover {
-    color: var(--text);
+    color: #ffffff;
     background: rgba(17, 45, 17, 0.3);
     border-color: var(--border-subtle);
 }
@@ -219,7 +220,7 @@
 }
 
 .stats-item__val {
-    color: var(--text);
+    color: #ffffff;
     font-size: var(--font-size-xl);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -227,11 +228,11 @@
 }
 
 .stats-item__val--accent {
-    color: var(--accent);
+    color: #ffffff;
 }
 
 .stats-item__label {
-    color: var(--muted);
+    color: #ffffff;
     font-size: var(--font-size-xs);
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -256,7 +257,7 @@
 }
 
 .section-header-compact .view-all {
-    color: var(--accent);
+    color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-xs);
     font-weight: 500;
@@ -293,7 +294,7 @@
     min-height: var(--control-size);
     padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--border-subtle);
-    color: var(--text);
+    color: #ffffff;
     text-decoration: none;
 }
 
@@ -307,7 +308,7 @@
 
 .home-post-row time,
 .home-empty-note {
-    color: var(--muted);
+    color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-sm);
 }
@@ -332,7 +333,7 @@
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--border-subtle);
-    color: var(--text);
+    color: #ffffff;
     text-decoration: none;
     transition: background var(--duration-fast) var(--ease-enter),
                 padding-left var(--duration-fast) var(--ease-enter);
@@ -354,7 +355,7 @@
 }
 
 .cve-row__id {
-    color: var(--text);
+    color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-sm);
     font-weight: 600;
@@ -363,7 +364,7 @@
 }
 
 .cve-row:hover .cve-row__id {
-    color: var(--accent);
+    color: #ffffff;
 }
 
 .cve-row__title {
@@ -401,7 +402,7 @@
 
 .cve-row__date {
     display: none;
-    color: var(--muted);
+    color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
     font-size: var(--font-size-xs);
     text-align: right;

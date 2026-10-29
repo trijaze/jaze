@@ -66,7 +66,7 @@ async function copyDirectory(src, dest) {
     }
 }
 
-function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = false, headingLevel = 2 } = {}) {
+function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true, headingLevel = 2 } = {}) {
     const {
         id,
         title,
@@ -89,103 +89,172 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = fals
     const formattedDate = formatIsoDate(datePublished)
         || (state === 'PUBLISHED' ? 'Recorded' : 'Pending');
     const headingTag = headingLevel === 1 ? 'h1' : 'h2';
+    const scoreVal = score !== null ? score.toFixed(1) : 'N/A';
+    const meterPercent = score !== null ? Math.min(100, Math.max(0, score * 10)) : 0;
 
     return `
-<article class="cve-detail" aria-labelledby="detail-title-${escapeHtml(id)}" data-cve-detail-record data-cve-id="${escapeHtml(id)}" data-cve-placeholder="${String(cve.isPlaceholder)}">
-    <header class="cve-detail__header">
-        <div>
-            <div class="cve-meta">
-                <span class="severity-badge" data-severity="${escapeHtml(severity.toLowerCase())}">
-                    ${escapeHtml(severity)}${score !== null ? ` ${score.toFixed(1)}` : ''}
-                </span>
-                <span class="status-badge" data-status="${escapeHtml(state.toLowerCase())}" data-cve-detail-state>${escapeHtml(state)}</span>
-                ${cvssVersion ? `<span class="tag">CVSS ${escapeHtml(cvssVersion)}</span>` : ''}
-            </div>
-            <${headingTag} id="detail-title-${escapeHtml(id)}" class="cve-id cve-detail__title">${escapeHtml(id)}</${headingTag}>
-            <p class="cve-title cve-detail__subtitle" data-cve-detail-title>${escapeHtml(title)}</p>
+<article class="cve-detail-article cve-detail" aria-labelledby="detail-title-${escapeHtml(id)}" data-cve-detail-record data-cve-id="${escapeHtml(id)}" data-cve-placeholder="${String(cve.isPlaceholder)}">
+    <header class="cve-detail-header">
+        <button type="button" class="cve-back-btn" data-cve-back-btn data-cve-detail-close aria-label="Back to all CVEs">
+            <span class="cve-back-icon">←</span> ALL CVES
+        </button>
+        <div class="cve-detail-title-wrap">
+            <${headingTag} id="detail-title-${escapeHtml(id)}" class="cve-detail-title cve-id cve-detail__title">${escapeHtml(id)}</${headingTag}>
+            <p class="cve-detail-subtitle cve-title cve-detail__subtitle" data-cve-detail-title>${escapeHtml(title)}</p>
         </div>
-        ${isTemplate ? `<button class="cve-detail__close detail-close" type="button" aria-label="Close details" data-cve-detail-close>✕</button>` : ''}
+        <div class="cve-meta-tags cve-meta">
+            <span class="cve-tag tag-id">${escapeHtml(id)}</span>
+            <span class="cve-tag tag-date">Published: ${formattedDate}</span>
+            <span class="cve-tag tag-assigner">Assigner: ${escapeHtml(assigner || 'MITRE / CNA')}</span>
+            <span class="cve-tag tag-status status-badge" data-status="${escapeHtml(state.toLowerCase())}" data-cve-detail-state>STATUS: ${escapeHtml(state)}</span>
+            <span class="cve-tag tag-severity severity-badge" data-severity="${escapeHtml(severity.toLowerCase())}">
+                ${escapeHtml(severity)}${score !== null ? ` ${scoreVal}` : ''}
+            </span>
+            ${cvssVersion ? `<span class="cve-tag tag-cvss">CVSS ${escapeHtml(cvssVersion)}</span>` : ''}
+        </div>
     </header>
 
-    <div class="cve-detail__body">
-        <dl class="cve-detail-grid">
-            <div class="cve-detail-field">
-                <dt>Published</dt>
-                <dd>${formattedDate}</dd>
+    <div class="cve-detail-body cve-detail__body">
+        <!-- 1. Discovered By Box -->
+        <div class="detail-box cve-finders-box">
+            <div class="box-title">
+                <span class="box-icon">★</span> Discovered By
             </div>
-            <div class="cve-detail-field">
-                <dt>Assigner</dt>
-                <dd>${escapeHtml(assigner || 'MITRE / CNA')}</dd>
-            </div>
-            <div class="cve-detail-field">
-                <dt>Credit</dt>
-                <dd>${finders.map(escapeHtml).join(', ')}</dd>
-            </div>
-            <div class="cve-detail-field">
-                <dt>CWE</dt>
-                <dd>${cwes.length ? cwes.map(escapeHtml).join(', ') : 'N/A'}</dd>
-            </div>
-        </dl>
-
-        <section class="cve-detail-section">
-            <h3>Description</h3>
-            <p class="cve-description" data-cve-detail-description>${escapeHtml(description)}</p>
-        </section>
-
-        ${affected.length ? `
-        <section class="cve-detail-section">
-            <h3>Affected Software</h3>
-            <ul class="cve-references cve-affected-list">
-                ${affected.map(item => `
-                    <li>
-                        <strong>${escapeHtml(item.product)}</strong>
-                        ${item.vendor && item.vendor !== 'Unknown' ? `<span>(${escapeHtml(item.vendor)})</span>` : ''}
-                        ${item.versions.length ? ` — <code>${item.versions.map(escapeHtml).join(', ')}</code>` : ''}
-                    </li>
-                `).join('')}
-            </ul>
-        </section>` : ''}
-
-        ${vector ? `
-        <section class="cve-detail-section">
-            <h3>CVSS Vector</h3>
-            <pre class="cve-vector"><code>${escapeHtml(vector)}</code></pre>
-        </section>` : ''}
-
-        ${guidance.length ? `
-        <section class="cve-detail-section">
-            <h3>Remediation</h3>
-            ${guidance.map(g => `<p class="cve-solution">${escapeHtml(g)}</p>`).join('')}
-        </section>` : ''}
-
-        ${references.length ? `
-        <section class="cve-detail-section">
-            <h3>References</h3>
-            <ul class="cve-references">
-                ${references.map(ref => `
-                    <li>
-                        <a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label || ref.url)}</a>
-                        ${ref.tags.length ? `<span class="tag cve-reference-tags">${ref.tags.map(escapeHtml).join(', ')}</span>` : ''}
-                    </li>
-                `).join('')}
-            </ul>
-        </section>` : ''}
-
-        <section class="cve-detail-section">
-            <h3>Official record</h3>
-            <p><a href="https://www.cve.org/CVERecord?id=${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">View ${escapeHtml(id)} on CVE.org ↗</a></p>
-            ${cve.isPlaceholder ? '<p class="cve-hydration-status" data-cve-hydration-status aria-live="polite">Cached publication details are pending. The archive can check MITRE when this record is opened.</p>' : ''}
-        </section>
-
-        ${includeRawJson ? `<section class="cve-detail-section">
-            <details class="json-disclosure">
-                <summary>Raw advisory JSON</summary>
-                <div class="json-disclosure__toolbar">
-                    <button class="copy-json" type="button" data-copy-json>Copy JSON</button>
+            <div class="box-content">
+                <div class="finders-grid">
+                    ${finders.map(f => `
+                        <div class="finder-card">
+                            <img class="finder-card-avatar" src="/assets/images/jaze_v1t.png" alt="${escapeHtml(f)}" loading="lazy">
+                            <div class="finder-card-details">
+                                <strong class="finder-name">${escapeHtml(f)}</strong>
+                                <span class="finder-role">Security Researcher at V1T</span>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
-                <pre><code data-raw-json>${escapeHtml(JSON.stringify(rawRecord, null, 2))}</code></pre>
-            </details>
-        </section>` : ''}
+            </div>
+        </div>
+
+        <!-- 2. Target Scope Box -->
+        ${affected.length && affected[0].product ? `
+        <div class="detail-box cve-target-box">
+            <div class="box-title">
+                <span class="box-icon">🎯</span> Target Scope
+            </div>
+            <div class="box-content">
+                <strong class="target-scope-name">${escapeHtml(affected[0].product)}</strong>
+                ${affected[0].vendor && affected[0].vendor !== 'Unknown' ? `<span class="target-scope-vendor">(${escapeHtml(affected[0].vendor)})</span>` : ''}
+            </div>
+        </div>` : ''}
+
+        <!-- 3. Description Box -->
+        <div class="detail-box cve-desc-box">
+            <div class="box-title">
+                <span class="box-icon">📝</span> Description
+            </div>
+            <div class="box-content">
+                <p class="cve-description" data-cve-detail-description>${escapeHtml(description)}</p>
+            </div>
+        </div>
+
+        <!-- 4. Metrics & Weakness Row (Side by side on desktop) -->
+        <div class="detail-row">
+            ${score !== null || vector ? `
+            <div class="detail-box flex-1 cve-metrics-box">
+                <div class="box-title">
+                    <span class="box-icon">⚡</span> Metrics (CVSS ${escapeHtml(cvssVersion || '3.1')})
+                </div>
+                <div class="box-content">
+                    <div class="cvss-meter-wrap">
+                        <div class="cvss-meter-header">
+                            <span class="cvss-score-val severity-${escapeHtml(severity.toLowerCase())}">${scoreVal}</span>
+                            <span class="cvss-severity-label severity-${escapeHtml(severity.toLowerCase())}">${escapeHtml(severity)}</span>
+                        </div>
+                        <div class="cvss-meter-bar">
+                            <div class="cvss-meter-fill severity-bg-${escapeHtml(severity.toLowerCase())}" style="width: ${meterPercent}%;"></div>
+                        </div>
+                    </div>
+                    ${vector ? `
+                    <div class="cvss-vector-wrap">
+                        <span class="vector-label">Vector:</span>
+                        <code class="cve-vector">${escapeHtml(vector)}</code>
+                    </div>` : ''}
+                </div>
+            </div>` : ''}
+
+            ${cwes.length ? `
+            <div class="detail-box flex-1 cve-weakness-box">
+                <div class="box-title">
+                    <span class="box-icon">🛡️</span> Weakness (CWE)
+                </div>
+                <div class="box-content">
+                    <div class="cwe-tags-wrap">
+                        ${cwes.map(cwe => `<span class="cwe-badge"><code>${escapeHtml(cwe)}</code></span>`).join('')}
+                    </div>
+                </div>
+            </div>` : ''}
+        </div>
+
+        <!-- 5. Affected Software Box -->
+        ${affected.length ? `
+        <div class="detail-box cve-affected-box">
+            <div class="box-title">
+                <span class="box-icon">📦</span> Affected Software & Versions
+            </div>
+            <div class="box-content">
+                <ul class="affected-list cve-references cve-affected-list">
+                    ${affected.map(item => `
+                        <li>
+                            <strong class="vendor-name">${escapeHtml(item.product)}</strong>
+                            ${item.vendor && item.vendor !== 'Unknown' ? `<span>(${escapeHtml(item.vendor)})</span>` : ''}
+                            ${item.versions && item.versions.length ? ` — <code class="version-badge">${item.versions.map(escapeHtml).join(', ')}</code>` : ''}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        </div>` : ''}
+
+        <!-- 6. Remediation / Solution Box -->
+        ${guidance.length ? `
+        <div class="detail-box cve-solution-box">
+            <div class="box-title">
+                <span class="box-icon">💡</span> Solution & Remediation
+            </div>
+            <div class="box-content">
+                ${guidance.map(g => `<p class="cve-solution">${escapeHtml(g)}</p>`).join('')}
+            </div>
+        </div>` : ''}
+
+        <!-- 7. References Box -->
+        <div class="detail-box cve-references-box">
+            <div class="box-title">
+                <span class="box-icon">🔗</span> References & Verification
+            </div>
+            <div class="box-content">
+                <ul class="ref-list cve-references">
+                    ${references.map(ref => `
+                        <li>
+                            <a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label || ref.url)} ↗</a>
+                            ${ref.tags && ref.tags.length ? `<span class="tag cve-reference-tags">${ref.tags.map(escapeHtml).join(', ')}</span>` : ''}
+                        </li>
+                    `).join('')}
+                    <li>
+                        <a href="https://www.cve.org/CVERecord?id=${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">Official Record on CVE.org ↗</a>
+                    </li>
+                </ul>
+                ${cve.isPlaceholder ? '<p class="cve-hydration-status" data-cve-hydration-status aria-live="polite">Cached publication details are pending. The archive can check MITRE when this record is opened.</p>' : ''}
+            </div>
+        </div>
+
+        <!-- 8. Raw Advisory JSON with Copy Button -->
+        ${rawRecord ? `
+        <div class="detail-box cve-raw-json">
+            <div class="raw-header">
+                <span class="raw-title"><span class="box-icon">{ }</span> Raw Advisory JSON Data</span>
+                <button type="button" class="copy-json-btn copy-json" data-copy-json>Copy JSON</button>
+            </div>
+            <pre><code data-raw-json>${escapeHtml(JSON.stringify(rawRecord, null, 2))}</code></pre>
+        </div>` : ''}
     </div>
 </article>`;
 }
@@ -361,7 +430,7 @@ function renderCvesArchivePage(siteData, cves) {
 
         return `
         <li data-cve-item>
-            <a class="cve-card" href="/cves/${escapeHtml(c.id)}/"
+            <a class="cve-card severity-${escapeHtml(c.severity.toLowerCase())}" href="/cves/${escapeHtml(c.id)}/"
                data-cve-card
                data-cve-id="${escapeHtml(c.id)}"
                data-year="${escapeHtml(/^CVE-(\d{4})-/i.exec(c.id)?.[1] || '')}"
@@ -372,17 +441,25 @@ function renderCvesArchivePage(siteData, cves) {
                data-state="${escapeHtml(c.state.toLowerCase())}"
                data-placeholder="${String(c.isPlaceholder)}"
                data-cwes="${escapeHtml(c.cwes.join('|').toLowerCase())}"
-               data-finders="${escapeHtml(c.finders.join(',').toLowerCase())}">
+               data-finders="${escapeHtml(c.finders.join(',').toLowerCase())}"
+               aria-controls="cve-detail-view"
+               aria-expanded="false"
+               aria-label="View details for ${escapeHtml(c.id)}">
                 <div class="cve-card__header">
                     <span class="cve-id">${escapeHtml(c.id)}</span>
                     <span class="severity-badge" data-severity="${escapeHtml(c.severity.toLowerCase())}">
                         ${escapeHtml(c.severity)}${c.score !== null ? ` ${c.score.toFixed(1)}` : ''}
                     </span>
                 </div>
-                <div class="cve-title">${escapeHtml(c.shortTitle)}</div>
+                <div class="cve-card-finders">
+                    ${c.finders.map(f => `
+                        <img class="finder-avatar" src="/assets/images/jaze_v1t.png" alt="${escapeHtml(f)}" title="Finder: ${escapeHtml(f)}" loading="lazy">
+                    `).join('')}
+                </div>
+                <div class="cve-title">${escapeHtml(c.shortTitle || c.title)}</div>
                 <div class="cve-card__footer">
-                    <span>${formattedDate}</span>
-                    <span class="cve-target">${escapeHtml(c.affected[0]?.product || 'Target')}</span>
+                    <span class="cve-date">${formattedDate}</span>
+                    <span class="cve-target">${escapeHtml(c.affected[0]?.product || 'Target Scope')}</span>
                     <span class="status-badge" data-status="${escapeHtml(c.state.toLowerCase())}">${escapeHtml(c.state)}</span>
                 </div>
             </a>
@@ -391,12 +468,12 @@ function renderCvesArchivePage(siteData, cves) {
 
     const firstCve = cves[0];
     const initialDetailHtml = firstCve
-        ? renderCveDetailContent(firstCve, { isTemplate: false })
+        ? renderCveDetailContent(firstCve, { isTemplate: false, includeRawJson: true })
         : '<p>No CVE records available.</p>';
 
     const cveTemplatesHtml = cves.map(c => `
     <template data-cve-detail-template data-cve-id="${escapeHtml(c.id)}">
-        ${renderCveDetailContent(c, { isTemplate: true })}
+        ${renderCveDetailContent(c, { isTemplate: true, includeRawJson: true })}
     </template>`).join('\n');
 
     const structuredData = [
@@ -464,25 +541,29 @@ function renderCvesArchivePage(siteData, cves) {
             <label>
                 <span>Sort</span>
                 <select class="cve-filter" name="sort" data-cve-sort>
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                    <option value="severity">Highest Severity</option>
                     <option value="id-desc">CVE ID (Desc)</option>
                     <option value="id-asc">CVE ID (Asc)</option>
+                    <option value="severity">Highest Severity</option>
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
                 </select>
             </label>
         </form>
 
         <p id="cve-status" class="visually-hidden" aria-live="polite" data-cve-status>Showing ${cves.length} of ${cves.length} CVE records.</p>
 
-        <div class="cve-layout cve-split">
-            <ul class="cve-list cve-list-pane" data-cve-list aria-label="CVE disclosures list">
-                ${cveCardsHtml}
-            </ul>
+        <div class="cve-modal-container" id="cve-archive-container">
+            <div class="cve-modal-content">
+                <div class="cve-sidebar" id="cve-sidebar">
+                    <ul class="cve-grid cve-list" id="cve-grid" data-cve-list aria-label="CVE disclosures grid">
+                        ${cveCardsHtml}
+                    </ul>
+                </div>
 
-            <aside class="cve-detail" data-cve-detail aria-label="Vulnerability details inspection pane">
-                ${initialDetailHtml}
-            </aside>
+                <div class="cve-detail-view cve-detail-pane" id="cve-detail-view" data-cve-detail aria-label="Vulnerability details inspection pane">
+                    ${initialDetailHtml}
+                </div>
+            </div>
         </div>
 
         <div class="route-placeholder cve-empty" data-cve-empty hidden>
