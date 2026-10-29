@@ -96,7 +96,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
 <article class="cve-detail-article cve-detail" aria-labelledby="detail-title-${escapeHtml(id)}" data-cve-detail-record data-cve-id="${escapeHtml(id)}" data-cve-placeholder="${String(cve.isPlaceholder)}">
     <header class="cve-detail-header">
         <button type="button" class="cve-back-btn" data-cve-back-btn data-cve-detail-close aria-label="Back to all CVEs">
-            <span class="cve-back-icon">←</span> ALL CVES
+            ALL CVES
         </button>
         <div class="cve-detail-title-wrap">
             <${headingTag} id="detail-title-${escapeHtml(id)}" class="cve-detail-title cve-id cve-detail__title">${escapeHtml(id)}</${headingTag}>
@@ -117,14 +117,11 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
     <div class="cve-detail-body cve-detail__body">
         <!-- 1. Discovered By Box -->
         <div class="detail-box cve-finders-box">
-            <div class="box-title">
-                <span class="box-icon">★</span> Discovered By
-            </div>
+            <div class="box-title">Discovered By</div>
             <div class="box-content">
                 <div class="finders-grid">
                     ${finders.map(f => `
                         <div class="finder-card">
-                            <img class="finder-card-avatar" src="/assets/images/jaze_v1t.png" alt="${escapeHtml(f)}" loading="lazy">
                             <div class="finder-card-details">
                                 <strong class="finder-name">${escapeHtml(f)}</strong>
                                 <span class="finder-role">Security Researcher at V1T</span>
@@ -138,9 +135,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
         <!-- 2. Target Scope Box -->
         ${affected.length && affected[0].product ? `
         <div class="detail-box cve-target-box">
-            <div class="box-title">
-                <span class="box-icon">🎯</span> Target Scope
-            </div>
+            <div class="box-title">Target Scope</div>
             <div class="box-content">
                 <strong class="target-scope-name">${escapeHtml(affected[0].product)}</strong>
                 ${affected[0].vendor && affected[0].vendor !== 'Unknown' ? `<span class="target-scope-vendor">(${escapeHtml(affected[0].vendor)})</span>` : ''}
@@ -149,9 +144,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
 
         <!-- 3. Description Box -->
         <div class="detail-box cve-desc-box">
-            <div class="box-title">
-                <span class="box-icon">📝</span> Description
-            </div>
+            <div class="box-title">Description</div>
             <div class="box-content">
                 <p class="cve-description" data-cve-detail-description>${escapeHtml(description)}</p>
             </div>
@@ -161,9 +154,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
         <div class="detail-row">
             ${score !== null || vector ? `
             <div class="detail-box flex-1 cve-metrics-box">
-                <div class="box-title">
-                    <span class="box-icon">⚡</span> Metrics (CVSS ${escapeHtml(cvssVersion || '3.1')})
-                </div>
+                <div class="box-title">Metrics (CVSS ${escapeHtml(cvssVersion || '3.1')})</div>
                 <div class="box-content">
                     <div class="cvss-meter-wrap">
                         <div class="cvss-meter-header">
@@ -184,9 +175,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
 
             ${cwes.length ? `
             <div class="detail-box flex-1 cve-weakness-box">
-                <div class="box-title">
-                    <span class="box-icon">🛡️</span> Weakness (CWE)
-                </div>
+                <div class="box-title">Weakness (CWE)</div>
                 <div class="box-content">
                     <div class="cwe-tags-wrap">
                         ${cwes.map(cwe => `<span class="cwe-badge"><code>${escapeHtml(cwe)}</code></span>`).join('')}
@@ -198,9 +187,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
         <!-- 5. Affected Software Box -->
         ${affected.length ? `
         <div class="detail-box cve-affected-box">
-            <div class="box-title">
-                <span class="box-icon">📦</span> Affected Software & Versions
-            </div>
+            <div class="box-title">Affected Software & Versions</div>
             <div class="box-content">
                 <ul class="affected-list cve-references cve-affected-list">
                     ${affected.map(item => `
@@ -217,9 +204,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
         <!-- 6. Remediation / Solution Box -->
         ${guidance.length ? `
         <div class="detail-box cve-solution-box">
-            <div class="box-title">
-                <span class="box-icon">💡</span> Solution & Remediation
-            </div>
+            <div class="box-title">Solution & Remediation</div>
             <div class="box-content">
                 ${guidance.map(g => `<p class="cve-solution">${escapeHtml(g)}</p>`).join('')}
             </div>
@@ -227,9 +212,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
 
         <!-- 7. References Box -->
         <div class="detail-box cve-references-box">
-            <div class="box-title">
-                <span class="box-icon">🔗</span> References & Verification
-            </div>
+            <div class="box-title">References & Verification</div>
             <div class="box-content">
                 <ul class="ref-list cve-references">
                     ${references.map(ref => `
@@ -250,7 +233,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
         ${rawRecord ? `
         <div class="detail-box cve-raw-json">
             <div class="raw-header">
-                <span class="raw-title"><span class="box-icon">{ }</span> Raw Advisory JSON Data</span>
+                <span class="raw-title">Raw Advisory JSON Data</span>
                 <button type="button" class="copy-json-btn copy-json" data-copy-json>Copy JSON</button>
             </div>
             <pre><code data-raw-json>${escapeHtml(JSON.stringify(rawRecord, null, 2))}</code></pre>
@@ -266,7 +249,7 @@ function renderHomePage(siteData, cves) {
     const recentCves = cves.slice(0, 8);
     const latestPosts = siteData.publishedPosts.slice(0, 3);
     const profileSummary = profile.bio
-        || `Security researcher credited on ${cves.length} coordinated vulnerability records.`;
+        || 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.';
 
     const structuredData = [
         {
@@ -299,13 +282,6 @@ function renderHomePage(siteData, cves) {
     ];
 
     const body = `
-    <!-- Spatial 3D ASCII Background System -->
-    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
-        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
-        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
-        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
-    </div>
-
     <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
     <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior">
         <span class="singularity-star__core"></span>
@@ -334,58 +310,85 @@ function renderHomePage(siteData, cves) {
 
                 <div class="hero-actions">
                     <a class="hero-link hero-link--primary" href="/cves/">
-                        <span>CVE Archive</span>
+                        <span>CVE list</span>
                         <span class="hero-link__count">(${cves.length})</span>
                     </a>
-                    <a class="hero-link" href="/blog/">Research Notes</a>
+                    <a class="hero-link" href="/blog/">Blogs</a>
                     ${profile.socials.map(soc => `
                         <a class="hero-link hero-link--ghost" href="${escapeHtml(soc.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(soc.label)} ↗</a>
                     `).join('')}
-                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T Org ↗</a>
+                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T ↗</a>
                 </div>
             </div>
         </section>
 
-        <!-- Technical Stats Strip (Clean single-line bar, replaces bulky 4-card grid) -->
-        <section aria-label="Research statistics">
+        <!-- Researcher Stats & Social Links Strip -->
+        <section aria-label="Research statistics and social links">
             <div class="stats-strip">
-                <div class="stats-item">
+                <a href="/cves/" class="stats-item stats-item--link">
                     <span class="stats-item__val stats-item__val--accent">${cves.length}</span>
                     <span class="stats-item__label">Total CVEs</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item__val">${publishedCount}</span>
-                    <span class="stats-item__label">Published MITRE</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item__val">${pendingCount}</span>
-                    <span class="stats-item__label">Reserved / PoC</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item__val">${siteData.publishedPosts.length}</span>
-                    <span class="stats-item__label">Published Notes</span>
-                </div>
+                </a>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val">LinkedIn <span class="stats-item__arrow">↗</span></span>
+                    <span class="stats-item__label">Social Media</span>
+                </a>
+                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val">GitHub <span class="stats-item__arrow">↗</span></span>
+                    <span class="stats-item__label">Repositories</span>
+                </a>
+                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val stats-item__val--whoami">whoami <span class="stats-item__arrow">↗</span></span>
+                    <span class="stats-item__label">Google Search</span>
+                </a>
             </div>
         </section>
 
-        <!-- Recent Disclosures (Dense technical row list) -->
-        <section aria-labelledby="recent-cves-title">
+        <!-- Auto Slide Show CVE Ticker (All CVEs, horizontal desktop / vertical mobile) -->
+        <section aria-labelledby="recent-cves-title" data-cve-home-section class="home-cve-ticker-section">
             <div class="section-header-compact">
-                <h2 id="recent-cves-title">Recent Disclosures</h2>
+                <h2 id="recent-cves-title">Disclosures</h2>
                 <a class="view-all" href="/cves/">View all ${cves.length} CVEs →</a>
             </div>
 
-            <div class="cve-table">
-                ${recentCves.map(c => `
-                    <a class="cve-row" href="/cves/${escapeHtml(c.id)}/">
-                        <span class="cve-row__id">${escapeHtml(c.id)}</span>
-                        <span class="cve-row__title">${escapeHtml(c.affected[0]?.product ? `${c.affected[0].product} — ${c.shortTitle}` : c.shortTitle)}</span>
-                        <span class="cve-row__badge" data-severity="${escapeHtml(c.severity.toLowerCase())}">
-                            ${escapeHtml(c.severity)}${c.score !== null ? ` ${c.score.toFixed(1)}` : ''}
-                        </span>
-                        <span class="cve-row__date">${formatIsoDate(c.datePublished) || (c.state === 'PUBLISHED' ? 'Recorded' : 'Pending')}</span>
-                    </a>
-                `).join('')}
+            <div class="home-cve-ticker-viewport" id="home-cve-ticker-viewport" tabindex="0" role="region" aria-label="Auto-scrolling CVE list">
+                <div class="home-cve-ticker-track" id="home-cve-ticker-track">
+                    <div class="home-cve-ticker-group">
+                        ${cves.map(c => `
+                            <a class="cve-card severity-${escapeHtml(c.severity.toLowerCase())}"
+                               href="/cves/?cve=${escapeHtml(c.id)}"
+                               data-cve-card
+                               data-cve-id="${escapeHtml(c.id)}"
+                               data-title="${escapeHtml(c.title)}"
+                               data-severity="${escapeHtml(c.severity.toLowerCase())}"
+                               data-score="${escapeHtml(String(c.score !== null ? c.score : ''))}"
+                               data-state="${escapeHtml(c.state.toLowerCase())}"
+                               data-cwes="${escapeHtml(c.cwes.join('|').toLowerCase())}"
+                               data-desc="${escapeHtml(c.description || '')}"
+                               aria-label="View details for ${escapeHtml(c.id)}">
+                                <span class="cve-id">${escapeHtml(c.id)}</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                    <div class="home-cve-ticker-group" aria-hidden="true">
+                        ${cves.map(c => `
+                            <a class="cve-card severity-${escapeHtml(c.severity.toLowerCase())}"
+                               href="/cves/?cve=${escapeHtml(c.id)}"
+                               data-cve-card
+                               data-cve-id="${escapeHtml(c.id)}"
+                               data-title="${escapeHtml(c.title)}"
+                               data-severity="${escapeHtml(c.severity.toLowerCase())}"
+                               data-score="${escapeHtml(String(c.score !== null ? c.score : ''))}"
+                               data-state="${escapeHtml(c.state.toLowerCase())}"
+                               data-cwes="${escapeHtml(c.cwes.join('|').toLowerCase())}"
+                               data-desc="${escapeHtml(c.description || '')}"
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">${escapeHtml(c.id)}</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -413,8 +416,8 @@ function renderHomePage(siteData, cves) {
         pathname: '/',
         activePage: 'profile',
         body,
-        styles: ['home.css', 'intro-loader.css'],
-        scripts: ['ascii-webgl-renderer.js', 'intro-loader.js'],
+        styles: ['cves.css', 'home.css', 'intro-loader.css'],
+        scripts: ['ascii-webgl-renderer.js', 'intro-loader.js', 'cve-explorer.js'],
         structuredData
     });
 }
@@ -441,27 +444,12 @@ function renderCvesArchivePage(siteData, cves) {
                data-state="${escapeHtml(c.state.toLowerCase())}"
                data-placeholder="${String(c.isPlaceholder)}"
                data-cwes="${escapeHtml(c.cwes.join('|').toLowerCase())}"
+               data-desc="${escapeHtml(c.description || '')}"
                data-finders="${escapeHtml(c.finders.join(',').toLowerCase())}"
                aria-controls="cve-detail-view"
                aria-expanded="false"
                aria-label="View details for ${escapeHtml(c.id)}">
-                <div class="cve-card__header">
-                    <span class="cve-id">${escapeHtml(c.id)}</span>
-                    <span class="severity-badge" data-severity="${escapeHtml(c.severity.toLowerCase())}">
-                        ${escapeHtml(c.severity)}${c.score !== null ? ` ${c.score.toFixed(1)}` : ''}
-                    </span>
-                </div>
-                <div class="cve-card-finders">
-                    ${c.finders.map(f => `
-                        <img class="finder-avatar" src="/assets/images/jaze_v1t.png" alt="${escapeHtml(f)}" title="Finder: ${escapeHtml(f)}" loading="lazy">
-                    `).join('')}
-                </div>
-                <div class="cve-title">${escapeHtml(c.shortTitle || c.title)}</div>
-                <div class="cve-card__footer">
-                    <span class="cve-date">${formattedDate}</span>
-                    <span class="cve-target">${escapeHtml(c.affected[0]?.product || 'Target Scope')}</span>
-                    <span class="status-badge" data-status="${escapeHtml(c.state.toLowerCase())}">${escapeHtml(c.state)}</span>
-                </div>
+                <span class="cve-id">${escapeHtml(c.id)}</span>
             </a>
         </li>`;
     }).join('\n');
@@ -632,7 +620,7 @@ function renderCveDetailPage(cve) {
         </nav>
         ${detailContent}
         <div class="cve-archive-back">
-            <a class="hero-link" href="/cves/">← Back to CVE Archive</a>
+            <a class="hero-link" href="/cves/">Back to CVE Archive</a>
         </div>
     </main>`;
 
@@ -962,6 +950,9 @@ async function generateSite(options = {}) {
         await fs.rename(stagingRoot, distRoot);
         installed = true;
         if (hadExistingBuild) await fs.rm(backupRoot, { recursive: true, force: true });
+        if (distRoot === defaultDistRoot) {
+            await fs.copyFile(path.join(distRoot, 'index.html'), path.join(projectRoot, 'index.html')).catch(() => {});
+        }
         return await verifyBuild({ distRoot });
     } catch (error) {
         if (!installed && hadExistingBuild) {

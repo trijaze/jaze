@@ -123,15 +123,106 @@ body {
     z-index: 2;
 }
 
+/* ==========================================================================
+   Fullscreen Spatial 3D ASCII Background
+   ========================================================================== */
+.site-spatial-bg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    user-select: none;
+    background: #010400;
+}
+
+body.intro-active {
+    overflow: hidden !important;
+}
+
+body.intro-active .site-spatial-bg {
+    z-index: 10;
+}
+
+.site-spatial-canvas {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    pointer-events: none;
+    background: transparent;
+    transition: filter 0.35s ease;
+}
+
+.site-spatial-ascii {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    color: var(--model-3d-color, #148500);
+    font-family: var(--font-code, "IBM Plex Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace);
+    font-size: clamp(0.10rem, 0.135vw, 0.19rem);
+    font-weight: 700;
+    font-variant-ligatures: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+    letter-spacing: -0.025em;
+    line-height: 0.70;
+    text-align: center;
+    white-space: pre;
+    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.25);
+    opacity: 0.62;
+    transition:
+        color 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        text-shadow 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.85s ease,
+        filter 0.85s ease,
+        top 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-spatial-bg--interior,
+.site-spatial-bg--exterior {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.site-spatial-bg--intro .site-spatial-ascii {
+    color: var(--model-3d-color, #148500);
+    opacity: 0.72;
+    text-shadow: 0 0 1.8px rgba(20, 133, 0, 0.32);
+}
+
+.site-spatial-bg--interior .site-spatial-ascii {
+    color: var(--model-3d-color-zoom, #24d700);
+    opacity: 0.72;
+    text-shadow: 0 0 2px rgba(36, 215, 0, 0.35);
+}
+
+.site-spatial-bg--exterior .site-spatial-ascii {
+    color: var(--model-3d-color, #148500);
+    opacity: 0.60;
+    text-shadow: 0 0 1.5px rgba(20, 133, 0, 0.22);
+}
+
 /* Fullscreen Background Blur Overlay */
 .site-backdrop-blur {
     position: fixed;
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background: rgba(1, 4, 1, 0.18);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(1, 4, 1, 0.08);
+    backdrop-filter: blur(5px) saturate(1.2);
+    -webkit-backdrop-filter: blur(5px) saturate(1.2);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.35s ease, visibility 0.35s ease;
@@ -143,7 +234,7 @@ body.bg-blur-active:not(.intro-active) .site-backdrop-blur {
 }
 
 body.bg-blur-active .site-spatial-canvas {
-    filter: brightness(1.45) contrast(1.12);
+    filter: none;
     transition: filter 0.35s ease;
 }
 
@@ -159,7 +250,7 @@ body.green-boost-active:not(.intro-active) .site-spatial-ascii {
 }
 
 body.green-boost-active.bg-blur-active .site-spatial-canvas {
-    filter: brightness(1.4) contrast(1.2) drop-shadow(0 0 24px rgba(5, 255, 80, 0.85));
+    filter: brightness(1.25) contrast(1.15) drop-shadow(0 0 16px rgba(5, 255, 80, 0.65));
 }
 
 ::selection {
@@ -524,7 +615,7 @@ a.chip {
 .is-danger,
 .status-rejected,
 [data-status="rejected"] {
-    border-color: rgba(255, 102, 120, 0.38);
+    border-color: rgba(255, 23, 53, 0.42);
     color: var(--danger);
 }
 

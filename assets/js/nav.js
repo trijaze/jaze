@@ -53,7 +53,10 @@
         const blurSwitch = document.getElementById('nav-blur-switch');
         if (!blurSwitch) return;
 
-        const STORAGE_KEY = 'jaze_bg_blur';
+        const page = document.body.dataset.page;
+        const isHome = page === 'profile' || window.location.pathname === '/' || window.location.pathname === '/index.html';
+        const STORAGE_KEY = isHome ? 'jaze_bg_blur_home' : 'jaze_bg_blur_sub';
+        const defaultEnabled = !isHome;
         const stateLabel = blurSwitch.querySelector('[data-blur-state]');
 
         function setBlurState(enabled, save) {
@@ -78,9 +81,8 @@
             }
         }
 
-        // Default state: disabled on homepage for 100% transparent and crisp 3D model
-        const isHomePage = document.body.dataset.page === 'profile';
-        let initialEnabled = !isHomePage;
+        // Default state: blur switch is OFF on homepage, but ON on CVE/Blog pages
+        let initialEnabled = defaultEnabled;
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored !== null) {

@@ -203,7 +203,7 @@ body.intro-active .singularity-star {
     border: 1px solid rgba(67, 89, 64, 0.5);
     background: rgba(2, 12, 0, 0.92);
     color: #a4c2a0;
-    font-family: var(--mono, monospace);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -230,7 +230,7 @@ body.intro-active .singularity-star {
     padding-bottom: clamp(2rem, 6vh, 4rem);
     background: transparent;
     color: var(--text, #f0f6ee);
-    font-family: var(--font-code, monospace);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     pointer-events: none;
     opacity: 1;
     transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1);

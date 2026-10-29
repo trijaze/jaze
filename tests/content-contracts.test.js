@@ -116,7 +116,7 @@ test('the checked-in profile is truthful, normalized, and linked to a known V1T 
     assert.equal(normalized.memberId, 'jaze');
     assert.equal(normalized.displayName, 'Jaze');
     assert.equal(normalized.headline, 'A Security Researcher From V1T');
-    assert.equal(normalized.bio, '');
+    assert.equal(normalized.bio, 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.');
     assert.deepEqual(normalized.focus, []);
     assert.deepEqual(normalized.availableFor, []);
     assert.equal(normalized.location, null);

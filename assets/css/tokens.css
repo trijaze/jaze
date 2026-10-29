@@ -27,8 +27,8 @@
     --model-3d-color: #148500;
     --model-3d-color-zoom: #24d700;
 
-    --danger: #ff6678;
-    --danger-soft: rgba(255, 102, 120, 0.1);
+    --danger: #ff1735;
+    --danger-soft: rgba(255, 23, 53, 0.12);
     --warning: #f5c451;
     --warning-soft: rgba(245, 196, 81, 0.1);
     --info: #66b7ff;
@@ -36,7 +36,7 @@
     --success: #19a800;
     --success-soft: rgba(25, 168, 0, 0.08);
 
-    --severity-critical: #ff6678;
+    --severity-critical: #ff1735;
     --severity-high: #ff9a62;
     --severity-medium: #f5c451;
     --severity-low: #66b7ff;
@@ -47,9 +47,9 @@
 
     --font-logo: "Anta", sans-serif;
     --font-tech: "Chakra Petch", sans-serif;
-    --font-content: "PT Sans Caption", sans-serif;
-    --font-display: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-    --font-body: "PT Sans Caption", sans-serif;
+    --font-content: "Chakra Petch", sans-serif;
+    --font-display: "Chakra Petch", sans-serif;
+    --font-body: "Chakra Petch", sans-serif;
     --font-code: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 
     --font-size-xs: 0.75rem;

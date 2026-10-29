@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="/assets/css/tokens.css">
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/nav.css">
+    <link rel="stylesheet" href="/assets/css/cves.css">
     <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/intro-loader.css">
     <script type="application/ld+json">{
@@ -60,15 +61,21 @@
     <script src="/assets/js/nav.js" defer></script>
     <script src="/assets/js/ascii-webgl-renderer.js" defer></script>
     <script src="/assets/js/intro-loader.js" defer></script>
+    <script src="/assets/js/cve-explorer.js" defer></script>
 </head>
 <body class="intro-active" data-page="profile">
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+    </div>
     <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 
     <header class="site-header">
         <nav class="site-nav site-shell" aria-label="Primary navigation">
             <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
             <div class="nav-actions">
-                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="false" aria-label="Toggle background blur" title="Toggle background blur (B)">
                     <span class="nav-blur-switch__track" aria-hidden="true">
                         <span class="nav-blur-switch__thumb"></span>
                     </span>
@@ -94,13 +101,6 @@
         </nav>
     </header>
 
-    <!-- Spatial 3D ASCII Background System -->
-    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
-        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
-        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
-        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
-    </div>
-
     <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
     <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior">
         <span class="singularity-star__core"></span>
@@ -125,125 +125,1050 @@
                     <h1 id="hero-title" class="hero-title jaze-logo-line--main" translate="no">JAZE</h1>
                 </div>
 
-                <p class="hero-bio">Security researcher credited on 34 coordinated vulnerability records.</p>
+                <p class="hero-bio">A personal archive of security discoveries, vulnerabilities, and the stories behind them.</p>
 
                 <div class="hero-actions">
                     <a class="hero-link hero-link--primary" href="/cves/">
-                        <span>CVE Archive</span>
+                        <span>CVE list</span>
                         <span class="hero-link__count">(34)</span>
                     </a>
-                    <a class="hero-link" href="/blog/">Research Notes</a>
+                    <a class="hero-link" href="/blog/">Blogs</a>
                     
                         <a class="hero-link hero-link--ghost" href="https://ctftime.org/user/172832" target="_blank" rel="noopener noreferrer">CTFtime ↗</a>
                     
-                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T Org ↗</a>
+                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T ↗</a>
                 </div>
             </div>
         </section>
 
-        <!-- Technical Stats Strip (Clean single-line bar, replaces bulky 4-card grid) -->
-        <section aria-label="Research statistics">
+        <!-- Researcher Stats & Social Links Strip -->
+        <section aria-label="Research statistics and social links">
             <div class="stats-strip">
-                <div class="stats-item">
+                <a href="/cves/" class="stats-item stats-item--link">
                     <span class="stats-item__val stats-item__val--accent">34</span>
                     <span class="stats-item__label">Total CVEs</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item__val">31</span>
-                    <span class="stats-item__label">Published MITRE</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item__val">3</span>
-                    <span class="stats-item__label">Reserved / PoC</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-item__val">1</span>
-                    <span class="stats-item__label">Published Notes</span>
-                </div>
+                </a>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val">LinkedIn <span class="stats-item__arrow">↗</span></span>
+                    <span class="stats-item__label">Social Media</span>
+                </a>
+                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val">GitHub <span class="stats-item__arrow">↗</span></span>
+                    <span class="stats-item__label">Repositories</span>
+                </a>
+                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val stats-item__val--whoami">whoami <span class="stats-item__arrow">↗</span></span>
+                    <span class="stats-item__label">Google Search</span>
+                </a>
             </div>
         </section>
 
-        <!-- Recent Disclosures (Dense technical row list) -->
-        <section aria-labelledby="recent-cves-title">
+        <!-- Auto Slide Show CVE Ticker (All CVEs, horizontal desktop / vertical mobile) -->
+        <section aria-labelledby="recent-cves-title" data-cve-home-section class="home-cve-ticker-section">
             <div class="section-header-compact">
-                <h2 id="recent-cves-title">Recent Disclosures</h2>
+                <h2 id="recent-cves-title">Disclosures</h2>
                 <a class="view-all" href="/cves/">View all 34 CVEs →</a>
             </div>
 
-            <div class="cve-table">
-                
-                    <a class="cve-row" href="/cves/CVE-2026-116400/">
-                        <span class="cve-row__id">CVE-2026-116400</span>
-                        <span class="cve-row__title">Button Block — WordPress Button Block plugin &lt;= 1.2.7 - Cross Site Scripting (XSS) vulnerability</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-116398/">
-                        <span class="cve-row__id">CVE-2026-116398</span>
-                        <span class="cve-row__title">Content Slider Block — WordPress Content Slider Block plugin &lt;= 3.2.1 - Cross Site Scripting (XSS) vulnerability</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-116395/">
-                        <span class="cve-row__id">CVE-2026-116395</span>
-                        <span class="cve-row__title">LightBox Block — WordPress LightBox Block plugin &lt;= 1.2.0 - Cross Site Scripting (XSS) vulnerability</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-115966/">
-                        <span class="cve-row__id">CVE-2026-115966</span>
-                        <span class="cve-row__title">Typing Text – Give your texts many typing effects — WordPress Typing Text – Give your texts many typing effects plugin &lt;= 2.2.0 - Cross Site Scripting (XSS) vulnerabil…</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-115961/">
-                        <span class="cve-row__id">CVE-2026-115961</span>
-                        <span class="cve-row__title">B Slider — WordPress B Slider plugin &lt;= 2.2.2 - Cross Site Scripting (XSS) vulnerability</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-115956/">
-                        <span class="cve-row__id">CVE-2026-115956</span>
-                        <span class="cve-row__title">Panorama Viewer – 360 Degree Image + Video Viewer — WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin &lt;= 1.8.3 - Cross Site Scripting (XSS) vulnerabil…</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-115955/">
-                        <span class="cve-row__id">CVE-2026-115955</span>
-                        <span class="cve-row__title">Advanced Post Block - Post Grid for WordPress block editor — WordPress Advanced Post Block - Post Grid for WordPress block editor plugin &lt;= 2.5.1 - Cross Site Scripting (XSS) v…</span>
-                        <span class="cve-row__badge" data-severity="medium">
-                            MEDIUM 6.5
-                        </span>
-                        <span class="cve-row__date">Oct 26, 2026</span>
-                    </a>
-                
-                    <a class="cve-row" href="/cves/CVE-2026-115607/">
-                        <span class="cve-row__id">CVE-2026-115607</span>
-                        <span class="cve-row__title">CVE-2026-115607 advisory record</span>
-                        <span class="cve-row__badge" data-severity="pending">
-                            PENDING
-                        </span>
-                        <span class="cve-row__date">Pending</span>
-                    </a>
-                
+            <div class="home-cve-ticker-viewport" id="home-cve-ticker-viewport" tabindex="0" role="region" aria-label="Auto-scrolling CVE list">
+                <div class="home-cve-ticker-track" id="home-cve-ticker-track">
+                    <div class="home-cve-ticker-group">
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-116400"
+                               data-cve-card
+                               data-cve-id="CVE-2026-116400"
+                               data-title="WordPress Button Block plugin &lt;= 1.2.7 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Button Block button-block allows Stored XSS.This issue affects Button Block: from n/a through 1.2.7."
+                               aria-label="View details for CVE-2026-116400">
+                                <span class="cve-id">CVE-2026-116400</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-116398"
+                               data-cve-card
+                               data-cve-id="CVE-2026-116398"
+                               data-title="WordPress Content Slider Block plugin &lt;= 3.2.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Content Slider Block content-slider-block allows Stored XSS.This issue affects Content Slider Block: from n/a through 3.2.1."
+                               aria-label="View details for CVE-2026-116398">
+                                <span class="cve-id">CVE-2026-116398</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-116395"
+                               data-cve-card
+                               data-cve-id="CVE-2026-116395"
+                               data-title="WordPress LightBox Block plugin &lt;= 1.2.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins LightBox Block lightbox-block allows Stored XSS.This issue affects LightBox Block: from n/a through 1.2.0."
+                               aria-label="View details for CVE-2026-116395">
+                                <span class="cve-id">CVE-2026-116395</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115966"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115966"
+                               data-title="WordPress Typing Text – Give your texts many typing effects plugin &lt;= 2.2.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Typing Text – Give your texts many typing effects text-typing allows Stored XSS.This issue affects Typing Text – Give your texts many typing effects: from n/a through 2.2.0."
+                               aria-label="View details for CVE-2026-115966">
+                                <span class="cve-id">CVE-2026-115966</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115961"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115961"
+                               data-title="WordPress B Slider plugin &lt;= 2.2.2 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins B Slider b-slider allows Stored XSS.This issue affects B Slider: from n/a through 2.2.2."
+                               aria-label="View details for CVE-2026-115961">
+                                <span class="cve-id">CVE-2026-115961</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115956"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115956"
+                               data-title="WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin &lt;= 1.8.3 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Panorama Viewer – 360 Degree Image + Video Viewer panorama allows Stored XSS.This issue affects Panorama Viewer – 360 Degree Image + Video Viewer: from n/a through 1.8.3."
+                               aria-label="View details for CVE-2026-115956">
+                                <span class="cve-id">CVE-2026-115956</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115955"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115955"
+                               data-title="WordPress Advanced Post Block - Post Grid for WordPress block editor plugin &lt;= 2.5.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Advanced Post Block - Post Grid for WordPress block editor advanced-post-block allows Stored XSS.This issue affects Advanced Post Block - Post Grid for WordPress block editor: from n/a through 2.5.1."
+                               aria-label="View details for CVE-2026-115955">
+                                <span class="cve-id">CVE-2026-115955</span>
+                            </a>
+                        
+                            <a class="cve-card severity-critical"
+                               href="/cves/?cve=CVE-2026-115607"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115607"
+                               data-title="WordPress DXP ToolKit plugin &lt;= 2.0.1 - SQL Injection vulnerability"
+                               data-severity="critical"
+                               data-score="9.3"
+                               data-state="published"
+                               data-cwes="cwe-89"
+                               data-desc="Improper Neutralization of Special Elements used in an SQL Command (&#39;SQL Injection&#39;) vulnerability in Crowd Favorite DXP ToolKit dxp-toolkit allows SQL Injection.This issue affects DXP ToolKit: from n/a through 2.0.1."
+                               aria-label="View details for CVE-2026-115607">
+                                <span class="cve-id">CVE-2026-115607</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-115606"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115606"
+                               data-title="WordPress DXP ToolKit plugin &lt;= 2.0.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in Crowd Favorite DXP ToolKit dxp-toolkit allows Stored XSS.This issue affects DXP ToolKit: from n/a through 2.0.1."
+                               aria-label="View details for CVE-2026-115606">
+                                <span class="cve-id">CVE-2026-115606</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-111830"
+                               data-cve-card
+                               data-cve-id="CVE-2026-111830"
+                               data-title="WordPress WP Mailster plugin &lt;= 1.9.1.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in WP Mailster WP Mailster wp-mailster allows Stored XSS.This issue affects WP Mailster: from n/a through 1.9.1.0."
+                               aria-label="View details for CVE-2026-111830">
+                                <span class="cve-id">CVE-2026-111830</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-111829"
+                               data-cve-card
+                               data-cve-id="CVE-2026-111829"
+                               data-title="WordPress WP Mailster plugin &lt;= 1.9.1.0 - Local File Inclusion vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-98"
+                               data-desc="Improper Control of Filename for Include/Require Statement in PHP Program (&#39;PHP Remote File Inclusion&#39;) vulnerability in WP Mailster WP Mailster wp-mailster allows PHP Local File Inclusion.This issue affects WP Mailster: from n/a through 1.9.1.0."
+                               aria-label="View details for CVE-2026-111829">
+                                <span class="cve-id">CVE-2026-111829</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-111410"
+                               data-cve-card
+                               data-cve-id="CVE-2026-111410"
+                               data-title="WordPress e2pdf plugin &lt;= 1.32.57 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in E2Pdf.com e2pdf e2pdf allows Stored XSS.This issue affects e2pdf: from n/a through 1.32.57."
+                               aria-label="View details for CVE-2026-111410">
+                                <span class="cve-id">CVE-2026-111410</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-108168"
+                               data-cve-card
+                               data-cve-id="CVE-2026-108168"
+                               data-title="WordPress Custom Query Blocks plugin &lt;= 5.6.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in DLX Plugins Custom Query Blocks post-type-archive-mapping allows Stored XSS.This issue affects Custom Query Blocks: from n/a through 5.6.0."
+                               aria-label="View details for CVE-2026-108168">
+                                <span class="cve-id">CVE-2026-108168</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-104814"
+                               data-cve-card
+                               data-cve-id="CVE-2026-104814"
+                               data-title="WordPress Form Block plugin &lt;= 1.8.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in Form Block &lt;= 1.8.1 versions."
+                               aria-label="View details for CVE-2026-104814">
+                                <span class="cve-id">CVE-2026-104814</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-104400"
+                               data-cve-card
+                               data-cve-id="CVE-2026-104400"
+                               data-title="WordPress B Blocks plugin &lt;= 2.1.8 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins B Blocks b-blocks allows Stored XSS.This issue affects B Blocks: from n/a through 2.1.8."
+                               aria-label="View details for CVE-2026-104400">
+                                <span class="cve-id">CVE-2026-104400</span>
+                            </a>
+                        
+                            <a class="cve-card severity-critical"
+                               href="/cves/?cve=CVE-2026-104398"
+                               data-cve-card
+                               data-cve-id="CVE-2026-104398"
+                               data-title="WordPress AFFI – Affiliate Marketing for WooCommerce plugin &lt;= 1.0.10 - PHP Object Injection vulnerability"
+                               data-severity="critical"
+                               data-score="9.8"
+                               data-state="published"
+                               data-cwes="cwe-502"
+                               data-desc="Deserialization of Untrusted Data vulnerability in VillaTheme AFFI – Affiliate Marketing for WooCommerce affi-affiliate-marketing-for-woo allows Object Injection.This issue affects AFFI – Affiliate Marketing for WooCommerce: from n/a through 1.0.10."
+                               aria-label="View details for CVE-2026-104398">
+                                <span class="cve-id">CVE-2026-104398</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-100517"
+                               data-cve-card
+                               data-cve-id="CVE-2026-100517"
+                               data-title="WordPress Photo Reviews for WooCommerce plugin &lt;= 1.2.30 - Insecure Direct Object References (IDOR) vulnerability"
+                               data-severity="high"
+                               data-score="7.5"
+                               data-state="published"
+                               data-cwes="cwe-639"
+                               data-desc="Unauthenticated Insecure Direct Object References (IDOR) in Photo Reviews for WooCommerce &lt;= 1.2.30 versions."
+                               aria-label="View details for CVE-2026-100517">
+                                <span class="cve-id">CVE-2026-100517</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-96332"
+                               data-cve-card
+                               data-cve-id="CVE-2026-96332"
+                               data-title="WordPress Simple Payment plugin &lt;= 2.5.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in yalla ya! Simple Payment simple-payment allows Reflected XSS.This issue affects Simple Payment: from n/a through 2.5.4."
+                               aria-label="View details for CVE-2026-96332">
+                                <span class="cve-id">CVE-2026-96332</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-92412"
+                               data-cve-card
+                               data-cve-id="CVE-2026-92412"
+                               data-title="Five Star Restaurant Reviews &lt; 2.3.14 - Reflected XSS"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="The Five Star Restaurant Reviews WordPress plugin before 2.3.14 does not properly escape a user-supplied value before outputting it into an HTML tag, allowing unauthenticated attackers to inject arbitrary web script that runs in the browser of anyone tricked into submitting a crafted request, including a logged-in administrator."
+                               aria-label="View details for CVE-2026-92412">
+                                <span class="cve-id">CVE-2026-92412</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-89269"
+                               data-cve-card
+                               data-cve-id="CVE-2026-89269"
+                               data-title="WP Testimonials &lt;= 1.4.13 - Author+ Stored XSS via wp-testimonials Shortcode"
+                               data-severity="medium"
+                               data-score="6.8"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="The WP Testimonials WordPress plugin through 1.4.13 does not properly escape testimonial content and reverses WordPress&#39;s HTML sanitization when rendering it, allowing users with the Author role and above to store JavaScript that executes in the session of any user viewing the testimonials, including administrators."
+                               aria-label="View details for CVE-2026-89269">
+                                <span class="cve-id">CVE-2026-89269</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-84781"
+                               data-cve-card
+                               data-cve-id="CVE-2026-84781"
+                               data-title="WordPress Gallery PhotoBlocks plugin &lt;= 1.3.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Contributor Cross Site Scripting (XSS) in Gallery PhotoBlocks &lt;= 1.3.4 versions."
+                               aria-label="View details for CVE-2026-84781">
+                                <span class="cve-id">CVE-2026-84781</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-83556"
+                               data-cve-card
+                               data-cve-id="CVE-2026-83556"
+                               data-title="CVE-2026-83556 advisory record"
+                               data-severity="high"
+                               data-score=""
+                               data-state="reserved"
+                               data-cwes=""
+                               data-desc="This CVE identifier is reserved. Technical details are pending coordinated publication."
+                               aria-label="View details for CVE-2026-83556">
+                                <span class="cve-id">CVE-2026-83556</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-81765"
+                               data-cve-card
+                               data-cve-id="CVE-2026-81765"
+                               data-title="WordPress Tailored Tools plugin &lt;= 3.0.2 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in Tailored Tools &lt;= 3.0.2 versions."
+                               aria-label="View details for CVE-2026-81765">
+                                <span class="cve-id">CVE-2026-81765</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-81292"
+                               data-cve-card
+                               data-cve-id="CVE-2026-81292"
+                               data-title="WordPress Simple Payment plugin &lt;= 2.5.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in Simple Payment &lt;= 2.5.1 versions."
+                               aria-label="View details for CVE-2026-81292">
+                                <span class="cve-id">CVE-2026-81292</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-73354"
+                               data-cve-card
+                               data-cve-id="CVE-2026-73354"
+                               data-title="WordPress SimplyRETS Real Estate IDX plugin &lt;= 3.2.8 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in SimplyRETS Real Estate IDX &lt;= 3.2.8 versions."
+                               aria-label="View details for CVE-2026-73354">
+                                <span class="cve-id">CVE-2026-73354</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-66687"
+                               data-cve-card
+                               data-cve-id="CVE-2026-66687"
+                               data-title="WordPress WpBookingly plugin &lt;= 1.3.2 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Customer Cross Site Scripting (XSS) in WpBookingly &lt;= 1.3.2 versions."
+                               aria-label="View details for CVE-2026-66687">
+                                <span class="cve-id">CVE-2026-66687</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-66603"
+                               data-cve-card
+                               data-cve-id="CVE-2026-66603"
+                               data-title="WordPress Draft List plugin &lt;= 2.6.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in David Artiss Draft List simple-draft-list allows Stored XSS.
+
+This issue affects Draft List: from n/a through 2.6.4."
+                               aria-label="View details for CVE-2026-66603">
+                                <span class="cve-id">CVE-2026-66603</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-66584"
+                               data-cve-card
+                               data-cve-id="CVE-2026-66584"
+                               data-title="WordPress 12 Step Meeting List plugin &lt;= 3.19.16 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in 12 Step Meeting List &lt;= 3.19.16 versions."
+                               aria-label="View details for CVE-2026-66584">
+                                <span class="cve-id">CVE-2026-66584</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-62127"
+                               data-cve-card
+                               data-cve-id="CVE-2026-62127"
+                               data-title="WordPress WP plugin Info Card plugin &lt;= 6.3.5 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in MediaRon LLC WP Plugin Info Card wp-plugin-info-card allows Stored XSS.This issue affects WP Plugin Info Card: from n/a through 6.3.5."
+                               aria-label="View details for CVE-2026-62127">
+                                <span class="cve-id">CVE-2026-62127</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-62111"
+                               data-cve-card
+                               data-cve-id="CVE-2026-62111"
+                               data-title="WordPress Simple Payment plugin &lt;= 2.5.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Contributor Cross Site Scripting (XSS) in Simple Payment &lt;= 2.5.4 versions."
+                               aria-label="View details for CVE-2026-62111">
+                                <span class="cve-id">CVE-2026-62111</span>
+                            </a>
+                        
+                            <a class="cve-card severity-critical"
+                               href="/cves/?cve=CVE-2026-62025"
+                               data-cve-card
+                               data-cve-id="CVE-2026-62025"
+                               data-title="WordPress Tailored Tools plugin &lt;= 3.0.3 - Arbitrary File Upload vulnerability"
+                               data-severity="critical"
+                               data-score="9"
+                               data-state="published"
+                               data-cwes="cwe-434"
+                               data-desc="Unauthenticated Arbitrary File Upload in Tailored Tools &lt;= 3.0.3 versions."
+                               aria-label="View details for CVE-2026-62025">
+                                <span class="cve-id">CVE-2026-62025</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-61985"
+                               data-cve-card
+                               data-cve-id="CVE-2026-61985"
+                               data-title="WordPress Car Rental Manager plugin &lt;= 1.3.7 - Broken Access Control vulnerability"
+                               data-severity="medium"
+                               data-score="5.3"
+                               data-state="published"
+                               data-cwes="cwe-862"
+                               data-desc="Missing Authorization vulnerability in magepeopleteam Car Rental Manager car-rental-manager allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Car Rental Manager: from n/a through &lt;= 1.3.7."
+                               aria-label="View details for CVE-2026-61985">
+                                <span class="cve-id">CVE-2026-61985</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-61978"
+                               data-cve-card
+                               data-cve-id="CVE-2026-61978"
+                               data-title="WordPress Secure Card Gateway for ePay Paycenter (Piraeus Bank) plugin &lt;= 1.0.32 - Broken Access Control vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-862"
+                               data-desc="Unauthenticated Broken Access Control in Secure Card Gateway for ePay Paycenter (Piraeus Bank) &lt;= 1.0.32 versions."
+                               aria-label="View details for CVE-2026-61978">
+                                <span class="cve-id">CVE-2026-61978</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-14841"
+                               data-cve-card
+                               data-cve-id="CVE-2026-14841"
+                               data-title="King Addons for Elementor &lt; 51.1.76 - Reflected XSS via Posts Grid Widget"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="The King Addons for Elementor  WordPress plugin before 51.1.76 does not escape a user-supplied grid setting before reflecting it into an HTML attribute in an unauthenticated AJAX response, allowing attackers to execute arbitrary JavaScript in the browser of a visitor who is tricked into loading a crafted page."
+                               aria-label="View details for CVE-2026-14841">
+                                <span class="cve-id">CVE-2026-14841</span>
+                            </a>
+                        
+                    </div>
+                    <div class="home-cve-ticker-group" aria-hidden="true">
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-116400"
+                               data-cve-card
+                               data-cve-id="CVE-2026-116400"
+                               data-title="WordPress Button Block plugin &lt;= 1.2.7 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Button Block button-block allows Stored XSS.This issue affects Button Block: from n/a through 1.2.7."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-116400</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-116398"
+                               data-cve-card
+                               data-cve-id="CVE-2026-116398"
+                               data-title="WordPress Content Slider Block plugin &lt;= 3.2.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Content Slider Block content-slider-block allows Stored XSS.This issue affects Content Slider Block: from n/a through 3.2.1."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-116398</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-116395"
+                               data-cve-card
+                               data-cve-id="CVE-2026-116395"
+                               data-title="WordPress LightBox Block plugin &lt;= 1.2.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins LightBox Block lightbox-block allows Stored XSS.This issue affects LightBox Block: from n/a through 1.2.0."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-116395</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115966"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115966"
+                               data-title="WordPress Typing Text – Give your texts many typing effects plugin &lt;= 2.2.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Typing Text – Give your texts many typing effects text-typing allows Stored XSS.This issue affects Typing Text – Give your texts many typing effects: from n/a through 2.2.0."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-115966</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115961"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115961"
+                               data-title="WordPress B Slider plugin &lt;= 2.2.2 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins B Slider b-slider allows Stored XSS.This issue affects B Slider: from n/a through 2.2.2."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-115961</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115956"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115956"
+                               data-title="WordPress Panorama Viewer – 360 Degree Image + Video Viewer plugin &lt;= 1.8.3 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Panorama Viewer – 360 Degree Image + Video Viewer panorama allows Stored XSS.This issue affects Panorama Viewer – 360 Degree Image + Video Viewer: from n/a through 1.8.3."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-115956</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-115955"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115955"
+                               data-title="WordPress Advanced Post Block - Post Grid for WordPress block editor plugin &lt;= 2.5.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins Advanced Post Block - Post Grid for WordPress block editor advanced-post-block allows Stored XSS.This issue affects Advanced Post Block - Post Grid for WordPress block editor: from n/a through 2.5.1."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-115955</span>
+                            </a>
+                        
+                            <a class="cve-card severity-critical"
+                               href="/cves/?cve=CVE-2026-115607"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115607"
+                               data-title="WordPress DXP ToolKit plugin &lt;= 2.0.1 - SQL Injection vulnerability"
+                               data-severity="critical"
+                               data-score="9.3"
+                               data-state="published"
+                               data-cwes="cwe-89"
+                               data-desc="Improper Neutralization of Special Elements used in an SQL Command (&#39;SQL Injection&#39;) vulnerability in Crowd Favorite DXP ToolKit dxp-toolkit allows SQL Injection.This issue affects DXP ToolKit: from n/a through 2.0.1."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-115607</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-115606"
+                               data-cve-card
+                               data-cve-id="CVE-2026-115606"
+                               data-title="WordPress DXP ToolKit plugin &lt;= 2.0.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in Crowd Favorite DXP ToolKit dxp-toolkit allows Stored XSS.This issue affects DXP ToolKit: from n/a through 2.0.1."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-115606</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-111830"
+                               data-cve-card
+                               data-cve-id="CVE-2026-111830"
+                               data-title="WordPress WP Mailster plugin &lt;= 1.9.1.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in WP Mailster WP Mailster wp-mailster allows Stored XSS.This issue affects WP Mailster: from n/a through 1.9.1.0."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-111830</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-111829"
+                               data-cve-card
+                               data-cve-id="CVE-2026-111829"
+                               data-title="WordPress WP Mailster plugin &lt;= 1.9.1.0 - Local File Inclusion vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-98"
+                               data-desc="Improper Control of Filename for Include/Require Statement in PHP Program (&#39;PHP Remote File Inclusion&#39;) vulnerability in WP Mailster WP Mailster wp-mailster allows PHP Local File Inclusion.This issue affects WP Mailster: from n/a through 1.9.1.0."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-111829</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-111410"
+                               data-cve-card
+                               data-cve-id="CVE-2026-111410"
+                               data-title="WordPress e2pdf plugin &lt;= 1.32.57 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in E2Pdf.com e2pdf e2pdf allows Stored XSS.This issue affects e2pdf: from n/a through 1.32.57."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-111410</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-108168"
+                               data-cve-card
+                               data-cve-id="CVE-2026-108168"
+                               data-title="WordPress Custom Query Blocks plugin &lt;= 5.6.0 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in DLX Plugins Custom Query Blocks post-type-archive-mapping allows Stored XSS.This issue affects Custom Query Blocks: from n/a through 5.6.0."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-108168</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-104814"
+                               data-cve-card
+                               data-cve-id="CVE-2026-104814"
+                               data-title="WordPress Form Block plugin &lt;= 1.8.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in Form Block &lt;= 1.8.1 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-104814</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-104400"
+                               data-cve-card
+                               data-cve-id="CVE-2026-104400"
+                               data-title="WordPress B Blocks plugin &lt;= 2.1.8 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in bPlugins B Blocks b-blocks allows Stored XSS.This issue affects B Blocks: from n/a through 2.1.8."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-104400</span>
+                            </a>
+                        
+                            <a class="cve-card severity-critical"
+                               href="/cves/?cve=CVE-2026-104398"
+                               data-cve-card
+                               data-cve-id="CVE-2026-104398"
+                               data-title="WordPress AFFI – Affiliate Marketing for WooCommerce plugin &lt;= 1.0.10 - PHP Object Injection vulnerability"
+                               data-severity="critical"
+                               data-score="9.8"
+                               data-state="published"
+                               data-cwes="cwe-502"
+                               data-desc="Deserialization of Untrusted Data vulnerability in VillaTheme AFFI – Affiliate Marketing for WooCommerce affi-affiliate-marketing-for-woo allows Object Injection.This issue affects AFFI – Affiliate Marketing for WooCommerce: from n/a through 1.0.10."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-104398</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-100517"
+                               data-cve-card
+                               data-cve-id="CVE-2026-100517"
+                               data-title="WordPress Photo Reviews for WooCommerce plugin &lt;= 1.2.30 - Insecure Direct Object References (IDOR) vulnerability"
+                               data-severity="high"
+                               data-score="7.5"
+                               data-state="published"
+                               data-cwes="cwe-639"
+                               data-desc="Unauthenticated Insecure Direct Object References (IDOR) in Photo Reviews for WooCommerce &lt;= 1.2.30 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-100517</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-96332"
+                               data-cve-card
+                               data-cve-id="CVE-2026-96332"
+                               data-title="WordPress Simple Payment plugin &lt;= 2.5.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in yalla ya! Simple Payment simple-payment allows Reflected XSS.This issue affects Simple Payment: from n/a through 2.5.4."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-96332</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-92412"
+                               data-cve-card
+                               data-cve-id="CVE-2026-92412"
+                               data-title="Five Star Restaurant Reviews &lt; 2.3.14 - Reflected XSS"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="The Five Star Restaurant Reviews WordPress plugin before 2.3.14 does not properly escape a user-supplied value before outputting it into an HTML tag, allowing unauthenticated attackers to inject arbitrary web script that runs in the browser of anyone tricked into submitting a crafted request, including a logged-in administrator."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-92412</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-89269"
+                               data-cve-card
+                               data-cve-id="CVE-2026-89269"
+                               data-title="WP Testimonials &lt;= 1.4.13 - Author+ Stored XSS via wp-testimonials Shortcode"
+                               data-severity="medium"
+                               data-score="6.8"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="The WP Testimonials WordPress plugin through 1.4.13 does not properly escape testimonial content and reverses WordPress&#39;s HTML sanitization when rendering it, allowing users with the Author role and above to store JavaScript that executes in the session of any user viewing the testimonials, including administrators."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-89269</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-84781"
+                               data-cve-card
+                               data-cve-id="CVE-2026-84781"
+                               data-title="WordPress Gallery PhotoBlocks plugin &lt;= 1.3.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Contributor Cross Site Scripting (XSS) in Gallery PhotoBlocks &lt;= 1.3.4 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-84781</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-83556"
+                               data-cve-card
+                               data-cve-id="CVE-2026-83556"
+                               data-title="CVE-2026-83556 advisory record"
+                               data-severity="high"
+                               data-score=""
+                               data-state="reserved"
+                               data-cwes=""
+                               data-desc="This CVE identifier is reserved. Technical details are pending coordinated publication."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-83556</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-81765"
+                               data-cve-card
+                               data-cve-id="CVE-2026-81765"
+                               data-title="WordPress Tailored Tools plugin &lt;= 3.0.2 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in Tailored Tools &lt;= 3.0.2 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-81765</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-81292"
+                               data-cve-card
+                               data-cve-id="CVE-2026-81292"
+                               data-title="WordPress Simple Payment plugin &lt;= 2.5.1 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in Simple Payment &lt;= 2.5.1 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-81292</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-73354"
+                               data-cve-card
+                               data-cve-id="CVE-2026-73354"
+                               data-title="WordPress SimplyRETS Real Estate IDX plugin &lt;= 3.2.8 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in SimplyRETS Real Estate IDX &lt;= 3.2.8 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-73354</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-66687"
+                               data-cve-card
+                               data-cve-id="CVE-2026-66687"
+                               data-title="WordPress WpBookingly plugin &lt;= 1.3.2 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Customer Cross Site Scripting (XSS) in WpBookingly &lt;= 1.3.2 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-66687</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-66603"
+                               data-cve-card
+                               data-cve-id="CVE-2026-66603"
+                               data-title="WordPress Draft List plugin &lt;= 2.6.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in David Artiss Draft List simple-draft-list allows Stored XSS.
+
+This issue affects Draft List: from n/a through 2.6.4."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-66603</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-66584"
+                               data-cve-card
+                               data-cve-id="CVE-2026-66584"
+                               data-title="WordPress 12 Step Meeting List plugin &lt;= 3.19.16 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Unauthenticated Cross Site Scripting (XSS) in 12 Step Meeting List &lt;= 3.19.16 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-66584</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-62127"
+                               data-cve-card
+                               data-cve-id="CVE-2026-62127"
+                               data-title="WordPress WP plugin Info Card plugin &lt;= 6.3.5 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Improper Neutralization of Input During Web Page Generation (&#39;Cross-site Scripting&#39;) vulnerability in MediaRon LLC WP Plugin Info Card wp-plugin-info-card allows Stored XSS.This issue affects WP Plugin Info Card: from n/a through 6.3.5."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-62127</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-62111"
+                               data-cve-card
+                               data-cve-id="CVE-2026-62111"
+                               data-title="WordPress Simple Payment plugin &lt;= 2.5.4 - Cross Site Scripting (XSS) vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="Contributor Cross Site Scripting (XSS) in Simple Payment &lt;= 2.5.4 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-62111</span>
+                            </a>
+                        
+                            <a class="cve-card severity-critical"
+                               href="/cves/?cve=CVE-2026-62025"
+                               data-cve-card
+                               data-cve-id="CVE-2026-62025"
+                               data-title="WordPress Tailored Tools plugin &lt;= 3.0.3 - Arbitrary File Upload vulnerability"
+                               data-severity="critical"
+                               data-score="9"
+                               data-state="published"
+                               data-cwes="cwe-434"
+                               data-desc="Unauthenticated Arbitrary File Upload in Tailored Tools &lt;= 3.0.3 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-62025</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-61985"
+                               data-cve-card
+                               data-cve-id="CVE-2026-61985"
+                               data-title="WordPress Car Rental Manager plugin &lt;= 1.3.7 - Broken Access Control vulnerability"
+                               data-severity="medium"
+                               data-score="5.3"
+                               data-state="published"
+                               data-cwes="cwe-862"
+                               data-desc="Missing Authorization vulnerability in magepeopleteam Car Rental Manager car-rental-manager allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Car Rental Manager: from n/a through &lt;= 1.3.7."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-61985</span>
+                            </a>
+                        
+                            <a class="cve-card severity-medium"
+                               href="/cves/?cve=CVE-2026-61978"
+                               data-cve-card
+                               data-cve-id="CVE-2026-61978"
+                               data-title="WordPress Secure Card Gateway for ePay Paycenter (Piraeus Bank) plugin &lt;= 1.0.32 - Broken Access Control vulnerability"
+                               data-severity="medium"
+                               data-score="6.5"
+                               data-state="published"
+                               data-cwes="cwe-862"
+                               data-desc="Unauthenticated Broken Access Control in Secure Card Gateway for ePay Paycenter (Piraeus Bank) &lt;= 1.0.32 versions."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-61978</span>
+                            </a>
+                        
+                            <a class="cve-card severity-high"
+                               href="/cves/?cve=CVE-2026-14841"
+                               data-cve-card
+                               data-cve-id="CVE-2026-14841"
+                               data-title="King Addons for Elementor &lt; 51.1.76 - Reflected XSS via Posts Grid Widget"
+                               data-severity="high"
+                               data-score="7.1"
+                               data-state="published"
+                               data-cwes="cwe-79"
+                               data-desc="The King Addons for Elementor  WordPress plugin before 51.1.76 does not escape a user-supplied grid setting before reflecting it into an HTML attribute in an unauthenticated AJAX response, allowing attackers to execute arbitrary JavaScript in the browser of a visitor who is tricked into loading a crafted page."
+                               tabindex="-1"
+                               aria-hidden="true">
+                                <span class="cve-id">CVE-2026-14841</span>
+                            </a>
+                        
+                    </div>
+                </div>
             </div>
         </section>
 

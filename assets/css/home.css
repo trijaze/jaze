@@ -2,6 +2,12 @@
     display: grid;
     gap: clamp(var(--space-12), 7vw, var(--space-20));
     padding-top: 0;
+    min-width: 0;
+}
+
+.home-page > * {
+    min-width: 0;
+    max-width: 100%;
 }
 
 /* ==========================================================================
@@ -79,8 +85,10 @@
 .hero-title,
 .jaze-logo-line--main {
     font-family: var(--font-logo, 'Anta', sans-serif);
-    font-size: clamp(4.4rem, 72vw, 11.8rem); 
-    font-weight: 400 !important;
+    font-size: clamp(4.4rem, 11vw, 11.8rem); 
+    font-weight: 700 !important;
+    -webkit-text-stroke: 1.2px currentColor;
+    paint-order: stroke fill;
     line-height: 0.92;
     letter-spacing: clamp(0.12em, 0.35vw, 0.24em);
     margin-right: calc(-1 * clamp(0.12em, 0.35vw, 0.24em));
@@ -94,27 +102,57 @@
     text-shadow: none !important;
     position: relative;
     z-index: 3;
+    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.85) 88%, #000000 100%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 88%, #000000 100%);
 }
 
 @media (max-width: 48rem) {
     .hero-title,
     .jaze-logo-line--main {
-        font-size: 7.8rem;
+        font-size: clamp(3.8rem, 21vw, 6.2rem);
+        letter-spacing: 0.14em;
+        margin-right: -0.14em;
+        -webkit-text-stroke: 0.8px currentColor;
     }
 }
 
-/* Bio Summary */
+/* Bio Summary — Single line on desktop, elegant balanced 2 lines on mobile */
 .hero-bio {
-    max-width: min(92vw, 42rem);
     color: var(--text-soft);
     font-family: 'Chakra Petch', sans-serif;
-    font-size: clamp(0.92rem, 1.25vw, 1.05rem);
     font-weight: 400;
-    line-height: 1.45;
-    letter-spacing: 0.02em;
     text-align: center;
     margin: 0 auto;
-    white-space: normal;
+}
+
+@media (min-width: 48.0625rem) {
+    .hero-bio {
+        width: max-content;
+        max-width: 100%;
+        white-space: nowrap !important;
+        font-size: clamp(0.72rem, 1.35vw, 1.05rem);
+        line-height: 1.45;
+        letter-spacing: clamp(0px, 0.04vw, 0.02em);
+    }
+}
+
+@media (max-width: 48rem) {
+    .hero-bio {
+        white-space: normal;
+        max-width: 34ch;
+        text-wrap: balance;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        padding-inline: var(--space-2);
+        letter-spacing: 0.01em;
+    }
+}
+
+@media (max-width: 25rem) {
+    .hero-bio {
+        font-size: 0.82rem;
+        max-width: 30ch;
+    }
 }
 
 /* Actions CTAs */
@@ -126,6 +164,22 @@
     gap: var(--space-2);
     margin: 0;
     padding-top: 0.2rem;
+}
+
+@media (max-width: 32rem) {
+    .hero-actions {
+        width: 100%;
+        max-width: 22rem;
+    }
+
+    .hero-actions .hero-link {
+        flex: 1 1 45%;
+        justify-content: center;
+        text-align: center;
+        min-height: 44px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
 }
 
 .hero-link {
@@ -219,12 +273,51 @@
     gap: var(--space-1);
 }
 
+.stats-item--link {
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--duration-fast) var(--ease-enter);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+.stats-item--link:hover .stats-item__val,
+.stats-item--link:focus-visible .stats-item__val {
+    color: var(--accent);
+}
+
+.stats-item--link:active {
+    transform: scale(0.96);
+}
+
 .stats-item__val {
     color: #ffffff;
     font-size: var(--font-size-xl);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    transition: color var(--duration-fast) var(--ease-enter);
+}
+
+.stats-item__arrow {
+    display: inline-block;
+    font-size: 0.78em;
+    color: var(--accent, #19a800);
+    transition: transform var(--duration-fast) var(--ease-enter);
+}
+
+.stats-item--link:hover .stats-item__arrow {
+    transform: translate(2px, -2px);
+}
+
+.stats-item__val--whoami {
+    font-family: var(--font-code, 'IBM Plex Mono', monospace);
+    color: var(--accent, #19a800);
+    letter-spacing: -0.01em;
 }
 
 .stats-item__val--accent {
@@ -266,6 +359,131 @@
 
 .section-header-compact .view-all:hover {
     text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   Home CVE Auto Slide Show Ticker (Desktop Horizontal / Mobile Vertical)
+   ========================================================================== */
+
+.home-cve-ticker-section {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.home-cve-ticker-viewport {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+    padding-block: var(--space-2);
+    mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+}
+
+.home-cve-ticker-track {
+    display: flex;
+    flex-direction: row;
+    width: max-content;
+    will-change: transform;
+    animation: homeCveScrollX 65s linear infinite;
+}
+
+.home-cve-ticker-group {
+    display: grid;
+    grid-template-rows: repeat(3, auto);
+    grid-auto-flow: column;
+    gap: var(--space-3);
+    padding-right: var(--space-3);
+    flex-shrink: 0;
+}
+
+.home-cve-ticker-group .cve-card {
+    min-width: 175px;
+    min-height: 3.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes homeCveScrollX {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.home-cve-ticker-viewport:hover .home-cve-ticker-track,
+.home-cve-ticker-viewport:active .home-cve-ticker-track,
+.home-cve-ticker-viewport.is-paused .home-cve-ticker-track,
+.home-cve-ticker-viewport:focus-within .home-cve-ticker-track {
+    animation-play-state: paused;
+}
+
+/* Mobile Vertical Slide Show (V1T KEV style auto-scrolling) */
+@media (max-width: 48rem) {
+    .home-cve-ticker-viewport {
+        height: 330px;
+        width: 100%;
+        max-width: min(100%, 25rem);
+        margin-inline: auto;
+        padding-block: 0;
+        mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    }
+
+    .home-cve-ticker-track {
+        flex-direction: column;
+        width: 100%;
+        height: max-content;
+        animation: homeCveScrollY 38s linear infinite;
+    }
+
+    .home-cve-ticker-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: var(--space-2);
+        padding-right: 0;
+        padding-bottom: var(--space-2);
+    }
+
+    .home-cve-ticker-group .cve-card {
+        width: 100%;
+        min-width: 0;
+        min-height: 3.4rem;
+        padding: 0.5rem 0.85rem;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @keyframes homeCveScrollY {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-50%);
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-cve-ticker-track {
+        animation-play-state: paused !important;
+    }
+}
+
+/* Fallback Grid */
+.home-cve-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-3);
 }
 
 .cve-table {
@@ -415,12 +633,12 @@
     }
 }
 
-/* Content Typography (PT Sans Caption) */
+/* Technical Cyber Typography (Chakra Petch) */
 .home-cves,
 .home-posts,
 .home-cves .section-header-compact,
 .home-posts .section-header-compact,
 .cve-row,
 .home-post-row {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: 'Chakra Petch', sans-serif;
 }

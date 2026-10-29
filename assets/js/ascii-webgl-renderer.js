@@ -15,6 +15,15 @@
     const TETRAHEDRA = [[0, 5, 1, 6], [0, 1, 2, 6], [0, 2, 3, 6], [0, 3, 7, 6], [0, 7, 4, 6], [0, 4, 5, 6]];
     const CORNERS = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]];
 
+    // Calibrated particle counts to guarantee uniform visual density (~5,000 particles / unit area)
+    // across manifolds of drastically different topological surface areas
+    const MODEL_PARTICLE_COUNTS = {
+        neovius: 80000,
+        lissajous: 80000,
+        gyroid: 65000,
+        superformula: 38000
+    };
+
     const MESH_VERTEX = `#version 300 es
     precision highp float;
     layout(location=0) in vec3 aPosition;
@@ -424,6 +433,7 @@
             if (!this.gl) throw new Error('WebGL2 is unavailable. Select the Canvas2D fallback.');
             this.resolution = Math.max(16, Math.min(72, Math.floor(options.implicitResolution || 40)));
             this.particleCount = Math.max(1000,Math.min(160000,Math.floor(options.particleCount || 80000)));
+            this.modelParticleCounts = { ...MODEL_PARTICLE_COUNTS, ...(options.modelParticleCounts || {}) };
             this.stats = { available: true, lost: false, model: null, vertices: 0, triangles: 0, totalParticles: 0, visibleInstances: 0, renderStyle: 'particles', buildMs: 0, cpuMs: 0, gpuMs: null };
             this.rotation = new Float32Array(9);
             this.pendingQueries = [];
@@ -504,7 +514,8 @@
                 data = id === 'lissajous' ? lissajousMesh() : id === 'superformula' ? supershapeMesh() : implicitMesh(id, this.resolution);
                 GEOMETRY_CACHE.set(cacheKey, data);
             }
-            const particles = sampleSurfaceParticles(data,this.particleCount,`${cacheKey}:${this.particleCount}`);
+            const targetCount = this.modelParticleCounts[id] || this.particleCount;
+            const particles = sampleSurfaceParticles(data, targetCount, `${cacheKey}:${targetCount}`);
             this.particleData = particles;
             if (this.gpuModel === id && !this.stats.lost) return this.getStats();
             if (!this.stats.lost) {
@@ -771,5 +782,6 @@
         }
     }
 
+    JazeAsciiWebGL.MODEL_PARTICLE_COUNTS = MODEL_PARTICLE_COUNTS;
     global.JazeAsciiWebGL = JazeAsciiWebGL;
 }(window));

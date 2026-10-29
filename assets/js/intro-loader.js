@@ -86,17 +86,23 @@
     //   Exterior (thu nhỏ): cameraZ 2.4, scale 1.0, surfaceFill 35% (0.35), color #148500 (20, 133, 0)
     //   Interior (phóng to sâu): cameraZ 1.18, scale 1.35, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
     let activeEngine = 'webgl';
-    let viewMode = 'exterior';
+    let introFinished = !introLoader;
+    let viewMode = introFinished ? 'interior' : 'exterior';
+    const initZoom = getZoomInParams();
 
-    let currentCameraZ = 2.4;
-    let targetCameraZ = 2.4;
-    let currentScaleMultiplier = 1.0;
-    let targetScaleMultiplier = 1.0;
-    let currentSurfaceFill = 0.35;
-    let targetSurfaceFill = 0.35;
+    let currentCameraZ = introFinished ? initZoom.cameraZ : 2.4;
+    let targetCameraZ = introFinished ? initZoom.cameraZ : 2.4;
+    let currentScaleMultiplier = introFinished ? initZoom.scaleMultiplier : 1.0;
+    let targetScaleMultiplier = introFinished ? initZoom.scaleMultiplier : 1.0;
+    let currentSurfaceFill = introFinished ? initZoom.surfaceFill : 0.35;
+    let targetSurfaceFill = introFinished ? initZoom.surfaceFill : 0.35;
 
-    let currentR = 20, currentG = 133, currentB = 0;
-    let targetR = 20, targetG = 133, targetB = 0;
+    let currentR = introFinished ? 18 : 12;
+    let currentG = introFinished ? 215 : 133;
+    let currentB = introFinished ? 15 : 5;
+    let targetR = currentR;
+    let targetG = currentG;
+    let targetB = currentB;
 
     let spinPhase = 0.55;
     let spinVelocity = 0.22;
@@ -105,13 +111,18 @@
     let currentTiltX = 0;
     let currentTiltY = 0;
 
-    let introFinished = false;
     let introStartTime = 0;
     let lastTime = 0;
 
+    if (introFinished && spatialBg) {
+        spatialBg.classList.remove('site-spatial-bg--intro', 'site-spatial-bg--exterior');
+        spatialBg.classList.add('site-spatial-bg--interior');
+    }
+
     let width = window.innerWidth;
     let height = window.innerHeight;
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobileDevice = width < 768 || (width < height);
+    let dpr = Math.min(window.devicePixelRatio || 1, isMobileDevice ? 1.5 : 2);
 
     const fontSize = 2.2; // Nano 2.2px
     const supersample = 2; // High-fidelity 2x supersampling
@@ -474,6 +485,13 @@
         updateScaleCalibration();
         updateStarPosition();
 
+        if (viewMode === 'interior') {
+            const zoom = getZoomInParams();
+            targetCameraZ = zoom.cameraZ;
+            targetScaleMultiplier = zoom.scaleMultiplier;
+            targetSurfaceFill = zoom.surfaceFill;
+        }
+
         if (activeEngine === 'webgl' && webglRenderer && !webglRenderer.getStats().lost) {
             webglRenderer.resize({
                 width,
@@ -515,6 +533,16 @@
         }
     }
 
+    // Adaptive Zoom Parameters (Ensures deep immersion on both mobile portrait and desktop widescreen)
+    function getZoomInParams() {
+        const isMobile = window.innerWidth < 768 || (window.innerWidth < window.innerHeight);
+        return {
+            cameraZ: isMobile ? 1.04 : 1.18,
+            scaleMultiplier: isMobile ? 1.95 : 1.35,
+            surfaceFill: 1.00 // 100% full density surface fill
+        };
+    }
+
     // Perspective Toggle (Zoom In <-> Zoom Out)
     function togglePerspective() {
         if (viewMode === 'interior') {
@@ -532,11 +560,12 @@
             spatialBg.classList.remove('site-spatial-bg--interior');
             spatialBg.classList.add('site-spatial-bg--exterior');
         } else {
-            // Switch to Interior (Zoom In sâu hơn / Phóng to - cinematic immersive dive)
+            // Switch to Interior (Zoom In sâu hơn / Phóng to - adaptive deep dive on desktop & mobile)
             viewMode = 'interior';
-            targetCameraZ = 1.18;
-            targetScaleMultiplier = 1.35;
-            targetSurfaceFill = 1.00; // 100% surface fill in zoom in (All particles 100% full density)
+            const zoom = getZoomInParams();
+            targetCameraZ = zoom.cameraZ;
+            targetScaleMultiplier = zoom.scaleMultiplier;
+            targetSurfaceFill = zoom.surfaceFill;
 
             if (starTooltip) starTooltip.textContent = 'Zoom Out';
             if (starButton) {
@@ -573,11 +602,12 @@
             }, 800);
         }
 
-        // Revealing web in interior zoom-in state (deep cinematic dive)
+        // Revealing web in interior zoom-in state (adaptive dive for mobile & desktop)
         viewMode = 'interior';
-        targetCameraZ = 1.18;
-        targetScaleMultiplier = 1.35;
-        targetSurfaceFill = 1.00;
+        const zoom = getZoomInParams();
+        targetCameraZ = zoom.cameraZ;
+        targetScaleMultiplier = zoom.scaleMultiplier;
+        targetSurfaceFill = zoom.surfaceFill;
         spatialBg.classList.remove('site-spatial-bg--exterior');
         spatialBg.classList.add('site-spatial-bg--interior');
 
@@ -764,7 +794,7 @@
 
             // Cinematic choreography:
             // 0s - 1s (elapsed < 1000): Normal rotation at overview bounds (cameraZ 2.4, 35% fill)
-            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into zoom-in interior point (cameraZ 1.18, 100% fill)
+            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into adaptive interior point (100% fill)
             if (elapsed < 1000) {
                 targetCameraZ = 2.4;
                 targetScaleMultiplier = 1.0;
@@ -772,9 +802,10 @@
             } else {
                 const zoomProgress = clamp((elapsed - 1000) / 2000, 0, 1);
                 const ease = zoomProgress * zoomProgress * (3 - 2 * zoomProgress);
-                targetCameraZ = 2.4 + (1.18 - 2.4) * ease;
-                targetScaleMultiplier = 1.0 + (1.35 - 1.0) * ease;
-                targetSurfaceFill = 0.35 + (1.00 - 0.35) * ease;
+                const zoom = getZoomInParams();
+                targetCameraZ = 2.4 + (zoom.cameraZ - 2.4) * ease;
+                targetScaleMultiplier = 1.0 + (zoom.scaleMultiplier - 1.0) * ease;
+                targetSurfaceFill = 0.35 + (zoom.surfaceFill - 0.35) * ease;
             }
 
             if (elapsed >= INTRO_DURATION_MS) {
@@ -787,12 +818,12 @@
         const isBoostActive = document.body.classList.contains('green-boost-active');
         if (viewMode === 'interior') {
             targetR = isBoostActive ? 0 : (isBlurActive ? 16 : 18);
-            targetG = isBoostActive ? 255 : (isBlurActive ? 245 : 215);
-            targetB = isBoostActive ? 45 : (isBlurActive ? 30 : 15);
+            targetG = isBoostActive ? 255 : (isBlurActive ? 230 : 215);
+            targetB = isBoostActive ? 45 : (isBlurActive ? 25 : 15);
         } else {
             targetR = isBoostActive ? 0 : (isBlurActive ? 10 : 12);
-            targetG = isBoostActive ? 245 : (isBlurActive ? 200 : 133);
-            targetB = isBoostActive ? 35 : (isBlurActive ? 18 : 5);
+            targetG = isBoostActive ? 245 : (isBlurActive ? 160 : 133);
+            targetB = isBoostActive ? 35 : (isBlurActive ? 15 : 5);
         }
 
         // Smooth Exponential Damping for Camera, Scale, Surface Fill, and Color

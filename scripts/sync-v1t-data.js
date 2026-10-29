@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('node:fs/promises');
+const fsSync = require('node:fs');
 const path = require('node:path');
 const {
     buildMemberLookup,
@@ -13,6 +14,7 @@ const {
 const projectRoot = path.resolve(__dirname, '..');
 const defaultSourceRoot = path.resolve(projectRoot, '..', 'v1t');
 const targetDataRoot = path.join(projectRoot, 'assets', 'data');
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/xuanlockun/v1t/refs/heads/main';
 const DATA_FILES = Object.freeze(['members.json', 'cves-list.json', 'cves-local.json']);
 const STATIC_ASSETS = Object.freeze([
     { source: ['assets', 'images', 'jaze_v1t.png'], target: ['assets', 'images', 'jaze_v1t.png'] },
@@ -39,8 +41,47 @@ function parseArgs(argv) {
     return { sourceRoot };
 }
 
+async function fetchRemoteJson(fileName) {
+    const url = `${GITHUB_RAW_BASE}/assets/data/${fileName}`;
+    const response = await fetch(url, {
+        headers: {
+            Accept: 'application/json',
+            'User-Agent': 'Jaze-Security-Research-Automation/1.0'
+        },
+        cache: 'no-store'
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText} fetching remote ${url}`);
+    }
+    const text = await response.text();
+    try {
+        return { fileName, filePath: url, text, value: JSON.parse(text), isRemote: true };
+    } catch (e) {
+        throw new Error(`Invalid JSON from remote ${url}: ${e.message}`);
+    }
+}
+
+async function fetchRemoteStaticAsset(asset) {
+    const url = `${GITHUB_RAW_BASE}/${asset.source.join('/')}`;
+    const response = await fetch(url, {
+        headers: { 'User-Agent': 'Jaze-Security-Research-Automation/1.0' },
+        cache: 'no-store'
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText} fetching remote ${url}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const content = Buffer.from(arrayBuffer);
+    return { ...asset, filePath: url, content, isRemote: true };
+}
+
 async function readJsonSource(sourceRoot, fileName) {
     const filePath = path.join(sourceRoot, 'assets', 'data', fileName);
+    if (!fsSync.existsSync(filePath)) {
+        console.log(`[sync-v1t] Local file not found at ${filePath}. Falling back to GitHub raw upstream...`);
+        return await fetchRemoteJson(fileName);
+    }
+
     let text;
     try {
         text = await fs.readFile(filePath, 'utf8');
@@ -49,7 +90,7 @@ async function readJsonSource(sourceRoot, fileName) {
     }
 
     try {
-        return { fileName, filePath, text, value: JSON.parse(text) };
+        return { fileName, filePath, text, value: JSON.parse(text), isRemote: false };
     } catch (error) {
         throw new Error(`Invalid JSON in ${filePath}: ${error.message}`);
     }
@@ -57,6 +98,15 @@ async function readJsonSource(sourceRoot, fileName) {
 
 async function readStaticAssetSource(sourceRoot, asset) {
     const filePath = path.join(sourceRoot, ...asset.source);
+    if (!fsSync.existsSync(filePath)) {
+        try {
+            return await fetchRemoteStaticAsset(asset);
+        } catch (e) {
+            console.warn(`[sync-v1t] Remote asset fetch notice: ${e.message}`);
+            return null;
+        }
+    }
+
     let content;
     try {
         content = await fs.readFile(filePath);
@@ -66,7 +116,7 @@ async function readStaticAssetSource(sourceRoot, asset) {
     if (!content.length) {
         throw new Error(`Static asset is empty: ${filePath}`);
     }
-    return { ...asset, filePath, content };
+    return { ...asset, filePath, content, isRemote: false };
 }
 
 async function writeBinaryFileAtomically(targetPath, content) {
@@ -162,7 +212,7 @@ async function syncV1tData(options = {}) {
     }
 
     const changedAssets = [];
-    for (const asset of assetEntries) {
+    for (const asset of assetEntries.filter(Boolean)) {
         const targetPath = path.join(projectRoot, ...asset.target);
         let current = null;
         try {

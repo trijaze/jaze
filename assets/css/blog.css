@@ -1,6 +1,6 @@
 .blog-page,
 .post-page {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-content, 'Chakra Petch', sans-serif);
     display: grid;
     gap: clamp(var(--space-8), 6vw, var(--space-16));
     padding-top: clamp(var(--space-6), 4vw, var(--space-10));
@@ -17,7 +17,7 @@
 .blog-header h1,
 .archive-header h1,
 .post-header h1 {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
     font-size: var(--font-size-2xl);
 }
@@ -25,7 +25,7 @@
 .blog-header > p,
 .archive-header > p,
 .post-deck {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-content, 'Chakra Petch', sans-serif);
     max-width: 62ch;
     color: var(--muted);
     font-size: var(--font-size-md);
@@ -34,12 +34,21 @@
 .blog-toolbar,
 .post-toolbar {
     display: grid;
+    grid-template-columns: 1fr;
     gap: var(--space-3);
     padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: rgba(17, 45, 17, 0.35);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+@media (min-width: 32rem) {
+    .blog-toolbar,
+    .post-toolbar {
+        grid-template-columns: 1.4fr 1fr 1fr;
+        align-items: end;
+    }
 }
 
 .field,
@@ -64,12 +73,14 @@
 .blog-search,
 .blog-sort {
     width: 100%;
-    min-height: var(--control-size);
+    min-height: 44px;
     padding: var(--space-2) var(--space-3);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: rgba(3, 20, 1, 0.6);
     color: var(--text);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .field input::placeholder,
@@ -123,7 +134,7 @@
 }
 
 .post-card__title {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
     font-size: var(--font-size-lg);
 }
@@ -134,7 +145,7 @@
 }
 
 .post-card__excerpt {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-content, 'Chakra Petch', sans-serif);
     color: var(--muted);
 }
 
@@ -169,7 +180,7 @@
 
 .post-prose,
 .prose {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-content, 'Chakra Petch', sans-serif);
     min-width: 0;
     max-width: var(--prose-width);
     color: var(--text-soft);
@@ -184,7 +195,7 @@
 
 .post-prose h2,
 .prose h2 {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
     margin-top: var(--space-12);
     font-size: var(--font-size-xl);
@@ -192,7 +203,7 @@
 
 .post-prose h3,
 .prose h3 {
-    font-family: var(--font-content, 'PT Sans Caption', sans-serif);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
     margin-top: var(--space-8);
     font-size: var(--font-size-lg);
@@ -218,12 +229,14 @@
     color: var(--text-soft);
     font-size: var(--font-size-sm);
     line-height: 1.65;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior-inline: contain;
 }
 
 .code-block__header {
     display: flex;
-    min-height: var(--control-size);
+    min-height: 44px;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
@@ -243,13 +256,19 @@
 }
 
 .copy-code {
-    min-width: var(--control-size);
-    min-height: var(--control-size);
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: 0;
     background: transparent;
     color: var(--accent);
     font-family: var(--font-display);
     font-size: var(--font-size-xs);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
 }
 
 .post-prose blockquote,

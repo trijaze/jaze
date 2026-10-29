@@ -27,12 +27,14 @@ function renderNavigation(activePage = '') {
         return `<li><a href="${escapeHtml(item.href)}"${current}${external}>${escapeHtml(item.label)}</a></li>`;
     }).join('');
 
+    const isBlurDefaultOn = activePage !== 'profile';
+
     return `
     <header class="site-header">
         <nav class="site-nav site-shell" aria-label="Primary navigation">
             <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
             <div class="nav-actions">
-                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="${isBlurDefaultOn ? 'true' : 'false'}" aria-label="Toggle background blur" title="Toggle background blur (B)">
                     <span class="nav-blur-switch__track" aria-hidden="true">
                         <span class="nav-blur-switch__thumb"></span>
                     </span>
@@ -93,7 +95,9 @@ function renderDocument({
     const stylesheetLinks = ['tokens.css', 'base.css', 'nav.css', ...styles]
         .map(file => `    <link rel="stylesheet" href="/assets/css/${escapeHtml(file)}">`)
         .join('\n');
-    const scriptTags = ['nav.js', ...scripts]
+    const defaultScripts = ['nav.js', 'ascii-webgl-renderer.js', 'intro-loader.js'];
+    const allScripts = [...new Set([...defaultScripts, ...scripts])];
+    const scriptTags = allScripts
         .map(file => `    <script src="/assets/js/${escapeHtml(file)}" defer></script>`)
         .join('\n');
     const schemaPayloads = structuredData
@@ -119,9 +123,10 @@ function renderDocument({
         "worker-src 'none'"
     ].join('; ');
 
-    const hasIntro = scripts.includes('intro-loader.js');
+    const hasIntro = scripts.includes('intro-loader.js') && activePage === 'profile';
+    const isBlurDefaultOn = activePage !== 'profile';
     const bodyClasses = [];
-    if (!hasIntro) bodyClasses.push('bg-blur-active');
+    if (isBlurDefaultOn) bodyClasses.push('bg-blur-active');
     if (hasIntro) bodyClasses.push('intro-active');
     const bodyClass = bodyClasses.length ? ` class="${bodyClasses.join(' ')}"` : '';
 
@@ -155,6 +160,11 @@ ${schemas}
 ${scriptTags}
 </head>
 <body${bodyClass} data-page="${escapeHtml(activePage)}">
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+    </div>
     <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 ${renderNavigation(activePage)}
 ${body}
