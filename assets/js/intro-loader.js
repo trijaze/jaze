@@ -82,9 +82,9 @@
     // Engine: WebGL2 ASCII with Canvas2D fallback
     // GPU Style: Surface particles
     // Density: Nano 2.2px (supersample 2)
-    // Perspective States (Matching 3D Lab sample-canvas-3d.html):
+    // Perspective States (Matching 3D Lab with deep cinematic dive):
     //   Exterior (thu nhỏ): cameraZ 2.4, scale 1.0, surfaceFill 35% (0.35), color #148500 (20, 133, 0)
-    //   Interior (phóng to): cameraZ 1.45, scale 1.25, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
+    //   Interior (phóng to sâu): cameraZ 1.18, scale 1.35, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
     let activeEngine = 'webgl';
     let viewMode = 'exterior';
 
@@ -378,7 +378,7 @@
         const isMobile = width < 768 || (width < height);
         let focal;
         if (isMobile) {
-            const targetMobileSize = Math.max(width * 1.38, height * 0.65);
+            const targetMobileSize = Math.max(width * 1.45, height * 0.70);
             focal = (targetMobileSize * 0.5) / (cachedMaxProjY || 0.82);
         } else {
             const FIT_TARGET = 0.94;
@@ -532,10 +532,10 @@
             spatialBg.classList.remove('site-spatial-bg--interior');
             spatialBg.classList.add('site-spatial-bg--exterior');
         } else {
-            // Switch to Interior (Zoom In / Phóng to - matching 3D Lab sample-canvas-3d.html)
+            // Switch to Interior (Zoom In sâu hơn / Phóng to - cinematic immersive dive)
             viewMode = 'interior';
-            targetCameraZ = 1.45;
-            targetScaleMultiplier = 1.25;
+            targetCameraZ = 1.18;
+            targetScaleMultiplier = 1.35;
             targetSurfaceFill = 1.00; // 100% surface fill in zoom in (All particles 100% full density)
 
             if (starTooltip) starTooltip.textContent = 'Zoom Out';
@@ -573,10 +573,10 @@
             }, 800);
         }
 
-        // Revealing web in interior zoom-in state (matching 3D Lab sample-canvas-3d.html)
+        // Revealing web in interior zoom-in state (deep cinematic dive)
         viewMode = 'interior';
-        targetCameraZ = 1.45;
-        targetScaleMultiplier = 1.25;
+        targetCameraZ = 1.18;
+        targetScaleMultiplier = 1.35;
         targetSurfaceFill = 1.00;
         spatialBg.classList.remove('site-spatial-bg--exterior');
         spatialBg.classList.add('site-spatial-bg--interior');
@@ -764,7 +764,7 @@
 
             // Cinematic choreography:
             // 0s - 1s (elapsed < 1000): Normal rotation at overview bounds (cameraZ 2.4, 35% fill)
-            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into zoom-in interior point (cameraZ 1.45, 100% fill)
+            // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into zoom-in interior point (cameraZ 1.18, 100% fill)
             if (elapsed < 1000) {
                 targetCameraZ = 2.4;
                 targetScaleMultiplier = 1.0;
@@ -772,8 +772,8 @@
             } else {
                 const zoomProgress = clamp((elapsed - 1000) / 2000, 0, 1);
                 const ease = zoomProgress * zoomProgress * (3 - 2 * zoomProgress);
-                targetCameraZ = 2.4 + (1.45 - 2.4) * ease;
-                targetScaleMultiplier = 1.0 + (1.25 - 1.0) * ease;
+                targetCameraZ = 2.4 + (1.18 - 2.4) * ease;
+                targetScaleMultiplier = 1.0 + (1.35 - 1.0) * ease;
                 targetSurfaceFill = 0.35 + (1.00 - 0.35) * ease;
             }
 
