@@ -3,35 +3,140 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#020c00">
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-WZuSxr0aeloFiavpTuMtCxELtBRRytyZICj9DHWtLtM=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://jaze.v1t.site/blog/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="alternate" type="application/rss+xml" title="Jaze research feed" href="/feed.xml">
     <title>Research Blog — Jaze</title>
-    <meta name="description" content="Security research notes and technical publications by Jaze.">
+    <meta name="description" content="Security research publications, technical analysis, and vulnerability writeups by Jaze.">
+    <meta name="author" content="Jaze">
+    <meta property="og:site_name" content="Jaze Security Research">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Research Blog — Jaze">
+    <meta property="og:description" content="Security research publications, technical analysis, and vulnerability writeups by Jaze.">
+    <meta property="og:url" content="https://jaze.v1t.site/blog/">
+    <meta property="og:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
+    <meta property="og:image:alt" content="Jaze security research profile">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Research Blog — Jaze">
+    <meta name="twitter:description" content="Security research publications, technical analysis, and vulnerability writeups by Jaze.">
+    <meta name="twitter:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
     <link rel="stylesheet" href="/assets/css/tokens.css">
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/nav.css">
     <link rel="stylesheet" href="/assets/css/blog.css">
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": "https://jaze.v1t.site/blog/#blog",
+  "url": "https://jaze.v1t.site/blog/",
+  "name": "Research Blog — Jaze",
+  "description": "Security research publications and technical writeups by Jaze."
+}</script>
     <script src="/assets/js/nav.js" defer></script>
+    <script src="/assets/js/ascii-webgl-renderer.js" defer></script>
+    <script src="/assets/js/intro-loader.js" defer></script>
+    <script src="/assets/js/blog.js" defer></script>
 </head>
-<body>
+<body class="bg-blur-active" data-page="blog">
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+    </div>
+    <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
+
     <header class="site-header">
         <nav class="site-nav site-shell" aria-label="Primary navigation">
-            <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span>_</span></a>
-            <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle><span class="nav-toggle-lines" aria-hidden="true"></span></button>
-            <ul class="nav-links" id="primary-menu" data-nav-menu>
-                <li><a href="/">Profile</a></li>
-                <li><a href="/blog/" aria-current="page">Blog</a></li>
-                <li><a href="/cves/">CVEs</a></li>
-                <li><a href="https://v1t.site/" rel="external">V1T</a></li>
-            </ul>
+            <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
+            <div class="nav-actions">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                    <span class="nav-blur-switch__track" aria-hidden="true">
+                        <span class="nav-blur-switch__thumb"></span>
+                    </span>
+                </button>
+                <button class="nav-brightness-btn" id="nav-brightness-btn" type="button" aria-pressed="false" aria-label="Toggle 3x green brightness boost" title="Boost green brightness 3x (L)">
+                    <span class="nav-brightness-label" aria-hidden="true">BOOST</span>
+                </button>
+                <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
+                    <span class="nav-toggle-lines" aria-hidden="true"></span>
+                </button>
+            </div>
+            <ul class="nav-links" id="primary-menu" data-nav-menu><li><a href="/">Profile</a></li><li><a href="/blog/" aria-current="page">Blog</a></li><li><a href="/cves/">CVEs</a></li><li><a href="https://v1t.site/" rel="external">V1T</a></li></ul>
         </nav>
     </header>
-    <main class="page-main site-shell" id="main-content">
-        <section class="route-placeholder" aria-labelledby="page-title">
-            <p class="route-kicker">Blog route initialized</p>
-            <h1 id="page-title">Research notes.</h1>
-            <p>Published entries will be generated from validated post metadata and content JSON.</p>
+
+    <main class="page-main site-shell blog-page" id="main-content">
+        <header class="blog-header archive-header">
+            <h1 id="page-title">Research Notes.</h1>
+            <p>Technical writeups, vulnerability discovery methodologies, and proof-of-concept walkthroughs.</p>
+        </header>
+
+        <section class="blog-archive" aria-label="Research note archive" data-blog-archive>
+        <form class="cve-toolbar blog-toolbar" role="search" aria-label="Filter blog notes">
+            <div class="field toolbar-field">
+                <label for="blog-search">Search</label>
+                <input class="blog-search" id="blog-search" name="q" type="search" autocomplete="off" placeholder="Search notes by keyword or topic…" data-blog-search>
+            </div>
+            <div class="field toolbar-field">
+                <label for="blog-tag">Topic</label>
+                <select class="blog-sort" id="blog-tag" name="tag" data-blog-tag>
+                    <option value="all">All Topics</option>
+                    <option value="cve">cve</option><option value="research">research</option><option value="workflow">workflow</option>
+                </select>
+            </div>
+            <div class="field toolbar-field">
+                <label for="blog-sort">Sort</label>
+                <select class="blog-sort" id="blog-sort" name="sort" data-blog-sort>
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                </select>
+            </div>
+            <div class="blog-toolbar__summary">
+                <span class="visible-count"><span data-blog-visible-count>0</span> notes</span>
+                <span id="blog-status" class="visually-hidden" aria-live="polite" data-blog-status></span>
+            </div>
+        </form>
+
+        <div class="blog-grid" data-blog-list>
+            
+                <article class="post-card post-card--featured" data-blog-item
+                    data-title="A Local-First Workflow for CVE Research Notes"
+                    data-excerpt="A practical template for keeping vulnerability research notes structured, reviewable, and available without depending on a live API."
+                    data-date="2026-10-25"
+                    data-tags="cve|research|workflow">
+                    <div class="post-card__meta">
+                        <span>4 min read</span>
+                        <span>Featured</span>
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/local-first-cve-research-notes/">A Local-First Workflow for CVE Research Notes</a></h2>
+                    <p class="post-card__excerpt">A practical template for keeping vulnerability research notes structured, reviewable, and available without depending on a live API.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">research</li><li class="tag">workflow</li></ul>
+                        <a href="/blog/local-first-cve-research-notes/" aria-label="Read A Local-First Workflow for CVE Research Notes">Read note</a>
+                    </div>
+                </article>
+            
+        </div>
+
+        <div class="route-placeholder blog-empty" data-blog-empty hidden>
+            <h2>No notes published yet.</h2>
+            <p>Technical writeups and disclosure case studies will be posted here.</p>
+            <a class="hero-link" href="/feed.xml">RSS Feed</a>
+        </div>
         </section>
     </main>
-    <footer class="site-footer"><div class="site-shell">Jaze · Security Research · V1T</div></footer>
+
+    <footer class="site-footer">
+        <div class="site-shell footer-layout">
+            <p>Jaze · Security Research · <a href="https://v1t.site/" rel="external">V1T</a></p>
+            <nav aria-label="Footer navigation">
+                <a href="/feed.xml">RSS</a>
+                <a href="/sitemap.xml">Sitemap</a>
+            </nav>
+        </div>
+    </footer>
 </body>
 </html>

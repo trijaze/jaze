@@ -121,50 +121,38 @@
     box-shadow: 0 0 6px #19a800;
 }
 
-/* Green Brightness Boost Toggle Button (Touch-first 44px ergonomics) */
+/* Green Brightness Boost Toggle Button */
 .nav-brightness-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
+    width: 2.1rem;
+    height: 1.15rem;
     padding: 0;
-    border: none;
-    background: transparent;
+    border: 1px solid rgba(48, 70, 46, 0.65);
+    border-radius: 9999px;
+    background: rgba(25, 168, 0, 0.10);
+    color: var(--muted, #62755f);
     cursor: pointer;
     user-select: none;
     outline: none;
-    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    transition: transform var(--duration-fast) var(--ease-enter);
+    transition: border-color var(--duration-fast) var(--ease-enter),
+                background var(--duration-fast) var(--ease-enter),
+                color var(--duration-fast) var(--ease-enter),
+                box-shadow var(--duration-fast) var(--ease-enter),
+                transform var(--duration-fast) var(--ease-enter);
 }
 
 .nav-brightness-btn:active {
     transform: scale(0.92);
 }
 
-.nav-brightness-btn::before {
-    content: "";
-    display: block;
-    width: 2.1rem;
-    height: 1.15rem;
-    border: 1px solid rgba(48, 70, 46, 0.65);
-    border-radius: 9999px;
-    background: rgba(25, 168, 0, 0.10);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
-    position: absolute;
-    transition: border-color var(--duration-fast) var(--ease-enter),
-                background var(--duration-fast) var(--ease-enter),
-                box-shadow var(--duration-fast) var(--ease-enter);
-}
-
-.nav-brightness-btn svg {
-    position: relative;
-    z-index: 1;
+.nav-brightness-icon {
     width: 0.8rem;
     height: 0.8rem;
-    color: var(--muted, #62755f);
     stroke: currentColor;
     stroke-width: 2.2;
     transition: transform var(--duration-fast) var(--ease-enter),
@@ -172,31 +160,33 @@
                 color var(--duration-fast) var(--ease-enter);
 }
 
-.nav-brightness-btn:hover::before {
+.nav-brightness-btn:hover {
     border-color: rgba(25, 168, 0, 0.55);
-}
-
-.nav-brightness-btn:hover svg {
     color: var(--accent);
 }
 
-.nav-brightness-btn:focus-visible::before {
+.nav-brightness-btn:hover .nav-brightness-icon {
+    transform: rotate(20deg);
+}
+
+.nav-brightness-btn:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
 }
 
 /* Active State (ON - Boosted 3x) */
-.nav-brightness-btn[aria-pressed="true"]::before,
-.nav-brightness-btn.is-active::before {
+.nav-brightness-btn[aria-pressed="true"],
+.nav-brightness-btn.is-active {
     background: rgba(57, 255, 20, 0.22);
     border-color: var(--accent);
+    color: var(--accent);
     box-shadow: 0 0 10px rgba(57, 255, 20, 0.45), inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.nav-brightness-btn[aria-pressed="true"] svg,
-.nav-brightness-btn.is-active svg {
-    color: var(--accent);
+.nav-brightness-btn[aria-pressed="true"] .nav-brightness-icon,
+.nav-brightness-btn.is-active .nav-brightness-icon {
     filter: drop-shadow(0 0 4px #39ff14);
+    transform: rotate(45deg);
 }
 
 .nav-toggle {

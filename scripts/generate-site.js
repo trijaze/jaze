@@ -95,44 +95,30 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
     return `
 <article class="cve-detail-article cve-detail" aria-labelledby="detail-title-${escapeHtml(id)}" data-cve-detail-record data-cve-id="${escapeHtml(id)}" data-cve-placeholder="${String(cve.isPlaceholder)}">
     <header class="cve-detail-header">
-        <button type="button" class="cve-back-btn" data-cve-back-btn data-cve-detail-close aria-label="Back to all CVEs">
-            ALL CVES
-        </button>
+        <div class="cve-detail-topbar">
+            <a href="/cves/" class="cve-back-btn" data-cve-back-btn data-cve-detail-close aria-label="Back to all CVEs">
+                ← ALL CVES
+            </a>
+            <div class="cve-header-badges">
+                <span class="cve-tag tag-severity severity-badge" data-severity="${escapeHtml(severity.toLowerCase())}">
+                    ${escapeHtml(severity)}${score !== null ? ` ${scoreVal}` : ''}
+                </span>
+                ${state === 'RESERVED' ? `<span class="cve-tag tag-status status-badge status-reserved" data-status="reserved" data-cve-detail-state>RESERVED</span>` : `<span class="cve-tag tag-status status-badge status-published" data-status="published" data-cve-detail-state hidden></span>`}
+            </div>
+        </div>
         <div class="cve-detail-title-wrap">
             <${headingTag} id="detail-title-${escapeHtml(id)}" class="cve-detail-title cve-id cve-detail__title">${escapeHtml(id)}</${headingTag}>
             <p class="cve-detail-subtitle cve-title cve-detail__subtitle" data-cve-detail-title>${escapeHtml(title)}</p>
         </div>
         <div class="cve-meta-tags cve-meta">
-            <span class="cve-tag tag-id">${escapeHtml(id)}</span>
-            <span class="cve-tag tag-date">Published: ${formattedDate}</span>
+            <span class="cve-tag tag-date">Date: ${formattedDate}</span>
             <span class="cve-tag tag-assigner">Assigner: ${escapeHtml(assigner || 'MITRE / CNA')}</span>
-            <span class="cve-tag tag-status status-badge" data-status="${escapeHtml(state.toLowerCase())}" data-cve-detail-state>STATUS: ${escapeHtml(state)}</span>
-            <span class="cve-tag tag-severity severity-badge" data-severity="${escapeHtml(severity.toLowerCase())}">
-                ${escapeHtml(severity)}${score !== null ? ` ${scoreVal}` : ''}
-            </span>
             ${cvssVersion ? `<span class="cve-tag tag-cvss">CVSS ${escapeHtml(cvssVersion)}</span>` : ''}
         </div>
     </header>
 
     <div class="cve-detail-body cve-detail__body">
-        <!-- 1. Discovered By Box -->
-        <div class="detail-box cve-finders-box">
-            <div class="box-title">Discovered By</div>
-            <div class="box-content">
-                <div class="finders-grid">
-                    ${finders.map(f => `
-                        <div class="finder-card">
-                            <div class="finder-card-details">
-                                <strong class="finder-name">${escapeHtml(f)}</strong>
-                                <span class="finder-role">Security Researcher at V1T</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. Target Scope Box -->
+        <!-- 1. Target Scope Box -->
         ${affected.length && affected[0].product ? `
         <div class="detail-box cve-target-box">
             <div class="box-title">Target Scope</div>
@@ -142,7 +128,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
             </div>
         </div>` : ''}
 
-        <!-- 3. Description Box -->
+        <!-- 2. Description Box -->
         <div class="detail-box cve-desc-box">
             <div class="box-title">Description</div>
             <div class="box-content">
@@ -150,8 +136,8 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
             </div>
         </div>
 
-        <!-- 4. Metrics & Weakness Row (Side by side on desktop) -->
-        <div class="detail-row">
+        <!-- 3. Metrics & Weakness Row (Side by side on desktop) -->
+        <div class="detail-row cve-metrics-row">
             ${score !== null || vector ? `
             <div class="detail-box flex-1 cve-metrics-box">
                 <div class="box-title">Metrics (CVSS ${escapeHtml(cvssVersion || '3.1')})</div>
@@ -169,6 +155,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
                     <div class="cvss-vector-wrap">
                         <span class="vector-label">Vector:</span>
                         <code class="cve-vector">${escapeHtml(vector)}</code>
+                        <button type="button" class="copy-vector-btn copy-vector" data-copy-vector="${escapeHtml(vector)}" title="Copy CVSS Vector" aria-label="Copy CVSS Vector">Copy</button>
                     </div>` : ''}
                 </div>
             </div>` : ''}
@@ -184,7 +171,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
             </div>` : ''}
         </div>
 
-        <!-- 5. Affected Software Box -->
+        <!-- 4. Affected Software Box -->
         ${affected.length ? `
         <div class="detail-box cve-affected-box">
             <div class="box-title">Affected Software & Versions</div>
@@ -201,7 +188,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
             </div>
         </div>` : ''}
 
-        <!-- 6. Remediation / Solution Box -->
+        <!-- 5. Remediation / Solution Box -->
         ${guidance.length ? `
         <div class="detail-box cve-solution-box">
             <div class="box-title">Solution & Remediation</div>
@@ -210,6 +197,23 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
             </div>
         </div>` : ''}
 
+        <!-- 6. Discovered By Box -->
+        <div class="detail-box cve-finders-box">
+            <div class="box-title">Discovered By</div>
+            <div class="box-content">
+                <div class="finders-grid">
+                    ${finders.map(f => `
+                        <div class="finder-card">
+                            <div class="finder-card-details">
+                                <strong class="finder-name">${escapeHtml(f)}</strong>
+                                <span class="finder-role">Security Researcher at V1T</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+
         <!-- 7. References Box -->
         <div class="detail-box cve-references-box">
             <div class="box-title">References & Verification</div>
@@ -217,12 +221,12 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
                 <ul class="ref-list cve-references">
                     ${references.map(ref => `
                         <li>
-                            <a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label || ref.url)} ↗</a>
+                            <a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.label || ref.url)}</a>
                             ${ref.tags && ref.tags.length ? `<span class="tag cve-reference-tags">${ref.tags.map(escapeHtml).join(', ')}</span>` : ''}
                         </li>
                     `).join('')}
                     <li>
-                        <a href="https://www.cve.org/CVERecord?id=${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">Official Record on CVE.org ↗</a>
+                        <a href="https://www.cve.org/CVERecord?id=${encodeURIComponent(id)}" target="_blank" rel="noopener noreferrer">Official Record on CVE.org</a>
                     </li>
                 </ul>
                 ${cve.isPlaceholder ? '<p class="cve-hydration-status" data-cve-hydration-status aria-live="polite">Cached publication details are pending. The archive can check MITRE when this record is opened.</p>' : ''}
@@ -315,31 +319,31 @@ function renderHomePage(siteData, cves) {
                     </a>
                     <a class="hero-link" href="/blog/">Blogs</a>
                     ${profile.socials.map(soc => `
-                        <a class="hero-link hero-link--ghost" href="${escapeHtml(soc.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(soc.label)} ↗</a>
+                        <a class="hero-link hero-link--ghost" href="${escapeHtml(soc.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(soc.label)}</a>
                     `).join('')}
-                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T ↗</a>
+                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T</a>
                 </div>
             </div>
         </section>
 
-        <!-- Researcher Stats & Social Links Strip -->
+        <!-- Researcher Stats & Social Links Strip (Zero-slop minimalist technical metrics) -->
         <section aria-label="Research statistics and social links">
             <div class="stats-strip">
                 <a href="/cves/" class="stats-item stats-item--link">
                     <span class="stats-item__val stats-item__val--accent">${cves.length}</span>
-                    <span class="stats-item__label">Total CVEs</span>
-                </a>
-                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
-                    <span class="stats-item__val">LinkedIn <span class="stats-item__arrow">↗</span></span>
-                    <span class="stats-item__label">Social Media</span>
+                    <span class="stats-item__label">TOTAL CVES</span>
                 </a>
                 <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
-                    <span class="stats-item__val">GitHub <span class="stats-item__arrow">↗</span></span>
-                    <span class="stats-item__label">Repositories</span>
+                    <span class="stats-item__val">GITHUB</span>
+                    <span class="stats-item__label">trijaze</span>
+                </a>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
+                    <span class="stats-item__val">LINKEDIN</span>
+                    <span class="stats-item__label">trijaze</span>
                 </a>
                 <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
-                    <span class="stats-item__val stats-item__val--whoami">whoami <span class="stats-item__arrow">↗</span></span>
-                    <span class="stats-item__label">Google Search</span>
+                    <span class="stats-item__val stats-item__val--whoami">whoami</span>
+                    <span class="stats-item__label">VERIFY</span>
                 </a>
             </div>
         </section>
@@ -348,7 +352,7 @@ function renderHomePage(siteData, cves) {
         <section aria-labelledby="recent-cves-title" data-cve-home-section class="home-cve-ticker-section">
             <div class="section-header-compact">
                 <h2 id="recent-cves-title">Disclosures</h2>
-                <a class="view-all" href="/cves/">View all ${cves.length} CVEs →</a>
+                <a class="view-all" href="/cves/">View all ${cves.length} CVEs</a>
             </div>
 
             <div class="home-cve-ticker-viewport" id="home-cve-ticker-viewport" tabindex="0" role="region" aria-label="Auto-scrolling CVE list">
@@ -395,14 +399,14 @@ function renderHomePage(siteData, cves) {
         <section aria-labelledby="latest-posts-title">
             <div class="section-header-compact">
                 <h2 id="latest-posts-title">Latest Research Notes</h2>
-                <a class="view-all" href="/blog/">View all notes →</a>
+                <a class="view-all" href="/blog/">View all notes</a>
             </div>
             ${latestPosts.length ? `
                 <div class="home-post-list">
                     ${latestPosts.map(post => `
                         <a class="home-post-row" href="/blog/${escapeHtml(post.slug)}/">
                             <span>${escapeHtml(post.title)}</span>
-                            <time datetime="${escapeHtml(post.publishedAt)}">${formatIsoDate(post.publishedAt)}</time>
+                            <span class="reading-time">${post.readingMinutes} min read</span>
                         </a>
                     `).join('')}
                 </div>
@@ -548,7 +552,7 @@ function renderCvesArchivePage(siteData, cves) {
                     </ul>
                 </div>
 
-                <div class="cve-detail-view cve-detail-pane" id="cve-detail-view" data-cve-detail aria-label="Vulnerability details inspection pane">
+                <div class="cve-detail-view cve-detail-pane" id="cve-detail-view" data-cve-detail aria-label="Vulnerability details inspection pane" hidden>
                     ${initialDetailHtml}
                 </div>
             </div>
@@ -693,7 +697,6 @@ function renderBlogArchivePage(siteData) {
                     data-date="${escapeHtml(post.publishedAt)}"
                     data-tags="${escapeHtml(post.tags.join('|'))}">
                     <div class="post-card__meta">
-                        <time datetime="${escapeHtml(post.publishedAt)}">${formatIsoDate(post.publishedAt)}</time>
                         <span>${post.readingMinutes} min read</span>
                         ${post.featured ? '<span>Featured</span>' : ''}
                     </div>
@@ -701,7 +704,7 @@ function renderBlogArchivePage(siteData) {
                     <p class="post-card__excerpt">${escapeHtml(post.excerpt)}</p>
                     <div class="post-card__footer">
                         <ul class="tag-list" aria-label="Topics">${post.tags.map(tag => `<li class="tag">${escapeHtml(tag)}</li>`).join('')}</ul>
-                        <a href="/blog/${escapeHtml(post.slug)}/" aria-label="Read ${escapeHtml(post.title)}">Read note →</a>
+                        <a href="/blog/${escapeHtml(post.slug)}/" aria-label="Read ${escapeHtml(post.title)}">Read note</a>
                     </div>
                 </article>
             `).join('')}
@@ -710,7 +713,7 @@ function renderBlogArchivePage(siteData) {
         <div class="route-placeholder blog-empty" data-blog-empty${posts.length ? ' hidden' : ''}>
             <h2>No notes published yet.</h2>
             <p>Technical writeups and disclosure case studies will be posted here.</p>
-            <a class="hero-link" href="/feed.xml">RSS Feed ↗</a>
+            <a class="hero-link" href="/feed.xml">RSS Feed</a>
         </div>
         </section>
     </main>`;
@@ -760,8 +763,8 @@ function renderBlogDetailPage(siteData, post, previousPost, nextPost) {
         ? `<nav class="post-toc" aria-label="On this page"><strong>On this page</strong><ul>${rendered.toc.map(item => `<li data-level="${item.level}"><a href="#${escapeHtml(item.id)}">${escapeHtml(item.text)}</a></li>`).join('')}</ul></nav>`
         : '<aside class="post-toc"><strong>Research note</strong><p>No section index for this short note.</p></aside>';
     const navigation = [
-        previousPost ? `<a href="/blog/${escapeHtml(previousPost.slug)}/">← ${escapeHtml(previousPost.title)}</a>` : '<span></span>',
-        nextPost ? `<a href="/blog/${escapeHtml(nextPost.slug)}/">${escapeHtml(nextPost.title)} →</a>` : '<span></span>'
+        previousPost ? `<a href="/blog/${escapeHtml(previousPost.slug)}/">${escapeHtml(previousPost.title)}</a>` : '<span></span>',
+        nextPost ? `<a href="/blog/${escapeHtml(nextPost.slug)}/">${escapeHtml(nextPost.title)}</a>` : '<span></span>'
     ].join('');
     const body = `
     <main class="page-main site-shell post-page" id="main-content">
@@ -771,9 +774,7 @@ function renderBlogDetailPage(siteData, post, previousPost, nextPost) {
             <h1>${escapeHtml(post.title)}</h1>
             <p class="post-deck">${escapeHtml(post.excerpt)}</p>
             <div class="post-meta">
-                <time datetime="${escapeHtml(post.publishedAt)}">${formatIsoDate(post.publishedAt)}</time>
                 <span>${post.readingMinutes} min read</span>
-                ${post.updatedAt ? `<span>Updated ${formatIsoDate(post.updatedAt)}</span>` : ''}
             </div>
             <ul class="tag-list" aria-label="Topics">${post.tags.map(tag => `<li class="tag">${escapeHtml(tag)}</li>`).join('')}</ul>
         </header>
@@ -952,6 +953,7 @@ async function generateSite(options = {}) {
         if (hadExistingBuild) await fs.rm(backupRoot, { recursive: true, force: true });
         if (distRoot === defaultDistRoot) {
             await fs.copyFile(path.join(distRoot, 'index.html'), path.join(projectRoot, 'index.html')).catch(() => {});
+            await copyDirectory(path.join(distRoot, 'cves'), path.join(projectRoot, 'cves')).catch(() => {});
         }
         return await verifyBuild({ distRoot });
     } catch (error) {

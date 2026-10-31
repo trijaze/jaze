@@ -102,56 +102,64 @@
     text-shadow: none !important;
     position: relative;
     z-index: 3;
-    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.85) 88%, #000000 100%);
-    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 88%, #000000 100%);
+    /* Bottom-only transparent fade: top 70% is 100% solid, only bottom 20-30% fades to transparent */
+    mask-image: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.25) 15%, #000000 35%, #000000 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.25) 15%, #000000 35%, #000000 100%);
 }
 
 @media (max-width: 48rem) {
     .hero-title,
     .jaze-logo-line--main {
-        font-size: clamp(3.8rem, 21vw, 6.2rem);
-        letter-spacing: 0.14em;
-        margin-right: -0.14em;
+        font-size: 7.8rem;
+        letter-spacing: 0.10em;
+        margin-right: -0.10em;
         -webkit-text-stroke: 0.8px currentColor;
     }
 }
 
-/* Bio Summary — Single line on desktop, elegant balanced 2 lines on mobile */
+@media (max-width: 23rem) {
+    .hero-title,
+    .jaze-logo-line--main {
+        font-size: min(7.8rem, 25vw);
+        letter-spacing: 0.06em;
+        margin-right: -0.06em;
+    }
+}
+
+/* Bio Summary — ALWAYS strictly on a single line across all viewports */
 .hero-bio {
     color: var(--text-soft);
     font-family: 'Chakra Petch', sans-serif;
     font-weight: 400;
     text-align: center;
     margin: 0 auto;
+    width: max-content;
+    max-width: 100%;
+    white-space: nowrap !important;
+    line-height: 1.45;
 }
 
 @media (min-width: 48.0625rem) {
     .hero-bio {
-        width: max-content;
-        max-width: 100%;
-        white-space: nowrap !important;
         font-size: clamp(0.72rem, 1.35vw, 1.05rem);
-        line-height: 1.45;
         letter-spacing: clamp(0px, 0.04vw, 0.02em);
     }
 }
 
 @media (max-width: 48rem) {
     .hero-bio {
-        white-space: normal;
-        max-width: 34ch;
-        text-wrap: balance;
-        font-size: 0.88rem;
-        line-height: 1.5;
-        padding-inline: var(--space-2);
-        letter-spacing: 0.01em;
+        white-space: nowrap !important;
+        font-size: clamp(0.46rem, 2.25vw, 0.74rem);
+        letter-spacing: 0;
+        padding-inline: var(--space-1);
     }
 }
 
 @media (max-width: 25rem) {
     .hero-bio {
-        font-size: 0.82rem;
-        max-width: 30ch;
+        white-space: nowrap !important;
+        font-size: clamp(0.40rem, 2.1vw, 0.58rem);
+        padding-inline: 0;
     }
 }
 
@@ -246,40 +254,50 @@
 }
 
 /* ==========================================================================
-   Terminal Stats Strip (Floating minimal bar)
+   Terminal Stats Strip (Minimalist, zero-slop technical metrics)
    ========================================================================== */
 
 .stats-strip {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-    padding: var(--space-5) var(--space-6);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: rgba(0, 21, 0, 0.51);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid rgba(48, 70, 46, 0.45);
+    border-radius: var(--radius-md);
+    background: rgba(0, 18, 0, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     font-family: 'Chakra Petch', sans-serif;
 }
 
 @media (min-width: 42rem) {
     .stats-strip {
         grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-4);
+        padding: var(--space-4) var(--space-6);
     }
 }
 
 .stats-item {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: 0.2rem;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-fast) var(--ease-enter);
 }
 
 .stats-item--link {
     text-decoration: none;
     color: inherit;
-    transition: transform var(--duration-fast) var(--ease-enter);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
+}
+
+.stats-item--link:hover {
+    background: rgba(25, 168, 0, 0.08);
 }
 
 .stats-item--link:hover .stats-item__val,
@@ -288,36 +306,23 @@
 }
 
 .stats-item--link:active {
-    transform: scale(0.96);
+    transform: scale(0.98);
 }
 
 .stats-item__val {
     color: #ffffff;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    line-height: 1;
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.25rem;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    display: block;
     transition: color var(--duration-fast) var(--ease-enter);
-}
-
-.stats-item__arrow {
-    display: inline-block;
-    font-size: 0.78em;
-    color: var(--accent, #19a800);
-    transition: transform var(--duration-fast) var(--ease-enter);
-}
-
-.stats-item--link:hover .stats-item__arrow {
-    transform: translate(2px, -2px);
 }
 
 .stats-item__val--whoami {
     font-family: var(--font-code, 'IBM Plex Mono', monospace);
     color: var(--accent, #19a800);
-    letter-spacing: -0.01em;
 }
 
 .stats-item__val--accent {
@@ -325,9 +330,10 @@
 }
 
 .stats-item__label {
-    color: #ffffff;
+    color: var(--muted, #859684);
     font-size: var(--font-size-xs);
-    letter-spacing: 0.02em;
+    font-weight: 500;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
@@ -382,6 +388,18 @@
     padding-block: var(--space-2);
     mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+}
+
+.home-cve-ticker-viewport.is-dragging {
+    cursor: grabbing;
+}
+
+.home-cve-ticker-viewport[data-ticker-interactive="true"] .home-cve-ticker-track {
+    animation: none !important;
 }
 
 .home-cve-ticker-track {
@@ -435,6 +453,7 @@
         padding-block: 0;
         mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
         -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+        touch-action: pan-x;
     }
 
     .home-cve-ticker-track {
@@ -525,6 +544,7 @@
 }
 
 .home-post-row time,
+.home-post-row .reading-time,
 .home-empty-note {
     color: #ffffff;
     font-family: 'Chakra Petch', sans-serif;
