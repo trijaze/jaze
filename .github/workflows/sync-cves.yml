@@ -2,8 +2,8 @@ name: Sync CVE data
 
 on:
   schedule:
-    # Refresh CVE records from MITRE every 6 hours
-    - cron: '37 */6 * * *'
+    # Refresh CVE records once a week on Sunday at 00:37 UTC (07:37 AM ICT)
+    - cron: '37 0 * * 0'
   workflow_dispatch:
 
 permissions:
