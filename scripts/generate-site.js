@@ -326,24 +326,24 @@ function renderHomePage(siteData, cves) {
             </div>
         </section>
 
-        <!-- Researcher Stats & Social Links Strip (Zero-slop minimalist technical metrics) -->
-        <section aria-label="Research statistics and social links">
+        <!-- Researcher Stats & Social Links Strip (Matrix Decipher Register HUD) -->
+        <section aria-label="Research statistics and social links" class="home-stats-section">
             <div class="stats-strip">
-                <a href="/cves/" class="stats-item stats-item--link">
-                    <span class="stats-item__val stats-item__val--accent">${cves.length}</span>
-                    <span class="stats-item__label">TOTAL CVES</span>
+                <a href="/cves/" class="matrix-cell matrix-cell--accent" data-scramble="${cves.length}" aria-label="Total CVEs: ${cves.length}">
+                    <span class="matrix-tag">TOTAL CVES</span>
+                    <span class="matrix-val">${cves.length}</span>
                 </a>
-                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
-                    <span class="stats-item__val">GITHUB</span>
-                    <span class="stats-item__label">trijaze</span>
+                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Jaze(trijaze)" aria-label="GitHub: Jaze(trijaze)">
+                    <span class="matrix-tag">GITHUB</span>
+                    <span class="matrix-val">Jaze(trijaze)</span>
                 </a>
-                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
-                    <span class="stats-item__val">LINKEDIN</span>
-                    <span class="stats-item__label">trijaze</span>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Trí Dũng" aria-label="LinkedIn: Trí Dũng">
+                    <span class="matrix-tag">LINKEDIN</span>
+                    <span class="matrix-val">Trí Dũng</span>
                 </a>
-                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="stats-item stats-item--link">
-                    <span class="stats-item__val stats-item__val--whoami">whoami</span>
-                    <span class="stats-item__label">VERIFY</span>
+                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="whoami" aria-label="Identity: whoami">
+                    <span class="matrix-tag">WHOAMI</span>
+                    <span class="matrix-val">whoami</span>
                 </a>
             </div>
         </section>

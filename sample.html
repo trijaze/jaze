@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#020c00">
+    <title>Jaze — Stats Strip Design Lab (5 Out-of-the-box Solutions)</title>
+    
+    <!-- Self-Contained Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anta&family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           Core Cyber Design Tokens (Self-Contained)
+           ========================================================================== */
+        :root {
+            color-scheme: dark;
+            --bg: #010400;
+            --surface-floating: rgba(1, 5, 1, 0.65);
+            --surface-1: rgba(7, 20, 7, 0.45);
+            --surface-2: rgba(12, 28, 12, 0.58);
+            --border: rgba(38, 56, 36, 0.35);
+            --border-strong: rgba(62, 85, 59, 0.55);
+            --border-subtle: rgba(26, 40, 24, 0.24);
+
+            --text: #f0f6ee;
+            --text-soft: #c8d4c6;
+            --muted: #62755f;
+            --muted-light: #7b9378;
+
+            --accent: #19a800;
+            --accent-soft: rgba(25, 168, 0, 0.08);
+            --accent-glow: 0 0 14px rgba(25, 168, 0, 0.25);
+
+            --font-logo: "Anta", sans-serif;
+            --font-tech: "Chakra Petch", sans-serif;
+            --font-code: "IBM Plex Mono", Consolas, monospace;
+
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+
+            --radius-sm: 4px;
+            --radius-md: 6px;
+        }
+
+        /* Reset & Base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(25, 168, 0, 0.15), transparent 70%),
+                linear-gradient(rgba(25, 168, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(25, 168, 0, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 32px 32px, 32px 32px;
+            color: var(--text);
+            font-family: var(--font-tech);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .site-shell {
+            max-width: 68rem;
+            margin: 0 auto;
+            padding: 0 1.25rem 4rem;
+        }
+
+        /* ==========================================================================
+           Sticky Lab Switcher Bar
+           ========================================================================== */
+        .lab-bar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(1, 6, 1, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(25, 168, 0, 0.35);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+            font-family: var(--font-tech);
+        }
+
+        .lab-bar__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .lab-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lab-tag {
+            background: rgba(25, 168, 0, 0.2);
+            color: var(--accent);
+            border: 1px solid rgba(25, 168, 0, 0.4);
+            padding: 0.1rem 0.4rem;
+            border-radius: 2px;
+            font-size: 0.7rem;
+            font-family: var(--font-code);
+        }
+
+        .lab-note {
+            font-size: 0.75rem;
+            color: var(--muted-light);
+            font-family: var(--font-code);
+        }
+
+        .lab-nav {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .lab-btn {
+            background: rgba(17, 45, 17, 0.45);
+            border: 1px solid rgba(48, 70, 46, 0.5);
+            color: #ffffff;
+            font-family: var(--font-tech);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lab-btn:hover {
+            border-color: var(--accent);
+            background: rgba(25, 168, 0, 0.15);
+            color: var(--accent);
+        }
+
+        .lab-btn.is-active {
+            background: var(--accent);
+            color: #010800;
+            border-color: var(--accent);
+            font-weight: 700;
+            box-shadow: 0 0 12px rgba(25, 168, 0, 0.4);
+        }
+
+        /* ==========================================================================
+           Hero Section Styles (Identical to Jaze Homepage)
+           ========================================================================== */
+        .home-hero {
+            padding: 3rem 0 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .home-hero__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .hero-kicker {
+            margin-bottom: 0.25rem;
+        }
+
+        .hero-role {
+            font-family: var(--font-tech);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted-light);
+        }
+
+        .jaze-logo-stage {
+            margin: 0.5rem 0;
+            line-height: 0.9;
+        }
+
+        .hero-title {
+            font-family: var(--font-logo);
+            font-size: clamp(4.5rem, 11vw, 9.5rem);
+            font-weight: 700;
+            line-height: 0.92;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text);
+            margin: 0;
+            text-shadow: 0 0 35px rgba(25, 168, 0, 0.25);
+        }
+
+        .hero-bio {
+            color: var(--text-soft);
+            font-family: var(--font-tech);
+            font-size: clamp(0.75rem, 1.35vw, 1rem);
+            text-align: center;
+            max-width: 38rem;
+            margin: 0 auto 0.5rem;
+            line-height: 1.45;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            margin-top: 0.5rem;
+        }
+
+        .hero-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: rgba(17, 45, 17, 0.38);
+            color: #ffffff;
+            font-family: var(--font-tech);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .hero-link:hover {
+            border-color: var(--accent);
+            background: rgba(29, 53, 28, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .hero-link--primary {
+            border: 1px solid var(--accent);
+            background: rgba(25, 168, 0, 0.1);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 0 14px rgba(25, 168, 0, 0.2);
+        }
+
+        .hero-link--primary:hover {
+            background: rgba(25, 168, 0, 0.22);
+            box-shadow: 0 0 20px rgba(25, 168, 0, 0.4);
+        }
+
+        .hero-link__count {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .hero-link--ghost {
+            border-color: transparent;
+            background: transparent;
+            color: var(--text-soft);
+        }
+
+        .hero-link--ghost:hover {
+            color: #ffffff;
+            background: rgba(17, 45, 17, 0.3);
+            border-color: var(--border-subtle);
+        }
+
+        /* ==========================================================================
+           Solution Stages Container & Meta
+           ========================================================================== */
+        .solution-stage {
+            padding: 1.5rem 0 2rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .solution-stage.is-hidden {
+            display: none !important;
+        }
+
+        .solution-meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(25, 168, 0, 0.08);
+            border: 1px dashed rgba(25, 168, 0, 0.35);
+            border-radius: 3px;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.04em;
+        }
+
+        .solution-description {
+            font-size: 0.82rem;
+            color: #a2b4a0;
+            margin-bottom: 1.25rem;
+            font-family: var(--font-code);
+            line-height: 1.45;
+        }
+
+        /* ==========================================================================
+           SOLUTION 1: CLI UNIX SHELL STREAM (Zero-Icon)
+           ========================================================================== */
+        .sol-cli-shell {
+            border: 1px solid rgba(48, 70, 46, 0.45);
+            background: rgba(1, 8, 1, 0.7);
+            border-radius: 4px;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem 0.85rem;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .cli-prompt {
+            color: var(--accent);
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .cli-cmd {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .cli-flag {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.35rem;
+            color: #d8e5d6;
+            text-decoration: none;
+            padding: 0.15rem 0.45rem;
+            border-radius: 2px;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .cli-flag:hover {
+            background: var(--accent);
+            color: #010800;
+            font-weight: 700;
+        }
+
+        .cli-flag:hover .flag-prefix,
+        .cli-flag:hover .flag-val {
+            color: #010800;
+        }
+
+        .flag-prefix {
+            color: #7b9378;
+            font-size: 0.82rem;
+            transition: color 0.15s ease;
+        }
+
+        .flag-val {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .cli-flag--metric .flag-val {
+            color: var(--accent);
+        }
+
+        .cli-cursor {
+            color: var(--accent);
+            animation: cliBlink 1s infinite steps(1);
+            font-weight: 700;
+            user-select: none;
+        }
+
+        @keyframes cliBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* ==========================================================================
+           SOLUTION 2: MATRIX DECIPHER / REGISTER HUD (Zero-Icon)
+           ========================================================================== */
+        .sol-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.65rem;
+            font-family: var(--font-tech);
+        }
+
+        @media (min-width: 48rem) {
+            .sol-matrix-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .matrix-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0.85rem 1rem;
+            background: rgba(1, 6, 1, 0.6);
+            border: 1px solid rgba(48, 70, 46, 0.4);
+            border-radius: 3px;
+            text-decoration: none;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .matrix-cell:hover {
+            border-color: var(--accent);
+            background: rgba(25, 168, 0, 0.08);
+            box-shadow: 0 0 18px rgba(25, 168, 0, 0.18);
+        }
+
+        .matrix-tag {
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            color: #6b8268;
+            text-transform: uppercase;
+        }
+
+        .matrix-val {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            transition: color 0.15s ease;
+        }
+
+        .matrix-cell:hover .matrix-val {
+            color: var(--accent);
+        }
+
+        .matrix-cell--accent .matrix-val {
+            color: var(--accent);
+        }
+
+        /* ==========================================================================
+           SOLUTION 3: NEODARK TELEMETRY STATUSLINE (Zero-Icon)
+           ========================================================================== */
+        .sol-telemetry-strip {
+            border-block: 1px solid rgba(48, 70, 46, 0.35);
+            padding: 0.85rem 0.5rem;
+            background: transparent;
+            font-family: var(--font-tech);
+        }
+
+        .telemetry-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.5rem;
+            max-width: 100%;
+        }
+
+        .telemetry-node {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: inherit;
+            padding: 0.2rem 0.4rem;
+            border-radius: 2px;
+            transition: color 0.2s ease;
+        }
+
+        .telemetry-node:hover {
+            color: var(--accent);
+        }
+
+        .telemetry-label {
+            color: #7b9378;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .telemetry-data {
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            transition: color 0.2s ease;
+        }
+
+        .telemetry-data--accent {
+            color: var(--accent);
+        }
+
+        .telemetry-sep {
+            color: rgba(48, 70, 46, 0.45);
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            user-select: none;
+        }
+
+        @media (max-width: 42rem) {
+            .telemetry-sep {
+                display: none;
+            }
+            .telemetry-row {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.6rem;
+            }
+        }
+
+        /* ==========================================================================
+           SOLUTION 4: DUAL-TONE PRECISION TOKENS (Zero-Icon)
+           ========================================================================== */
+        .sol-tokens-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-family: var(--font-code);
+        }
+
+        .dual-token {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            border: 1px solid rgba(48, 70, 46, 0.38);
+            border-radius: 4px;
+            background: rgba(3, 12, 3, 0.5);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .dual-token:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 14px rgba(25, 168, 0, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .token-k {
+            background: rgba(17, 35, 17, 0.45);
+            color: #7a9477;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.45rem 0.65rem;
+            border-right: 1px solid rgba(48, 70, 46, 0.3);
+            text-transform: uppercase;
+        }
+
+        .token-v {
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 0.45rem 0.85rem;
+            transition: color 0.2s ease;
+        }
+
+        .dual-token:hover .token-v {
+            color: var(--accent);
+        }
+
+        .token-v--accent {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        @media (max-width: 38rem) {
+            .sol-tokens-flex {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dual-token {
+                justify-content: space-between;
+            }
+        }
+
+        /* ==========================================================================
+           SOLUTION 5: TACTILE AUDIT CONSOLE (Zero-Icon)
+           ========================================================================== */
+        .sol-console-card {
+            border: 1px solid rgba(48, 70, 46, 0.45);
+            background: rgba(1, 6, 1, 0.8);
+            border-radius: 6px;
+            overflow: hidden;
+            font-family: var(--font-code);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+        }
+
+        .console-tablist {
+            display: flex;
+            background: rgba(0, 16, 0, 0.65);
+            border-bottom: 1px solid rgba(48, 70, 46, 0.35);
+        }
+
+        .console-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            border-right: 1px solid rgba(48, 70, 46, 0.35);
+            color: #a4bba2;
+            font-family: var(--font-tech);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 0.65rem 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .console-tab:last-child {
+            border-right: none;
+        }
+
+        .console-tab:hover {
+            color: #ffffff;
+            background: rgba(25, 168, 0, 0.08);
+        }
+
+        .console-tab.is-active {
+            color: var(--accent);
+            background: rgba(25, 168, 0, 0.12);
+            border-bottom: 2px solid var(--accent);
+            font-weight: 700;
+        }
+
+        .console-display {
+            padding: 0.85rem 1.25rem;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .console-prompt-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #cdd9cc;
+        }
+
+        .console-sym {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .console-out {
+            color: #f0f6ee;
+        }
+
+        .console-action-btn {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            border: 1px solid rgba(25, 168, 0, 0.35);
+            padding: 0.2rem 0.55rem;
+            border-radius: 2px;
+            transition: all 0.15s ease;
+        }
+
+        .console-action-btn:hover {
+            background: var(--accent);
+            color: #010800;
+        }
+
+        /* ==========================================================================
+           Disclosures Section Context (Identical to Homepage)
+           ========================================================================== */
+        .section-header-compact {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header-compact h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+        }
+
+        .section-header-compact .view-all {
+            color: #ffffff;
+            font-family: var(--font-tech);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .section-header-compact .view-all:hover {
+            color: var(--accent);
+        }
+
+        .ticker-preview-mockup {
+            padding: 1.25rem;
+            border: 1px dashed rgba(48, 70, 46, 0.4);
+            border-radius: 4px;
+            color: var(--muted-light);
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            text-align: center;
+            background: rgba(0, 10, 0, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Switcher Control Bar -->
+    <header class="lab-bar">
+        <div class="lab-bar__top">
+            <div class="lab-title">
+                <span>JAZE DESIGN LAB</span>
+                <span class="lab-tag">ZERO-ICON EDITION</span>
+            </div>
+            <div class="lab-note">Click từng nút bên dưới để xem trực quan từng phương án trong layout thực tế</div>
+        </div>
+        <nav class="lab-nav" aria-label="Solutions">
+            <button type="button" class="lab-btn is-active" data-view="sol-1">1. CLI Stream</button>
+            <button type="button" class="lab-btn" data-view="sol-2">2. Matrix HUD</button>
+            <button type="button" class="lab-btn" data-view="sol-3">3. Telemetry Bar</button>
+            <button type="button" class="lab-btn" data-view="sol-4">4. Dual-Tone Tokens</button>
+            <button type="button" class="lab-btn" data-view="sol-5">5. Interactive Console</button>
+            <button type="button" class="lab-btn" data-view="all">So Sánh Cả 5</button>
+        </nav>
+    </header>
+
+    <main class="site-shell">
+        <!-- Exact Real Hero Section for Realistic Context -->
+        <section class="home-hero" aria-labelledby="hero-title">
+            <div class="home-hero__content">
+                <div class="hero-kicker">
+                    <span class="hero-role">A Security Researcher From V1T</span>
+                </div>
+
+                <div class="jaze-logo-stage" aria-label="JAZE">
+                    <h1 id="hero-title" class="hero-title">JAZE</h1>
+                </div>
+
+                <p class="hero-bio">A personal archive of security discoveries, vulnerabilities, and the stories behind them.</p>
+
+                <div class="hero-actions">
+                    <a class="hero-link hero-link--primary" href="#cves">
+                        <span>CVE list</span>
+                        <span class="hero-link__count">(34)</span>
+                    </a>
+                    <a class="hero-link" href="#blogs">Blogs</a>
+                    <a class="hero-link hero-link--ghost" href="https://ctftime.org/user/172832" target="_blank" rel="noopener noreferrer">CTFtime</a>
+                    <a class="hero-link hero-link--ghost" href="https://v1t.site/" target="_blank" rel="noopener noreferrer">V1T</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SOLUTION 1: CLI COMMAND STREAM
+             ================================================================== -->
+        <section class="solution-stage" id="stage-sol-1" aria-label="Solution 1">
+            <div class="solution-meta-badge">SOLUTION 1 // UNIX SHELL COMMAND STREAM</div>
+            <p class="solution-description">Biến dải thông số thành một dòng lệnh terminal tương tác. Rê chuột vào từng cờ (flag) để kích hoạt hiệu ứng block cursor đảo ngược màu sắc.</p>
+            
+            <div class="sol-cli-shell">
+                <span class="cli-prompt">jaze@v1t:~$</span>
+                <span class="cli-cmd">./audit</span>
+                <a href="#cves" class="cli-flag cli-flag--metric" title="View all CVEs">
+                    <span class="flag-prefix">--cves</span>
+                    <span class="flag-val">34</span>
+                </a>
+                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="cli-flag">
+                    <span class="flag-prefix">--github</span>
+                    <span class="flag-val">trijaze</span>
+                </a>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="cli-flag">
+                    <span class="flag-prefix">--linkedin</span>
+                    <span class="flag-val">trijaze</span>
+                </a>
+                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="cli-flag">
+                    <span class="flag-prefix">--exec</span>
+                    <span class="flag-val">whoami</span>
+                </a>
+                <span class="cli-cursor">_</span>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SOLUTION 2: MATRIX DECIPHER / REGISTER HUD
+             ================================================================== -->
+        <section class="solution-stage is-hidden" id="stage-sol-2" aria-label="Solution 2">
+            <div class="solution-meta-badge">SOLUTION 2 // DISASSEMBLER REGISTER MATRIX (TEXT SCRAMBLE)</div>
+            <p class="solution-description">Mô phỏng bảng thanh ghi phần cứng (IDA Pro / Ghidra). Rê chuột vào từng ô để kích hoạt hiệu ứng giải mã ký tự Matrix (Decipher Effect).</p>
+
+            <div class="sol-matrix-grid">
+                <a href="#cves" class="matrix-cell matrix-cell--accent" data-scramble="34">
+                    <span class="matrix-tag">TOTAL CVES</span>
+                    <span class="matrix-val">34</span>
+                </a>
+                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Jaze(trijaze)">
+                    <span class="matrix-tag">GITHUB</span>
+                    <span class="matrix-val">Jaze(trijaze)</span>
+                </a>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Trí Dũng">
+                    <span class="matrix-tag">LINKEDIN</span>
+                    <span class="matrix-val">Trí Dũng</span>
+                </a>
+                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="whoami">
+                    <span class="matrix-tag">WHOAMI</span>
+                    <span class="matrix-val">whoami</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SOLUTION 3: TELEMETRY STATUSLINE (HAIRLINE BORDERS)
+             ================================================================== -->
+        <section class="solution-stage is-hidden" id="stage-sol-3" aria-label="Solution 3">
+            <div class="solution-meta-badge">SOLUTION 3 // NEODARK TELEMETRY STATUSLINE</div>
+            <p class="solution-description">Không dùng khối hộp đóng kín. Chỉ sử dụng 2 đường hairline siêu mảnh mờ trên và dưới, hòa quyện tuyệt đối vào không gian 3D.</p>
+
+            <div class="sol-telemetry-strip">
+                <div class="telemetry-row">
+                    <a href="#cves" class="telemetry-node">
+                        <span class="telemetry-label">DISCLOSURES</span>
+                        <span class="telemetry-data telemetry-data--accent">34 CVES</span>
+                    </a>
+                    <span class="telemetry-sep">/</span>
+                    <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="telemetry-node">
+                        <span class="telemetry-label">SOURCE</span>
+                        <span class="telemetry-data">GITHUB</span>
+                    </a>
+                    <span class="telemetry-sep">/</span>
+                    <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="telemetry-node">
+                        <span class="telemetry-label">NETWORK</span>
+                        <span class="telemetry-data">LINKEDIN</span>
+                    </a>
+                    <span class="telemetry-sep">/</span>
+                    <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="telemetry-node">
+                        <span class="telemetry-label">IDENTITY</span>
+                        <span class="telemetry-data">WHOAMI</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SOLUTION 4: DUAL-TONE PRECISION TOKENS
+             ================================================================== -->
+        <section class="solution-stage is-hidden" id="stage-sol-4" aria-label="Solution 4">
+            <div class="solution-meta-badge">SOLUTION 4 // DUAL-TONE PRECISION TOKENS</div>
+            <p class="solution-description">Phong cách Typography kỹ thuật Thụy Sĩ: chia đôi thẻ với Key (màu rêu đậm) và Value (màu trắng sáng). Không nền hộp to.</p>
+
+            <div class="sol-tokens-flex">
+                <a href="#cves" class="dual-token">
+                    <span class="token-k">CVES</span>
+                    <span class="token-v token-v--accent">34</span>
+                </a>
+                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="dual-token">
+                    <span class="token-k">SRC</span>
+                    <span class="token-v">GITHUB</span>
+                </a>
+                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="dual-token">
+                    <span class="token-k">NET</span>
+                    <span class="token-v">LINKEDIN</span>
+                </a>
+                <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="dual-token">
+                    <span class="token-k">EXEC</span>
+                    <span class="token-v">WHOAMI</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SOLUTION 5: INTERACTIVE TACTILE CONSOLE
+             ================================================================== -->
+        <section class="solution-stage is-hidden" id="stage-sol-5" aria-label="Solution 5">
+            <div class="solution-meta-badge">SOLUTION 5 // TACTILE AUDIT CONSOLE</div>
+            <p class="solution-description">Console tương tác: bấm hoặc rê chuột vào từng tab để xem trực tiếp câu lệnh audit và kết quả phản hồi của hệ thống.</p>
+
+            <div class="sol-console-card">
+                <div class="console-tablist" role="tablist">
+                    <button type="button" class="console-tab is-active" data-query="audit: cve-records --finder jaze" data-res="34 verified vulnerabilities logged" data-target="#cves">TOTAL CVES (34)</button>
+                    <button type="button" class="console-tab" data-query="remote: git clone github.com/trijaze" data-res="Public repositories & research tools" data-target="https://github.com/trijaze">GITHUB</button>
+                    <button type="button" class="console-tab" data-query="identity: connect linkedin/in/trijaze" data-res="Verified security researcher profile" data-target="https://www.linkedin.com/in/trijaze">LINKEDIN</button>
+                    <button type="button" class="console-tab" data-query="lookup: whoami --global" data-res="Search authority verification: Jaze Security" data-target="https://www.google.com/search?q=who+is+jaze+in+cyber+security">WHOAMI</button>
+                </div>
+                <div class="console-display">
+                    <div class="console-prompt-line">
+                        <span class="console-sym">&gt;</span>
+                        <span class="console-out" id="console-output-text">audit: cve-records --finder jaze // 34 verified vulnerabilities logged</span>
+                    </div>
+                    <a href="#cves" target="_self" class="console-action-btn" id="console-action-url">OPEN TARGET</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Disclosures Section Header for Context -->
+        <section style="margin-top: 2.5rem;">
+            <div class="section-header-compact">
+                <h2>Disclosures</h2>
+                <a class="view-all" href="#cves">View all 34 CVEs</a>
+            </div>
+            <div class="ticker-preview-mockup">
+                [ Disclosures Ticker Carousel tiếp tục tại đây ]
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 1. Solution View Switcher Logic
+        const navBtns = document.querySelectorAll('.lab-btn');
+        const stages = document.querySelectorAll('.solution-stage');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navBtns.forEach(b => b.classList.remove('is-active'));
+                btn.classList.add('is-active');
+
+                const targetView = btn.dataset.view;
+                if (targetView === 'all') {
+                    stages.forEach(s => s.classList.remove('is-hidden'));
+                } else {
+                    stages.forEach(s => {
+                        if (s.id === `stage-${targetView}`) {
+                            s.classList.remove('is-hidden');
+                        } else {
+                            s.classList.add('is-hidden');
+                        }
+                    });
+                }
+            });
+        });
+
+        // 2. Solution 2: Matrix Decipher Micro-Interaction
+        const scrambleChars = '0123456789ABCDEF!#%&_';
+        document.querySelectorAll('.matrix-cell').forEach(cell => {
+            const valSpan = cell.querySelector('.matrix-val');
+            const targetText = cell.dataset.scramble;
+            let timer = null;
+
+            cell.addEventListener('mouseenter', () => {
+                let iteration = 0;
+                clearInterval(timer);
+                timer = setInterval(() => {
+                    valSpan.innerText = targetText.split('').map((char, index) => {
+                        if (char === ' ') return ' ';
+                        if (index < iteration) return targetText[index];
+                        return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+                    }).join('');
+
+                    if (iteration >= targetText.length) {
+                        clearInterval(timer);
+                        valSpan.innerText = targetText;
+                    }
+                    iteration += 1 / 2;
+                }, 25);
+            });
+
+            cell.addEventListener('mouseleave', () => {
+                clearInterval(timer);
+                valSpan.innerText = targetText;
+            });
+        });
+
+        // 3. Solution 5: Console Tab Click & Hover Logic
+        const consoleTabs = document.querySelectorAll('.console-tab');
+        const consoleOut = document.getElementById('console-output-text');
+        const consoleBtn = document.getElementById('console-action-url');
+
+        consoleTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                consoleTabs.forEach(t => t.classList.remove('is-active'));
+                tab.classList.add('is-active');
+                const query = tab.dataset.query;
+                const res = tab.dataset.res;
+                const target = tab.dataset.target;
+
+                consoleOut.innerText = `${query} // ${res}`;
+                consoleBtn.href = target;
+                if (target.startsWith('http')) {
+                    consoleBtn.target = '_blank';
+                } else {
+                    consoleBtn.target = '_self';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

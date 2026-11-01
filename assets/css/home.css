@@ -22,7 +22,7 @@
     text-align: center;
     min-height: auto;
     padding-top: clamp(1.2rem, 3.5vh, 2.5rem);
-    padding-bottom: clamp(1.2rem, 3.5vh, 2.5rem);
+    padding-bottom: clamp(0.35rem, 1vh, 0.65rem);
     margin-inline: auto;
     width: 100%;
     position: relative;
@@ -254,87 +254,102 @@
 }
 
 /* ==========================================================================
-   Terminal Stats Strip (Minimalist, zero-slop technical metrics)
+   Matrix Decipher HUD (Solution 2: Technical Register Matrix)
    ========================================================================== */
+
+.home-stats-section {
+    margin-top: calc(-1 * clamp(var(--space-8), 4.5vw, var(--space-14)));
+}
 
 .stats-strip {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
-    border: 1px solid rgba(48, 70, 46, 0.45);
-    border-radius: var(--radius-md);
-    background: rgba(0, 18, 0, 0.62);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    gap: 0.65rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
     font-family: 'Chakra Petch', sans-serif;
+    margin: 0;
 }
 
-@media (min-width: 42rem) {
+@media (min-width: 48rem) {
     .stats-strip {
         grid-template-columns: repeat(4, 1fr);
-        gap: var(--space-4);
-        padding: var(--space-4) var(--space-6);
+        gap: 0.75rem;
     }
 }
 
-.stats-item {
+.matrix-cell {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
-    padding: var(--space-2);
-    border-radius: var(--radius-sm);
-    transition: background var(--duration-fast) var(--ease-enter);
-}
-
-.stats-item--link {
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.85rem 1rem;
+    background: rgba(1, 6, 1, 0.6);
+    border: 1px solid rgba(48, 70, 46, 0.4);
+    border-radius: var(--radius-sm, 4px);
     text-decoration: none;
-    color: inherit;
+    color: #ffffff;
+    font-family: 'Chakra Petch', sans-serif;
+    position: relative;
+    overflow: hidden;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
+    transition: border-color var(--duration-fast, 0.2s) ease,
+                background var(--duration-fast, 0.2s) ease,
+                box-shadow var(--duration-fast, 0.2s) ease,
+                transform var(--duration-fast, 0.2s) ease;
 }
 
-.stats-item--link:hover {
+.matrix-cell:hover,
+.matrix-cell:focus-visible {
+    border-color: var(--accent);
     background: rgba(25, 168, 0, 0.08);
+    box-shadow: 0 0 18px rgba(25, 168, 0, 0.2);
+    transform: translateY(-1px);
 }
 
-.stats-item--link:hover .stats-item__val,
-.stats-item--link:focus-visible .stats-item__val {
-    color: var(--accent);
-}
-
-.stats-item--link:active {
+.matrix-cell:active {
     transform: scale(0.98);
 }
 
-.stats-item__val {
-    color: #ffffff;
-    font-size: var(--font-size-lg);
+.matrix-tag {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.72rem;
     font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.1;
-    letter-spacing: 0.02em;
-    display: block;
-    transition: color var(--duration-fast) var(--ease-enter);
-}
-
-.stats-item__val--whoami {
-    font-family: var(--font-code, 'IBM Plex Mono', monospace);
-    color: var(--accent, #19a800);
-}
-
-.stats-item__val--accent {
-    color: #ffffff;
-}
-
-.stats-item__label {
-    color: var(--muted, #859684);
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    color: var(--muted-light, #7b9378);
     text-transform: uppercase;
+    transition: color 0.15s ease;
+}
+
+.matrix-cell:hover .matrix-tag,
+.matrix-cell:focus-visible .matrix-tag {
+    color: #9cb599;
+}
+
+.matrix-val {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: clamp(0.88rem, 1.3vw, 1.05rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    line-height: 1.2;
+    transition: color 0.15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.matrix-cell:hover .matrix-val,
+.matrix-cell:focus-visible .matrix-val {
+    color: var(--accent);
+}
+
+.matrix-cell--accent .matrix-val {
+    color: var(--accent);
 }
 
 /* ==========================================================================
