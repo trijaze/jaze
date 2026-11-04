@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#020c00">
     <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-WZuSxr0aeloFiavpTuMtCxELtBRRytyZICj9DHWtLtM=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://jaze.v1t.site/blog/">
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -27,6 +28,7 @@
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/nav.css">
     <link rel="stylesheet" href="/assets/css/blog.css">
+
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "Blog",
@@ -35,16 +37,17 @@
   "name": "Research Blog — Jaze",
   "description": "Security research publications and technical writeups by Jaze."
 }</script>
-    <script src="/assets/js/nav.js" defer></script>
-    <script src="/assets/js/ascii-webgl-renderer.js" defer></script>
-    <script src="/assets/js/intro-loader.js" defer></script>
-    <script src="/assets/js/blog.js" defer></script>
+    <script src="/assets/js/intro-controller.js?v=61903adb" defer></script>
+    <script src="/assets/js/nav.js?v=8b0d823e" defer></script>
+    <script src="/assets/js/ascii-webgl-renderer.js?v=7997b0d4" defer></script>
+    <script src="/assets/js/intro-loader.js?v=c566eb92" defer></script>
+    <script src="/assets/js/blog.js?v=056fbd3c" defer></script>
 </head>
-<body class="bg-blur-active" data-page="blog">
+<body class="bg-blur-active" data-page="blog" data-intro="false">
     <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
         <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
-        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
-        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
     </div>
     <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 
@@ -58,7 +61,17 @@
                     </span>
                 </button>
                 <button class="nav-brightness-btn" id="nav-brightness-btn" type="button" aria-pressed="false" aria-label="Toggle 3x green brightness boost" title="Boost green brightness 3x (L)">
-                    <span class="nav-brightness-label" aria-hidden="true">BOOST</span>
+                    <svg class="nav-brightness-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
                 </button>
                 <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
                     <span class="nav-toggle-lines" aria-hidden="true"></span>
@@ -84,7 +97,7 @@
                 <label for="blog-tag">Topic</label>
                 <select class="blog-sort" id="blog-tag" name="tag" data-blog-tag>
                     <option value="all">All Topics</option>
-                    <option value="cve">cve</option><option value="research">research</option><option value="workflow">workflow</option>
+                    <option value="appsec">appsec</option><option value="availability">availability</option><option value="bug-bounty">bug-bounty</option><option value="critical">critical</option><option value="cryptography">cryptography</option><option value="ctf">ctf</option><option value="cve">cve</option><option value="efuse">efuse</option><option value="esp32">esp32</option><option value="file-upload">file-upload</option><option value="flash-encryption">flash-encryption</option><option value="forensics">forensics</option><option value="gutenberg">gutenberg</option><option value="hardware">hardware</option><option value="hardware-security">hardware-security</option><option value="idor">idor</option><option value="logic-bug">logic-bug</option><option value="rce">rce</option><option value="recovery">recovery</option><option value="research">research</option><option value="rest-api">rest-api</option><option value="reverse-engineering">reverse-engineering</option><option value="sqli">sqli</option><option value="steganography">steganography</option><option value="v1t">v1t</option><option value="vulnerability">vulnerability</option><option value="woocommerce">woocommerce</option><option value="wordpress">wordpress</option><option value="writeup">writeup</option><option value="xss">xss</option>
                 </select>
             </div>
             <div class="field toolbar-field">
@@ -103,19 +116,128 @@
         <div class="blog-grid" data-blog-list>
             
                 <article class="post-card post-card--featured" data-blog-item
-                    data-title="A Local-First Workflow for CVE Research Notes"
-                    data-excerpt="A practical template for keeping vulnerability research notes structured, reviewable, and available without depending on a live API."
-                    data-date="2026-10-25"
-                    data-tags="cve|research|workflow">
+                    data-title="19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots"
+                    data-excerpt="A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps."
+                    data-date="2026-10-26"
+                    data-order="70"
+                    data-tags="wordpress|xss|appsec|gutenberg|research">
                     <div class="post-card__meta">
-                        <span>4 min read</span>
-                        <span>Featured</span>
+                        <span>12 min read</span>
+                        <span class="post-card__badge">Featured</span>
                     </div>
-                    <h2 class="post-card__title"><a href="/blog/local-first-cve-research-notes/">A Local-First Workflow for CVE Research Notes</a></h2>
-                    <p class="post-card__excerpt">A practical template for keeping vulnerability research notes structured, reviewable, and available without depending on a live API.</p>
+                    <h2 class="post-card__title"><a href="/blog/19-xss-in-24-hours/">19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots</a></h2>
+                    <p class="post-card__excerpt">A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.</p>
                     <div class="post-card__footer">
-                        <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">research</li><li class="tag">workflow</li></ul>
-                        <a href="/blog/local-first-cve-research-notes/" aria-label="Read A Local-First Workflow for CVE Research Notes">Read note</a>
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">wordpress</li><li class="tag">xss</li><li class="tag">appsec</li><li class="tag">gutenberg</li><li class="tag">research</li></ul>
+                        <a href="/blog/19-xss-in-24-hours/" aria-label="Read 19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots">Read note</a>
+                    </div>
+                </article>
+            
+                <article class="post-card" data-blog-item
+                    data-title="The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion"
+                    data-excerpt="A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe."
+                    data-date="2026-10-31"
+                    data-order="60"
+                    data-tags="cve|idor|woocommerce|logic-bug|availability">
+                    <div class="post-card__meta">
+                        <span>12 min read</span>
+                        
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/">The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion</a></h2>
+                    <p class="post-card__excerpt">A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">idor</li><li class="tag">woocommerce</li><li class="tag">logic-bug</li><li class="tag">availability</li></ul>
+                        <a href="/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/" aria-label="Read The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion">Read note</a>
+                    </div>
+                </article>
+            
+                <article class="post-card post-card--featured" data-blog-item
+                    data-title="My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools"
+                    data-excerpt="After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE."
+                    data-date="2026-10-30"
+                    data-order="50"
+                    data-tags="cve|critical|rce|file-upload|bug-bounty">
+                    <div class="post-card__meta">
+                        <span>14 min read</span>
+                        <span class="post-card__badge">Featured</span>
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/">My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools</a></h2>
+                    <p class="post-card__excerpt">After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">critical</li><li class="tag">rce</li><li class="tag">file-upload</li><li class="tag">bug-bounty</li></ul>
+                        <a href="/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/" aria-label="Read My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools">Read note</a>
+                    </div>
+                </article>
+            
+                <article class="post-card" data-blog-item
+                    data-title="Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit"
+                    data-excerpt="A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump."
+                    data-date="2026-10-28"
+                    data-order="40"
+                    data-tags="cve|sqli|rest-api|wordpress|vulnerability">
+                    <div class="post-card__meta">
+                        <span>8 min read</span>
+                        
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/">Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit</a></h2>
+                    <p class="post-card__excerpt">A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">sqli</li><li class="tag">rest-api</li><li class="tag">wordpress</li><li class="tag">vulnerability</li></ul>
+                        <a href="/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/" aria-label="Read Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit">Read note</a>
+                    </div>
+                </article>
+            
+                <article class="post-card post-card--featured" data-blog-item
+                    data-title="I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)"
+                    data-excerpt="What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead."
+                    data-date="2026-11-04"
+                    data-order="30"
+                    data-tags="esp32|hardware-security|flash-encryption|efuse|ctf|recovery">
+                    <div class="post-card__meta">
+                        <span>10 min read</span>
+                        <span class="post-card__badge">Featured</span>
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/i-bricked-my-esp32-s3/">I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)</a></h2>
+                    <p class="post-card__excerpt">What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">esp32</li><li class="tag">hardware-security</li><li class="tag">flash-encryption</li><li class="tag">efuse</li><li class="tag">ctf</li><li class="tag">recovery</li></ul>
+                        <a href="/blog/i-bricked-my-esp32-s3/" aria-label="Read I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)">Read note</a>
+                    </div>
+                </article>
+            
+                <article class="post-card" data-blog-item
+                    data-title="V1T CTF 2026 writeup"
+                    data-excerpt="A deep dive into five advanced forensic, hardware, and cryptographic challenges from V1T CTF 2026: Green Goblin, Nice Try, 10X54, Barely Legal Experience, and XTS-AES."
+                    data-date="2026-07-02"
+                    data-order="20"
+                    data-tags="ctf|writeup|forensics|hardware|reverse-engineering|v1t">
+                    <div class="post-card__meta">
+                        <span>22 min read</span>
+                        
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/v1t-ctf-2026-writeups/">V1T CTF 2026 writeup</a></h2>
+                    <p class="post-card__excerpt">A deep dive into five advanced forensic, hardware, and cryptographic challenges from V1T CTF 2026: Green Goblin, Nice Try, 10X54, Barely Legal Experience, and XTS-AES.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">ctf</li><li class="tag">writeup</li><li class="tag">forensics</li><li class="tag">hardware</li><li class="tag">reverse-engineering</li><li class="tag">v1t</li></ul>
+                        <a href="/blog/v1t-ctf-2026-writeups/" aria-label="Read V1T CTF 2026 writeup">Read note</a>
+                    </div>
+                </article>
+            
+                <article class="post-card" data-blog-item
+                    data-title="V1T CTF 2025 writeup"
+                    data-excerpt="A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitplane carving, BinaryFuck execution, Scapy packet reassembly, and bkcrack plaintext attacks."
+                    data-date="2025-11-06"
+                    data-order="10"
+                    data-tags="ctf|writeup|steganography|cryptography|forensics|v1t">
+                    <div class="post-card__meta">
+                        <span>18 min read</span>
+                        
+                    </div>
+                    <h2 class="post-card__title"><a href="/blog/v1t-ctf-2025-writeups/">V1T CTF 2025 writeup</a></h2>
+                    <p class="post-card__excerpt">A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitplane carving, BinaryFuck execution, Scapy packet reassembly, and bkcrack plaintext attacks.</p>
+                    <div class="post-card__footer">
+                        <ul class="tag-list" aria-label="Topics"><li class="tag">ctf</li><li class="tag">writeup</li><li class="tag">steganography</li><li class="tag">cryptography</li><li class="tag">forensics</li><li class="tag">v1t</li></ul>
+                        <a href="/blog/v1t-ctf-2025-writeups/" aria-label="Read V1T CTF 2025 writeup">Read note</a>
                     </div>
                 </article>
             
@@ -133,10 +255,55 @@
         <div class="site-shell footer-layout">
             <p>Jaze · Security Research · <a href="https://v1t.site/" rel="external">V1T</a></p>
             <nav aria-label="Footer navigation">
+                <button type="button" class="footer-feed-trigger" data-open-feed-me>Feed Me</button>
                 <a href="/feed.xml">RSS</a>
                 <a href="/sitemap.xml">Sitemap</a>
             </nav>
         </div>
     </footer>
+
+    <dialog class="feed-me-dialog" id="feed-me-dialog" aria-labelledby="feed-me-dialog-title">
+        <div class="feed-me-dialog__surface">
+            <div class="feed-me-dialog__header">
+                <div>
+                    <span class="feed-me-dialog__tag">DONATE / TIP JAR</span>
+                    <h2 id="feed-me-dialog-title" class="feed-me-dialog__title">Feed Me<span class="feed-me-cursor" aria-hidden="true">_</span></h2>
+                </div>
+                <button type="button" class="feed-me-dialog__close" data-close-feed-me aria-label="Close dialog">&times;</button>
+            </div>
+
+            <p class="feed-me-dialog__desc">Support vulnerability research, hardware exploits & caffeine.</p>
+
+            <div class="feed-me-list">
+                <!-- Bitcoin -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Bitcoin</span>
+                        <span class="feed-me-item__chain">BTC (Native SegWit)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97">bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97" aria-label="Copy Bitcoin address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ethereum -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Ethereum</span>
+                        <span class="feed-me-item__chain">ETH (EVM / L2s)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0">0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0" aria-label="Copy Ethereum address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
 </body>
 </html>

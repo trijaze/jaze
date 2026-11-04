@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#020c00">
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-HSp5OzEYisT0bBYg2G2e3YsUC36WKxR/ViCTyO0Ui+Y=&#39; &#39;sha256-Bi0+Jtwj8FqTayjQUIn7RPQ2VLo4ixs+uHc4yT4SiLI=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://jaze.v1t.site/blog/v1t-ctf-2025-writeups/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="alternate" type="application/rss+xml" title="Jaze research feed" href="/feed.xml">
+    <title>V1T CTF 2025 writeup — Jaze</title>
+    <meta name="description" content="A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitp…">
+    <meta name="author" content="Jaze">
+    <meta property="og:site_name" content="Jaze Security Research">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="V1T CTF 2025 writeup — Jaze">
+    <meta property="og:description" content="A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitp…">
+    <meta property="og:url" content="https://jaze.v1t.site/blog/v1t-ctf-2025-writeups/">
+    <meta property="og:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
+    <meta property="og:image:alt" content="Jaze security research profile">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="V1T CTF 2025 writeup — Jaze">
+    <meta name="twitter:description" content="A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitp…">
+    <meta name="twitter:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
+    <link rel="stylesheet" href="/assets/css/tokens.css">
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/nav.css">
+    <link rel="stylesheet" href="/assets/css/blog.css">
+
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "@id": "https://jaze.v1t.site/blog/v1t-ctf-2025-writeups/#article",
+  "url": "https://jaze.v1t.site/blog/v1t-ctf-2025-writeups/",
+  "headline": "V1T CTF 2025 writeup",
+  "description": "A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitplane carving, BinaryFuck execution, Scapy packet reassembly, and bkcrack plaintext attacks.",
+  "datePublished": "2025-11-06",
+  "dateModified": "2025-11-06",
+  "author": {
+    "@type": "Person",
+    "name": "Jaze",
+    "url": "https://jaze.v1t.site/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Jaze",
+    "url": "https://jaze.v1t.site/"
+  },
+  "keywords": "ctf, writeup, steganography, cryptography, forensics, v1t",
+  "mainEntityOfPage": "https://jaze.v1t.site/blog/v1t-ctf-2025-writeups/"
+}</script>
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://jaze.v1t.site/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Research Notes",
+      "item": "https://jaze.v1t.site/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "V1T CTF 2025 writeup",
+      "item": "https://jaze.v1t.site/blog/v1t-ctf-2025-writeups/"
+    }
+  ]
+}</script>
+    <script src="/assets/js/intro-controller.js?v=61903adb" defer></script>
+    <script src="/assets/js/nav.js?v=8b0d823e" defer></script>
+    <script src="/assets/js/ascii-webgl-renderer.js?v=7997b0d4" defer></script>
+    <script src="/assets/js/intro-loader.js?v=c566eb92" defer></script>
+    <script src="/assets/js/article.js?v=fe14e4d4" defer></script>
+</head>
+<body class="bg-blur-active" data-page="blog" data-intro="false">
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
+    </div>
+    <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <nav class="site-nav site-shell" aria-label="Primary navigation">
+            <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
+            <div class="nav-actions">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                    <span class="nav-blur-switch__track" aria-hidden="true">
+                        <span class="nav-blur-switch__thumb"></span>
+                    </span>
+                </button>
+                <button class="nav-brightness-btn" id="nav-brightness-btn" type="button" aria-pressed="false" aria-label="Toggle 3x green brightness boost" title="Boost green brightness 3x (L)">
+                    <svg class="nav-brightness-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
+                    <span class="nav-toggle-lines" aria-hidden="true"></span>
+                </button>
+            </div>
+            <ul class="nav-links" id="primary-menu" data-nav-menu><li><a href="/">Profile</a></li><li><a href="/blog/" aria-current="page">Blog</a></li><li><a href="/cves/">CVEs</a></li><li><a href="https://v1t.site/" rel="external">V1T</a></li></ul>
+        </nav>
+    </header>
+
+    <main class="page-main site-shell post-page" id="main-content">
+        <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/blog/">Research Notes</a></nav>
+        <header class="post-header">
+            <p class="section-kicker">Research note</p>
+            <h1>V1T CTF 2025 writeup</h1>
+            <p class="post-deck">A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitplane carving, BinaryFuck execution, Scapy packet reassembly, and bkcrack plaintext attacks.</p>
+            <div class="post-meta">
+                <span>18 min read</span>
+            </div>
+            <ul class="tag-list" aria-label="Topics"><li class="tag">ctf</li><li class="tag">writeup</li><li class="tag">steganography</li><li class="tag">cryptography</li><li class="tag">forensics</li><li class="tag">v1t</li></ul>
+        </header>
+        <div class="post-layout">
+            <nav class="post-toc" aria-label="On this page"><strong>On this page</strong><ul><li data-level="2"><a href="#preface">Preface</a></li><li data-level="2"><a href="#challenge-1-67-steganography-aes-bitplane-carving">Challenge 1: 67 (Steganography &amp; AES Bitplane Carving)</a></li><li data-level="3"><a href="#1-initial-metadata-reconnaissance">1. Initial Metadata Reconnaissance</a></li><li data-level="3"><a href="#2-file-extraction-visual-glitch-inspection">2. File Extraction &amp; Visual Glitch Inspection</a></li><li data-level="3"><a href="#3-bitplane-analysis-in-stegsolve">3. Bitplane Analysis in Stegsolve</a></li><li data-level="3"><a href="#4-aes-cbc-parameter-assembly-decryption">4. AES-CBC Parameter Assembly &amp; Decryption</a></li><li data-level="2"><a href="#challenge-2-fuck-da-binary-software-hashes-binaryfuck-vm">Challenge 2: Fuck Da Binary (Software Hashes &amp; BinaryFuck VM)</a></li><li data-level="3"><a href="#1-archive-inspection-metadata-riddle">1. Archive Inspection &amp; Metadata Riddle</a></li><li data-level="3"><a href="#2-identifying-the-target-binary">2. Identifying the Target Binary</a></li><li data-level="3"><a href="#3-deobfuscating-sus-txt-binaryfuck">3. Deobfuscating `sus.txt` &amp; BinaryFuck</a></li><li data-level="2"><a href="#challenge-3-thirsty-sick-network-carving-stream-deinterleaving">Challenge 3: Thirsty Sick 🥵💦 (Network Carving &amp; Stream Deinterleaving)</a></li><li data-level="3"><a href="#1-wireshark-pcap-analysis">1. Wireshark PCAP Analysis</a></li><li data-level="3"><a href="#2-pcap-stream-reassembly-with-scapy">2. PCAP Stream Reassembly with Scapy</a></li><li data-level="3"><a href="#3-deinterleaving-the-36-byte-blocks-png-recovery">3. Deinterleaving the 36-Byte Blocks (PNG Recovery)</a></li><li data-level="3"><a href="#4-stream-inversion-jpeg-recovery">4. Stream Inversion &amp; JPEG Recovery</a></li><li data-level="2"><a href="#challenge-4-tryna-crack-zipcrypto-kpa-ihdr-height-repair">Challenge 4: Tryna crack? (ZipCrypto KPA &amp; IHDR Height Repair)</a></li><li data-level="3"><a href="#1-archive-inspection-the-zipcrypto-vulnerability">1. Archive Inspection: The ZipCrypto Vulnerability</a></li><li data-level="3"><a href="#2-recovering-encryption-keys-via-bkcrack">2. Recovering Encryption Keys via `bkcrack`</a></li><li data-level="3"><a href="#3-exposing-the-honeypot-decoy">3. Exposing the Honeypot Decoy</a></li><li data-level="3"><a href="#4-chunk-tampering-expanding-the-png-ihdr-height">4. Chunk Tampering: Expanding the PNG IHDR Height</a></li><li data-level="3"><a href="#5-final-flag-computation">5. Final Flag Computation</a></li><li data-level="2"><a href="#technical-summary-core-takeaways">Technical Summary &amp; Core Takeaways</a></li></ul></nav>
+            <article class="post-prose"><h2 id="preface">Preface</h2>
+<p>CTF competitions are rarely just about running an automated tool or running a dictionary attack. The most memorable challenges are puzzles that force you to look closely at the foundational data formats—the byte-level structures of ZIP archives, the IHDR chunk signatures of PNG files, the bitplanes of uncompressed RGB channels, and the exact packet framing of raw network captures.</p>
+<p>During <strong>V1T CTF 2025</strong>, our team encountered a series of forensic, steganographic, and cryptographic challenges that demanded creative reverse-engineering:</p>
+<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">Challenge</th><th scope="col" style="text-align: center;">Category</th><th scope="col" style="text-align: left;">Core Technique</th><th scope="col" style="text-align: left;">Key Tools</th><th scope="col" style="text-align: left;">Final Flag</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>67</strong></td><td style="text-align: center;">Stego / Crypto</td><td style="text-align: left;">Bitplane 6 &amp; 7 extraction + AES-192-CBC</td><td style="text-align: left;"><code>exiftool</code>, <code>Stegsolve</code>, Python</td><td style="text-align: left;"><code>v1t{50rry_f0r_7h3_gu355y}</code></td></tr>
+<tr><td style="text-align: left;"><strong>Fuck Da Binary</strong></td><td style="text-align: center;">Reverse / Esoteric</td><td style="text-align: left;">Unikey SHA-256 matching + BinaryFuck VM</td><td style="text-align: left;"><code>exiftool</code>, <code>7z</code>, <code>tr</code>, BinaryFuck</td><td style="text-align: left;"><code>V1t{this_is_way_too_easy}</code></td></tr>
+<tr><td style="text-align: left;"><strong>Thirsty Sick 🥵💦</strong></td><td style="text-align: center;">Forensics / Network</td><td style="text-align: left;">Scapy TCP carving + 36-byte deinterleaving</td><td style="text-align: left;"><code>Wireshark</code>, <code>scapy</code>, <code>xxd</code>, <code>rev</code></td><td style="text-align: left;"><code>V1t{ju57_4_fun_1_l1k3_p3nnyw0r7_b7w}</code></td></tr>
+<tr><td style="text-align: left;"><strong>Tryna crack?</strong></td><td style="text-align: center;">Forensics / Crypto</td><td style="text-align: left;">ZipCrypto KPA + PNG IHDR height extension</td><td style="text-align: left;"><code>zipinfo</code>, <code>bkcrack</code>, <code>xxd</code>, <code>sha512sum</code></td><td style="text-align: left;"><code>V1t{7083748baa3a42dc0a93811...0373}</code></td></tr></tbody></table></div>
+<p>This writeup documents the step-by-step methodology, investigative thought processes, and custom scripts developed to solve all four challenges.</p>
+<h2 id="challenge-1-67-steganography-aes-bitplane-carving">Challenge 1: 67 (Steganography &amp; AES Bitplane Carving)</h2>
+<p>The challenge begins with a single archive: <code>challenge.zip</code>.</p>
+<h3 id="1-initial-metadata-reconnaissance">1. Initial Metadata Reconnaissance</h3>
+<p>Before jumping into unzipping, checking the archive&#39;s metadata using <code>exiftool</code> reveals critical contextual hints:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(venv)─(kali㉿kali)-[]
+└─$ exiftool challenge.zip 
+File Name                       : challenge.zip
+File Size                       : 33 kB
+Comment                         : u AlrEady know the ruleS | (36-4) + (36-4) = 67 - 3.
+File Type                       : ZIP
+Zip Compressed Size             : 33190
+Zip Uncompressed Size           : 34385
+Zip File Name                   : six7_6seven.png</code></pre>
+                
+            </figure>
+<p>The comment in the ZIP metadata immediately catches our eye:</p>
+<blockquote><p><code>&quot;u AlrEady know the ruleS | (36-4) + (36-4) = 67 - 3.&quot;</code></p></blockquote>
+<p>Notice the deliberate capitalization: <strong>A</strong>, <strong>E</strong>, and <strong>S</strong> spell out <strong>AES</strong>.</p>
+<p>Furthermore, evaluating the mathematical riddle <code>(36-4) + (36-4) = 67 - 3</code> simplifies directly to <code>32 + 32 = 64</code>. In cryptographic terms, this strongly points toward a 64-hex-character (32-byte) payload, with key and IV parameters.</p>
+<h3 id="2-file-extraction-visual-glitch-inspection">2. File Extraction &amp; Visual Glitch Inspection</h3>
+<p>Extracting the archive gives us an image titled <code>six7_6seven.png</code>:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-six7-6seven.png" alt="Initial challenge image" width="498" height="372" loading="lazy" decoding="async">
+                <figcaption>six7_6seven.png — Notice the glitched pixel artifacts concentrated in the upper-left corner</figcaption>
+            </figure>
+<p>While the main canvas looks like a standard graphic, the top-left corner exhibits unnatural pixel corruption—a classic footprint of spatial-domain least significant bit (LSB) or bitplane steganography.</p>
+<h3 id="3-bitplane-analysis-in-stegsolve">3. Bitplane Analysis in Stegsolve</h3>
+<p>Opening the image in <code>Stegsolve</code> and flipping through the bitplanes across Red, Green, and Blue channels reveals that meaningful data exists exclusively in <strong>Bit Plane 6</strong> and <strong>Bit Plane 7</strong>:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-bitplane6.png" alt="Bit plane 6 visualization" width="244" height="32" loading="lazy" decoding="async">
+                <figcaption>Stegsolve RGB Bit Plane 6 — Clear binary patterning is visible</figcaption>
+            </figure>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-bitplane7.png" alt="Bit plane 7 visualization" width="236" height="35" loading="lazy" decoding="async">
+                <figcaption>Stegsolve RGB Bit Plane 7 — High-entropy structured payload visible</figcaption>
+            </figure>
+<p>Extracting these planes individually and in combination produces distinct hexadecimal outputs:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-extract6.png" alt="Extracted plane 6 data" width="715" height="503" loading="lazy" decoding="async">
+                <figcaption>Raw hex dump from Bit Plane 6</figcaption>
+            </figure>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-extract7.png" alt="Extracted plane 7 data" width="722" height="517" loading="lazy" decoding="async">
+                <figcaption>Raw hex dump from Bit Plane 7</figcaption>
+            </figure>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-extract67.png" alt="2-bit plane 67 extraction" width="716" height="498" loading="lazy" decoding="async">
+                <figcaption>Combined 2-bit extraction (6 and 7) exposing plaintext strings</figcaption>
+            </figure>
+<p>Inspecting the dumps:</p>
+<p><strong>Bit Plane 6 Dump:</strong></p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">6663633064383463 6362383966376132  fcc0d84c cb89f7a2
+3134366563356464 6533323434393763  146ec5dd e324497c
+6753774645555555 5555555554646743  gSwFEUUU UUUUTdgC</code></pre>
+                
+            </figure>
+<p><strong>Bit Plane 7 Dump:</strong></p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">3935613439653439 3861663539643030  95a49e49 8af59d00
+3830316461343730 6439363037343130  801da470 d9607410
+9abfba0306767676 767676767030dbff  .....vvv vvvvp0..</code></pre>
+                
+            </figure>
+<p><strong>Combined 2-Bit Extraction (Planes 6 &amp; 7):</strong></p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">696e675f6f6e202d 2036373637363736  ing_on -  6767676
+3736373637363736 37202d20796f755f  76767676 7 - you_
+6b6e6f775f777466 5f69735f676f696e  know_wtf _is_goin
+675f6f6e202d2036 3736373637363736  g_on - 6 76767676</code></pre>
+                
+            </figure>
+<p>From this combined output, a clear ASCII string emerges: <code>&quot;you_know_wtf_is_going_on - 6767676767676767&quot;</code></p>
+<h3 id="4-aes-cbc-parameter-assembly-decryption">4. AES-CBC Parameter Assembly &amp; Decryption</h3>
+<p>We now have all cryptographic components:</p>
+<ul><li><strong>Ciphertext (32 bytes / 64 hex chars):</strong> Formed by concatenating the 16-byte hex chunk from Plane 6 with the 16-byte hex chunk from Plane 7: <code>fcc0d84ccb89f7a2146ec5dde324497c95a49e498af59d00801da470d9607410</code></li><li><strong>AES Key (24 bytes / AES-192):</strong> <code>you_know_wtf_is_going_on</code></li><li><strong>Initialization Vector (IV, 16 bytes):</strong> <code>6767676767676767</code></li></ul>
+<p>Feeding these parameters into CyberChef or a Python AES-CBC decryptor:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/67-decrypted.png" alt="Decrypted flag" width="1260" height="316" loading="lazy" decoding="async">
+                <figcaption>AES-CBC decryption revealing the flag</figcaption>
+            </figure>
+<p><strong>Flag:</strong> <code>v1t{50rry_f0r_7h3_gu355y}</code></p>
+<h2 id="challenge-2-fuck-da-binary-software-hashes-binaryfuck-vm">Challenge 2: Fuck Da Binary (Software Hashes &amp; BinaryFuck VM)</h2>
+<p>The challenge provides an archive named <code>idontlikebinaries.zip</code>.</p>
+<h3 id="1-archive-inspection-metadata-riddle">1. Archive Inspection &amp; Metadata Riddle</h3>
+<p>Running <code>exiftool</code> on the downloaded file:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(venv)─(kali㉿kali)-[]
+└─$ exiftool idontlikebinaries.zip 
+File Name                       : idontlikebinaries.zip
+Comment                         : i love S*cking H*es A*s more than 255 times
+Zip File Name                   : challenge.7z</code></pre>
+                
+            </figure>
+<p>The metadata contains a playful vulgarity: <code>&quot;i love S<em>cking H</em>es A*s more than 255 times&quot;</code>. Capital letters <strong>S</strong>, <strong>H</strong>, <strong>A</strong> combined with <strong>255 + 1</strong> = <strong>SHA256</strong>.</p>
+<p>Extracting <code>idontlikebinaries.zip</code> yields an inner encrypted archive: <code>challenge.7z</code>.</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/fdb-challenge.png" alt="Password protected archive" width="632" height="843" loading="lazy" decoding="async">
+                <figcaption>challenge.7z requiring a password for extraction</figcaption>
+            </figure>
+<h3 id="2-identifying-the-target-binary">2. Identifying the Target Binary</h3>
+<p>The challenge prompt provided an evocative backstory:</p>
+<blockquote><p>*&quot;I usually secure important files using password hashes derived from the software I frequently use or tools that hold personal significance to me. Let me introduce you to Unikey</p><footer>— it’s more than just a typing tool, it represents the creativity and ingenuity of Vietnamese developers... Go check the latest version, u gonna love it.&quot;*</footer></blockquote>
+<p>The directive is unmistakable:</p>
+<ol><li>Identify the software: <strong>UniKey</strong></li><li>Target: The <strong>latest official installer/executable</strong></li><li>Password: <strong>SHA-256 hash</strong> of the executable.</li></ol>
+<p>Downloading the latest official <code>UniKeyNT.exe</code> and calculating its SHA-256 digest:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(venv)─(kali㉿kali)-[]
+└─$ sha256sum UniKeyNT.exe 
+b732b1c198e7b0ebfcb0ef2f5d99f1888b5900460c1fa36ea27d47e8386684b1  UniKeyNT.exe</code></pre>
+                
+            </figure>
+<p>Using this hash as the password to extract <code>challenge.7z</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(venv)─(kali㉿kali)-[]
+└─$ 7z x challenge.7z -pb732b1c198e7b0ebfcb0ef2f5d99f1888b5900460c1fa36ea27d47e8386684b1
+Extracting archive: challenge.7z
+--
+Path = challenge.7z
+Type = 7z
+Method = LZMA2:12 7zAES
+Everything is Ok</code></pre>
+                
+            </figure>
+<h3 id="3-deobfuscating-sus-txt-binaryfuck">3. Deobfuscating `sus.txt` &amp; BinaryFuck</h3>
+<p>The extraction yields a single file: <code>sus.txt</code>.</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">==============================&gt;&gt;==&gt;=====&gt;===========&gt;=======================&gt;================================&gt;&gt;=&gt;&gt;=&gt;&gt;=&gt;&gt;==&gt;&gt;&gt;&gt;=&gt;==&gt;==&gt;==&gt;===&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;==&gt;&gt;===&gt;&gt;=&gt;&gt;...</code></pre>
+                
+            </figure>
+<p>The entire content consists exclusively of two characters: <code>=</code> and <code>&gt;</code>. Translating <code>=</code> to <code>0</code> and <code>&gt;</code> to <code>1</code> using <code>tr</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(venv)─(kali㉿kali)-[]
+└─$ tr &#39;=&gt;&#39; &#39;01&#39; &lt; sus.txt &gt; sus_bits.txt</code></pre>
+                
+            </figure>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/fdb-ciphertext-identifier.png" alt="Binary ciphertext identification" width="1016" height="370" loading="lazy" decoding="async">
+                <figcaption>Ciphertext identifier detecting binary stream</figcaption>
+            </figure>
+<p>With the challenge title <em>&quot;Fuck Da Binary&quot;</em> and a raw binary stream, this matches <strong>BinaryFuck</strong>—an esoteric programming language that maps 3-bit binary triplets directly onto the 8 Brainfuck instructions:</p>
+<ul><li><code>000</code> -&gt; <code>&gt;</code></li><li><code>001</code> -&gt; <code>&lt;</code></li><li><code>010</code> -&gt; <code>+</code></li><li><code>011</code> -&gt; <code>-</code></li><li><code>100</code> -&gt; <code>.</code></li><li><code>101</code> -&gt; <code>,</code></li><li><code>110</code> -&gt; <code>[</code></li><li><code>111</code> -&gt; <code>]</code></li></ul>
+<p>Executing <code>sus_bits.txt</code> through a BinaryFuck VM:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/fdb-decoded.png" alt="BinaryFuck decoded output" width="988" height="485" loading="lazy" decoding="async">
+                <figcaption>BinaryFuck execution yielding the decoded flag</figcaption>
+            </figure>
+<p><strong>Flag:</strong> <code>V1t{this_is_way_too_easy}</code></p>
+<h2 id="challenge-3-thirsty-sick-network-carving-stream-deinterleaving">Challenge 3: Thirsty Sick 🥵💦 (Network Carving &amp; Stream Deinterleaving)</h2>
+<p>The challenge archive <code>360degree.zip</code> unpacks with a humorous comment:</p>
+<blockquote><p><code>&quot;i am very Thirsty and feeling Sick&quot;</code></p></blockquote>
+<p>Phonetically, <em>&quot;Thirsty Sick&quot;</em> is a clear pun on <strong>&quot;Thirty Six&quot; (36)</strong>.</p>
+<h3 id="1-wireshark-pcap-analysis">1. Wireshark PCAP Analysis</h3>
+<p>Extracting the ZIP produces <code>capture.pcap</code>. Opening it in Wireshark shows continuous TCP streams transmitting uniform 476-byte packets:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-samelengthpacket.png" alt="Same length packets in Wireshark" width="1166" height="263" loading="lazy" decoding="async">
+                <figcaption>Wireshark packet view showing streams with uniform lengths</figcaption>
+            </figure>
+<p>Inspecting individual TCP packet payloads:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-packet-1.png" alt="Packet 1 inspection" width="1274" height="289" loading="lazy" decoding="async">
+                <figcaption>Packet 1 payload stream</figcaption>
+            </figure>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-packet-2.png" alt="Packet 2 inspection" width="1251" height="182" loading="lazy" decoding="async">
+                <figcaption>Packet 2 payload stream</figcaption>
+            </figure>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-packet-3.png" alt="Packet 3 inspection" width="1283" height="207" loading="lazy" decoding="async">
+                <figcaption>Packet 3 payload stream</figcaption>
+            </figure>
+<p>Each packet carries an HTTP-like header: <code>Content-Length: 360</code>, followed by exactly 360 hex characters. Examining the hex data in packet 0 reveals the magic header <code>504b0304</code> (<code>PK\x03\x04</code>), confirming that the network traffic is transmitting a fragmented ZIP archive!</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-zip-header.png" alt="ZIP header in packet 0" width="942" height="203" loading="lazy" decoding="async">
+                <figcaption>Packet 0 header showing PK ZIP magic bytes</figcaption>
+            </figure>
+<h3 id="2-pcap-stream-reassembly-with-scapy">2. PCAP Stream Reassembly with Scapy</h3>
+<p>We write a Scapy script to harvest all 360-character hexadecimal payloads and concatenate them:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>python</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-python">from scapy.all import rdpcap, TCP, Raw
+import re
+
+PCAP_FILE = &quot;capture.pcap&quot;
+OUTPUT_FILE = &quot;hex_strings.txt&quot;
+HEX_PATTERN = re.compile(r&#39;Content-Length:\s*360\s*([0-9a-fA-F]{360})&#39;, re.DOTALL)
+hex_strings = []
+
+packets = rdpcap(PCAP_FILE)
+for pkt in packets:
+    if pkt.haslayer(TCP) and pkt.haslayer(Raw):
+        payload = pkt[Raw].load
+        if len(payload) == 476:
+            try:
+                data = payload.decode(&#39;utf-8&#39;, errors=&#39;ignore&#39;)
+            except Exception:
+                continue
+            match = HEX_PATTERN.search(data)
+            if match:
+                hex_strings.append(match.group(1))
+
+with open(OUTPUT_FILE, &#39;w&#39;) as f:
+    f.write(&#39;&#39;.join(hex_strings))
+
+print(f&quot;Extracted {len(hex_strings)} blocks into {OUTPUT_FILE}&quot;)</code></pre>
+                
+            </figure>
+<p>Converting the reassembled hex into a binary ZIP file and unzipping it gives us a mysterious file named <code>mixed</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">$ xxd -r -p hex_strings.txt file.zip
+$ unzip file.zip
+Archive: file.zip
+  inflating: mixed</code></pre>
+                
+            </figure>
+<h3 id="3-deinterleaving-the-36-byte-blocks-png-recovery">3. Deinterleaving the 36-Byte Blocks (PNG Recovery)</h3>
+<p>Inspecting <code>mixed</code> with <code>xxd</code> reveals that it begins with the standard PNG magic header: <code>89504E470D0A1A0A</code>. However, search for the PNG trailer <code>IEND</code> (<code>AE426082</code>) shows it appears prematurely in the middle of the file.</p>
+<p>The total hex string contains <strong>37,620 characters</strong>. Dividing by 36: <code>37620 / 36 = 1045</code> blocks!</p>
+<p>The file is an interleaved multiplex of two separate files, sliced into <strong>36-character (18-byte) chunks</strong>:</p>
+<ul><li><strong>Even blocks (0, 2, 4...)</strong>: Belong to the PNG image.</li><li><strong>Odd blocks (1, 3, 5...)</strong>: Belong to a second payload.</li></ul>
+<p>We script the deinterleaver in Python, halting the PNG stream as soon as <code>AE426082</code> is encountered:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>python</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-python">INPUT_FILE = &quot;hex_mixed.txt&quot;
+PNG_OUTPUT = &quot;png_hex.txt&quot;
+OTHER_OUTPUT = &quot;other_hex.txt&quot;
+BLOCK_SIZE = 36
+PNG_TAIL = &quot;AE426082&quot;
+
+with open(INPUT_FILE, &#39;r&#39;) as f:
+    data = f.read().strip().upper()
+
+png_parts = []
+other_parts = []
+png_ended = False
+
+for i in range(0, len(data), BLOCK_SIZE):
+    block = data[i:i + BLOCK_SIZE]
+    if len(block) &lt; BLOCK_SIZE:
+        other_parts.append(block)
+        break
+    if i % (BLOCK_SIZE * 2) == 0:  # Even blocks -&gt; PNG
+        if not png_ended:
+            png_parts.append(block)
+            combined = &#39;&#39;.join(png_parts)
+            if PNG_TAIL in combined:
+                pos = combined.find(PNG_TAIL) + len(PNG_TAIL)
+                png_parts = [combined[:pos]]
+                png_ended = True
+        else:
+            other_parts.append(block)
+    else:  # Odd blocks -&gt; Other file
+        other_parts.append(block)
+
+with open(PNG_OUTPUT, &#39;w&#39;) as f:
+    f.write(&#39;&#39;.join(png_parts))
+with open(OTHER_OUTPUT, &#39;w&#39;) as f:
+    f.write(&#39;&#39;.join(other_parts))</code></pre>
+                
+            </figure>
+<p>Converting <code>png_hex.txt</code> to <code>png_file.png</code> renders the <strong>first half of the flag</strong>:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-png-file.png" alt="First half of flag in PNG" width="671" height="282" loading="lazy" decoding="async">
+                <figcaption>png_file.png — Displaying the first half of the flag</figcaption>
+            </figure>
+<h3 id="4-stream-inversion-jpeg-recovery">4. Stream Inversion &amp; JPEG Recovery</h3>
+<p>Now for the remaining <code>other_hex.txt</code>. The challenge description offered a poetic clue:</p>
+<blockquote><p><em>&quot;I chopped it into many pieces, put it back together, extracted it, tore it down again, twisted it, and rebuilt it once more.&quot;</em></p></blockquote>
+<ul><li><em>Chopped it into pieces</em>: The PCAP network segments.</li><li><em>Put it back together</em>: Rebuilding the ZIP.</li><li><em>Tore it down again</em>: Deinterleaving the 36-byte blocks.</li><li><em>Twisted it</em>: Reversing the entire character sequence!</li></ul>
+<p>Reversing <code>other_hex.txt</code> using the Linux utility <code>rev</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">$ rev other_hex.txt &gt; upsidedown.txt</code></pre>
+                
+            </figure>
+<p>Examining <code>upsidedown.txt</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">FFD8FFE000104A464946...</code></pre>
+                
+            </figure>
+<p>The reversed data starts with <code>FF D8 FF E0</code> (the standard JPEG JFIF header) and terminates with <code>FF D9</code> (JPEG EOI)! Converting this hex string into <code>jpeg_file.jpg</code> reveals the <strong>second half of the flag</strong>:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/thirsty-jpeg-file.jpg" alt="Second half of flag in JPEG" width="674" height="283" loading="lazy" decoding="async">
+                <figcaption>jpeg_file.jpg — Displaying the second half of the flag</figcaption>
+            </figure>
+<p>Stitching both halves together:</p>
+<p><strong>Flag:</strong> <code>V1t{ju57_4_fun_1_l1k3_p3nnyw0r7_b7w}</code></p>
+<h2 id="challenge-4-tryna-crack-zipcrypto-kpa-ihdr-height-repair">Challenge 4: Tryna crack? (ZipCrypto KPA &amp; IHDR Height Repair)</h2>
+<p>The challenge file is <code>challenge.zip</code>.</p>
+<h3 id="1-archive-inspection-the-zipcrypto-vulnerability">1. Archive Inspection: The ZipCrypto Vulnerability</h3>
+<p>Examining the archive structure using <code>zipinfo</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(kali㉿kali)-[]
+└─$ zipinfo challenge.zip
+Archive:  challenge.zip
+Zip file size: 19934 bytes, number of entries: 1
+-rw-rw-rw-  3.0 unx    19718 BX stor 25-Oct-16 09:16 quackquackquack.png
+1 file, 19718 bytes uncompressed, 19718 bytes compressed:  0.0%</code></pre>
+                
+            </figure>
+<p>Two critical details stand out:</p>
+<ol><li><code>BX stor</code>: The compression method is <strong>stored</strong> (<code>0.0%</code> compression). The compressed ciphertext corresponds byte-for-byte to the plaintext.</li><li>The encryption scheme is legacy <strong>ZipCrypto</strong> (PKZIP stream cipher).</li></ol>
+<p>Because PNG files have a standardized 8-byte file signature (<code>89 50 4E 47 0D 0A 1A 0A</code>) followed immediately by the 4-byte chunk type <code>IHDR</code> (<code>49 48 44 52</code>), we have at least 12 contiguous bytes of <strong>known plaintext</strong>. This makes the archive entirely vulnerable to a <strong>Known-Plaintext Attack (KPA)</strong>.</p>
+<h3 id="2-recovering-encryption-keys-via-bkcrack">2. Recovering Encryption Keys via `bkcrack`</h3>
+<p>We create a 9-byte plaintext probe containing the PNG header and the start of IHDR, then launch <code>bkcrack</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(kali㉿kali)-[]
+└─$ /bkcrack -C challenge.zip -c quackquackquack.png -p png.bin -d decrypted.png
+bkcrack 1.7.1 - 2024-12-21
+[05:25:47] Z reduction using 9 bytes of known plaintext
+100.0 % (9 / 9)
+[05:25:47] Attack on 783459 Z values at index 6
+Keys: 4672d551 bcb3adcb c76d52c5
+Found a solution. Stopping.
+[05:46:38] Keys
+4672d551 bcb3adcb c76d52c5
+[05:46:38] Writing deciphered data decrypted.png
+Wrote deciphered data (not compressed).</code></pre>
+                
+            </figure>
+<p>Within minutes, <code>bkcrack</code> reconstructs the internal cipher keys (<code>4672d551 bcb3adcb c76d52c5</code>) and outputs the decrypted PNG: <code>quackquackquack.png</code>.</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/crack-quackquackquack.png" alt="Decrypted duck image" width="806" height="184" loading="lazy" decoding="async">
+                <figcaption>Decrypted image displaying a rubber duck with a truncated canvas</figcaption>
+            </figure>
+<h3 id="3-exposing-the-honeypot-decoy">3. Exposing the Honeypot Decoy</h3>
+<p>Running <code>exiftool</code> on the recovered image yields an explicit comment:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(kali㉿kali)-[]
+└─$ exiftool quackquackquack.png
+User Comment : password for zip file =)))) D4mn_br0_H0n3y_p07_7yp3_5h1d</code></pre>
+                
+            </figure>
+<p>Notice the string: <code>H0n3y_p07</code> (Honeypot). Entering this directly as the flag fails. It is a deliberate decoy designed to punish careless hunters.</p>
+<h3 id="4-chunk-tampering-expanding-the-png-ihdr-height">4. Chunk Tampering: Expanding the PNG IHDR Height</h3>
+<p>Looking at the raw hex structure of the PNG IHDR chunk:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">$ xxd quackquackquack.png | head -n 3
+00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR
+00000010: 0000 0326 0000 00b8 0806 0000 00bc a986  ...&amp;............</code></pre>
+                
+            </figure>
+<p>In the IHDR specification:</p>
+<ul><li>Bytes <code>0x10-0x13</code> represent image width: <code>0000 0326</code> (806 px)</li><li>Bytes <code>0x14-0x17</code> represent image height: <code>0000 00b8</code> (184 px)</li></ul>
+<p>The author artificially cropped the rendering window by shrinking the height parameter in the header. The actual decompressed IDAT scanlines contain far more visual data than the declared 184 pixels.</p>
+<p>Modifying the height field from <code>0000 00b8</code> to <code>0000 032b</code> (811 pixels) expands the viewport downward:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/crack-quackquackquack-fixed.png" alt="Extended image revealing hidden text" width="806" height="811" loading="lazy" decoding="async">
+                <figcaption>quackquackquack_fixed.png — Extended canvas revealing hidden text and Morse code</figcaption>
+            </figure>
+<p>The expanded canvas displays a humorous admission:</p>
+<blockquote><p><em>&quot;just kidding the real flag is the password in SHA512&quot;</em></p></blockquote>
+<p>Beneath the text lies a row of Morse code: <code>... .... .- ..... .---- ..---</code></p>
+<p>Decoding the Morse code:</p>
+<figure>
+                <img src="/assets/images/posts/v1t-ctf-2025/crack-morse-dcode.png" alt="Morse code decoded in dcode" width="722" height="287" loading="lazy" decoding="async">
+                <figcaption>Decoding Morse symbols: S-H-A-5-1-2</figcaption>
+            </figure>
+<p>The Morse confirms: <strong><code>SHA512</code></strong>.</p>
+<h3 id="5-final-flag-computation">5. Final Flag Computation</h3>
+<p>We take the honeypot password string discovered in the Exif metadata (<code>D4mn_br0_H0n3y_p07_7yp3_5h1d</code>) and calculate its SHA-512 digest:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>bash</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-bash">┌──(kali㉿kali)-[]
+└─$ echo -n &quot;D4mn_br0_H0n3y_p07_7yp3_5h1d&quot; | sha512sum
+7083748baa3a42dc0a93811e4f5150e7ae1a050a0929f8c304f707c8c44fc95d86c476d11c9e56709edc30eba5f2d82396f426d93870b56b1a9573eaac8d0373  -</code></pre>
+                
+            </figure>
+<p>Wrapping the SHA-512 digest in the <code>V1t{...}</code> flag wrapper:</p>
+<p><strong>Flag:</strong> <code>V1t{7083748baa3a42dc0a93811e4f5150e7ae1a050a0929f8c304f707c8c44fc95d86c476d11c9e56709edc30eba5f2d82396f426d93870b56b1a9573eaac8d0373}</code></p>
+<h2 id="technical-summary-core-takeaways">Technical Summary &amp; Core Takeaways</h2>
+<p>Solving these four challenges highlights several core principles of practical security analysis:</p>
+<ol><li><strong>Metadata Is Never Incidental</strong>: In every single challenge (<code>67</code>, <code>Fuck Da Binary</code>, <code>Thirsty Sick</code>, and <code>Tryna crack?</code>), critical cryptographic parameters and algorithmic directions were embedded directly into ZIP comments and Exif tags.</li><li><strong>Recognizing Encryption Bounds</strong>: ZipCrypto&#39;s internal state can be mathematically collapsed with as few as 9 bytes of known plaintext when compression is disabled. Modern security architectures should always mandate AES-256 (WinZip AE-2) or authenticated encryption.</li><li><strong>Stream Deinterleaving &amp; Modular Arithmetic</strong>: Network forensics often requires looking beyond standard protocol parsers. When files are interleaved in fixed byte blocks, modular index filtering (<code>i % (BLOCK_SIZE * 2)</code>) provides clean algorithmic separation.</li><li><strong>Header Integrity vs. Stream Content</strong>: Image viewers blindly trust declared chunk headers. When analyzing suspicious PNGs or JPEGs, inspecting raw scanline volume against declared dimensions frequently exposes hidden data.</li></ol></article>
+        </div>
+        <div class="post-feed-strip">
+            <span class="post-feed-prompt">Found this research useful?</span>
+            <button type="button" class="post-feed-trigger" data-open-feed-me>
+                <span>Feed Me</span>
+                <span class="post-feed-arrow" aria-hidden="true">&rarr;</span>
+            </button>
+        </div>
+        <nav class="post-navigation" aria-label="Adjacent research notes"><span></span><a href="/blog/v1t-ctf-2026-writeups/">V1T CTF 2026 writeup</a></nav>
+    </main>
+
+    <footer class="site-footer">
+        <div class="site-shell footer-layout">
+            <p>Jaze · Security Research · <a href="https://v1t.site/" rel="external">V1T</a></p>
+            <nav aria-label="Footer navigation">
+                <button type="button" class="footer-feed-trigger" data-open-feed-me>Feed Me</button>
+                <a href="/feed.xml">RSS</a>
+                <a href="/sitemap.xml">Sitemap</a>
+            </nav>
+        </div>
+    </footer>
+
+    <dialog class="feed-me-dialog" id="feed-me-dialog" aria-labelledby="feed-me-dialog-title">
+        <div class="feed-me-dialog__surface">
+            <div class="feed-me-dialog__header">
+                <div>
+                    <span class="feed-me-dialog__tag">DONATE / TIP JAR</span>
+                    <h2 id="feed-me-dialog-title" class="feed-me-dialog__title">Feed Me<span class="feed-me-cursor" aria-hidden="true">_</span></h2>
+                </div>
+                <button type="button" class="feed-me-dialog__close" data-close-feed-me aria-label="Close dialog">&times;</button>
+            </div>
+
+            <p class="feed-me-dialog__desc">Support vulnerability research, hardware exploits & caffeine.</p>
+
+            <div class="feed-me-list">
+                <!-- Bitcoin -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Bitcoin</span>
+                        <span class="feed-me-item__chain">BTC (Native SegWit)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97">bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97" aria-label="Copy Bitcoin address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ethereum -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Ethereum</span>
+                        <span class="feed-me-item__chain">ETH (EVM / L2s)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0">0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0" aria-label="Copy Ethereum address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+</body>
+</html>

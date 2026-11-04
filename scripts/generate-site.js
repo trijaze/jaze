@@ -966,6 +966,10 @@ async function generateSite(options = {}) {
         if (distRoot === defaultDistRoot) {
             await fs.copyFile(path.join(distRoot, 'index.html'), path.join(projectRoot, 'index.html')).catch(() => {});
             await copyDirectory(path.join(distRoot, 'cves'), path.join(projectRoot, 'cves')).catch(() => {});
+            await copyDirectory(path.join(distRoot, 'blog'), path.join(projectRoot, 'blog')).catch(() => {});
+            await fs.copyFile(path.join(distRoot, '404.html'), path.join(projectRoot, '404.html')).catch(() => {});
+            await fs.copyFile(path.join(distRoot, 'feed.xml'), path.join(projectRoot, 'feed.xml')).catch(() => {});
+            await fs.copyFile(path.join(distRoot, 'sitemap.xml'), path.join(projectRoot, 'sitemap.xml')).catch(() => {});
         }
         return await verifyBuild({ distRoot });
     } catch (error) {

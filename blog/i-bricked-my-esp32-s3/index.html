@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#020c00">
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-xt4iD97E1tB6k3SLk7t4SvtLXBAPdn1Tv/pqwBT7FBQ=&#39; &#39;sha256-/YyETmQwpJayc0jiSjy5I0s4I4ZQX+hctnsVcixNFfo=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="alternate" type="application/rss+xml" title="Jaze research feed" href="/feed.xml">
+    <title>I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me) — Jaze</title>
+    <meta name="description" content="What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hard…">
+    <meta name="author" content="Jaze">
+    <meta property="og:site_name" content="Jaze Security Research">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me) — Jaze">
+    <meta property="og:description" content="What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hard…">
+    <meta property="og:url" content="https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/">
+    <meta property="og:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
+    <meta property="og:image:alt" content="Jaze security research profile">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me) — Jaze">
+    <meta name="twitter:description" content="What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hard…">
+    <meta name="twitter:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
+    <link rel="stylesheet" href="/assets/css/tokens.css">
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/nav.css">
+    <link rel="stylesheet" href="/assets/css/blog.css">
+
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "@id": "https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/#article",
+  "url": "https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/",
+  "headline": "I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)",
+  "description": "What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.",
+  "datePublished": "2026-11-04",
+  "dateModified": "2026-11-04",
+  "author": {
+    "@type": "Person",
+    "name": "Jaze",
+    "url": "https://jaze.v1t.site/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Jaze",
+    "url": "https://jaze.v1t.site/"
+  },
+  "keywords": "esp32, hardware-security, flash-encryption, efuse, ctf, recovery",
+  "mainEntityOfPage": "https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/"
+}</script>
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://jaze.v1t.site/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Research Notes",
+      "item": "https://jaze.v1t.site/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)",
+      "item": "https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/"
+    }
+  ]
+}</script>
+    <script src="/assets/js/intro-controller.js?v=61903adb" defer></script>
+    <script src="/assets/js/nav.js?v=8b0d823e" defer></script>
+    <script src="/assets/js/ascii-webgl-renderer.js?v=7997b0d4" defer></script>
+    <script src="/assets/js/intro-loader.js?v=c566eb92" defer></script>
+    <script src="/assets/js/article.js?v=fe14e4d4" defer></script>
+</head>
+<body class="bg-blur-active" data-page="blog" data-intro="false">
+    <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
+        <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
+    </div>
+    <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <nav class="site-nav site-shell" aria-label="Primary navigation">
+            <a class="site-wordmark" href="/" aria-label="Jaze home">JAZE<span aria-hidden="true">_</span></a>
+            <div class="nav-actions">
+                <button class="nav-blur-switch" id="nav-blur-switch" type="button" role="switch" aria-checked="true" aria-label="Toggle background blur" title="Toggle background blur (B)">
+                    <span class="nav-blur-switch__track" aria-hidden="true">
+                        <span class="nav-blur-switch__thumb"></span>
+                    </span>
+                </button>
+                <button class="nav-brightness-btn" id="nav-brightness-btn" type="button" aria-pressed="false" aria-label="Toggle 3x green brightness boost" title="Boost green brightness 3x (L)">
+                    <svg class="nav-brightness-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <button class="nav-toggle" type="button" aria-controls="primary-menu" aria-expanded="false" aria-label="Open navigation menu" data-nav-toggle>
+                    <span class="nav-toggle-lines" aria-hidden="true"></span>
+                </button>
+            </div>
+            <ul class="nav-links" id="primary-menu" data-nav-menu><li><a href="/">Profile</a></li><li><a href="/blog/" aria-current="page">Blog</a></li><li><a href="/cves/">CVEs</a></li><li><a href="https://v1t.site/" rel="external">V1T</a></li></ul>
+        </nav>
+    </header>
+
+    <main class="page-main site-shell post-page" id="main-content">
+        <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/blog/">Research Notes</a></nav>
+        <header class="post-header">
+            <p class="section-kicker">Research note</p>
+            <h1>I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)</h1>
+            <p class="post-deck">What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.</p>
+            <div class="post-meta">
+                <span>10 min read</span>
+            </div>
+            <ul class="tag-list" aria-label="Topics"><li class="tag">esp32</li><li class="tag">hardware-security</li><li class="tag">flash-encryption</li><li class="tag">efuse</li><li class="tag">ctf</li><li class="tag">recovery</li></ul>
+        </header>
+        <div class="post-layout">
+            <nav class="post-toc" aria-label="On this page"><strong>On this page</strong><ul><li data-level="2"><a href="#preface-the-hubris-of-the-ctf-author">Preface: The Hubris of the CTF Author</a></li><li data-level="2"><a href="#1-the-crime-designing-xts-02">1. The Crime: Designing &quot;XTS-02&quot;</a></li><li data-level="2"><a href="#2-the-next-morning-wait-why-won-t-it-blink">2. The Next Morning: &quot;Wait, Why Won&#39;t It Blink?&quot;</a></li><li data-level="2"><a href="#3-the-autopsy-don-t-throw-it-in-the-trash-just-yet">3. The Autopsy: Don&#39;t Throw It in the Trash Just Yet</a></li><li data-level="2"><a href="#4-the-epiphany-espressif-s-brilliant-parity-trick">4. The Epiphany: Espressif&#39;s Brilliant Parity Trick</a></li><li data-level="2"><a href="#5-the-rescue-mission-step-by-step">5. The Rescue Mission: Step-by-Step</a></li><li data-level="3"><a href="#step-1-full-flash-preservation-because-we-aren-t-savages">Step 1: Full Flash Preservation (Because We Aren&#39;t Savages)</a></li><li data-level="3"><a href="#step-2-prepare-a-clean-unencrypted-firmware-set">Step 2: Prepare a Clean, Unencrypted Firmware Set</a></li><li data-level="3"><a href="#step-3-the-moment-of-truth-burning-the-parity-bit">Step 3: The Moment of Truth — Burning the Parity Bit</a></li><li data-level="3"><a href="#step-4-erase-and-re-flash-everything">Step 4: Erase and Re-flash Everything</a></li><li data-level="3"><a href="#step-5-the-resurrected-heartbeat">Step 5: The Resurrected Heartbeat</a></li><li data-level="2"><a href="#6-what-did-we-learn-besides-being-a-dummy">6. What Did We Learn? (Besides Being a Dummy)</a></li><li data-level="3"><a href="#1-hardware-security-has-no-undo-unless-it-s-planned-by-design">1. Hardware Security Has No &quot;Undo&quot; (Unless It&#39;s Planned by Design)</a></li><li data-level="3"><a href="#2-parity-bits-are-a-developer-s-best-friend">2. Parity Bits Are a Developer&#39;s Best Friend</a></li><li data-level="3"><a href="#3-i-have-exactly-zero-lives-left">3. I Have Exactly Zero Lives Left</a></li></ul></nav>
+            <article class="post-prose"><h2 id="preface-the-hubris-of-the-ctf-author">Preface: The Hubris of the CTF Author</h2>
+<p>There is a special category of technical humiliation reserved for hardware security enthusiasts.</p>
+<p>It doesn&#39;t happen when an adversary hacks your server. It doesn&#39;t happen when a bug hunter finds an IDOR you overlooked. It happens when you spend an entire week designing a ruthless, military-grade hardware challenge for a CTF competition—and then, in a moment of sheer post-challenge exhaustion, <strong>you lock yourself out of your own development board with your own security features.</strong></p>
+<p>Yes. I am that dummy.</p>
+<p>Here is the story of how my innocent <strong>\$3 ESP32-S3 Super Mini</strong> transformed into an unyielding cryptographic fortress that refused to boot any normal firmware, how I stared into the silicon abyss thinking I had created a permanent high-tech keychain, and how a quirky parity-counting trick hidden inside the Espressif Technical Reference Manual gave me one final get-out-of-jail-free card.</p>
+<h2 id="1-the-crime-designing-xts-02">1. The Crime: Designing &quot;XTS-02&quot;</h2>
+<p>It all started innocently enough. For the <strong>V1T CTF 2026</strong> competition, I decided to author a real-world hardware challenge involving the ESP32-S3&#39;s hardware Flash Encryption engine (<code>XTS-AES-128</code>).</p>
+<p>The architecture was beautiful:</p>
+<ol><li>An ESP-IDF firmware built with <code>CONFIG_SECURE_FLASH_ENC_ENABLED=y</code> in Development mode.</li><li>A provisioning Python script (<code>tools/provision.py</code>) designed to burn custom vendor keys into <code>BLOCK_KEY0</code> and cryptographic metadata into <code>BLOCK_USR_DATA</code>.</li><li>Players were supposed to analyze physical dumps, reconstruct partition tables, reverse key derivation routines, and bypass the hardware encryption layer.</li></ol>
+<p>To verify that the challenge was completely realistic and reproducible, I pulled my favorite daily-driver dev board from my desk: a tiny, purple <strong>ESP32-S3 Super Mini</strong> (QFN56, Silicon v0.2, 4MB Flash, native USB-C).</p>
+<p>I connected it to <code>COM10</code>, flashed the firmware, ran the provisioning script with <code>--commit</code>, and smiled as the board booted.</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">I (142) flash_encrypt: Flash encryption mode: DEVELOPMENT
+I (148) flash_encrypt: Burning SPI_BOOT_CRYPT_CNT eFuse to 0x1...
+I (155) flash_encrypt: Disabling JTAG debugging...
+I (161) flash_encrypt: Flash encryption completed successfully.</code></pre>
+                
+            </figure>
+<p>The flag was verified. The challenge was packaged. High fives all around. I was a cryptographic mastermind.</p>
+<p>Or so I thought.</p>
+<h2 id="2-the-next-morning-wait-why-won-t-it-blink">2. The Next Morning: &quot;Wait, Why Won&#39;t It Blink?&quot;</h2>
+<p>Fast forward 24 hours. The CTF prep was finished, and I needed my little ESP32-S3 board back for a completely ordinary side project—just a simple Arduino sketch to test some sensors over USB Serial.</p>
+<p>I opened VSCode, hit upload, and watched the flasher write the new unencrypted application binary.</p>
+<p>Then I opened the serial monitor.</p>
+<p><strong>Silence.</strong></p>
+<p>I hit the <code>RST</code> button.</p>
+<p>Instead of my friendly <code>Hello World</code> loop, the serial console spewed an endless torrent of register panics, illegal instruction exceptions, and infinite watchdog reboots:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">Guru Meditation Error: Core 0 panic&#39;ed (IllegalInstruction). Exception was unhandled.
+Core 0 register dump:
+PC      : 0x40378120  PS      : 0x00060030  A0      : 0x8037894a  A1      : 0x3fcebf10  
+...
+Rebooting...
+Guru Meditation Error: Core 0 panic&#39;ed (IllegalInstruction)...</code></pre>
+                
+            </figure>
+<p>I rubbed my eyes. <em>“Okay, no problem, maybe the partition table is scrambled. Let’s just wipe it clean.”</em></p>
+<p>I ran the universal embedded medicine:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>powershell</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-powershell">python -m esptool --chip esp32s3 -p COM10 erase-flash</code></pre>
+                
+            </figure>
+<p>It erased. I reflashed a clean bootloader. I reflashed the blink sketch.</p>
+<p><strong>Panic. Bootloop. Crash.</strong></p>
+<p>At that moment, the cold sweat hit me.</p>
+<p>Flash memory had been erased, but the <strong>eFuses</strong> had not. And unlike flash memory, eFuses are <strong>One-Time Programmable (OTP)</strong> physical microscopic fuses etched into the silicon. Once blown, they are gone forever.</p>
+<p>My obedient ESP32-S3 bootloader had done exactly what I told it to do the day before:</p>
+<ol><li>It burned hardware Flash Encryption into the chip.</li><li>It permanently disabled JTAG debugging (<code>DIS_PAD_JTAG = 1</code>, <code>DIS_USB_JTAG = 1</code>).</li><li>It write-protected the internal AES key block.</li></ol>
+<p>Because Flash Encryption was active at the hardware level, every time the CPU tried to fetch an instruction from flash, the internal hardware bus ran it through the <strong>XTS-AES decryption engine</strong>.</p>
+<p>When I uploaded an ordinary, unencrypted Arduino binary, the hardware dutifully &quot;decrypted&quot; my plaintext code into random mathematical garbage! The CPU tried to execute that garbage, choked on an illegal instruction, and crashed. Over. And over. And over.</p>
+<p>I had effectively turned my only development board into a hardened paperweight.</p>
+<h2 id="3-the-autopsy-don-t-throw-it-in-the-trash-just-yet">3. The Autopsy: Don&#39;t Throw It in the Trash Just Yet</h2>
+<p>Rule #1 of hardware triage: <strong>When you think you&#39;ve bricked a chip, stop typing random commands.</strong> Do not randomly pass <code>--force</code>. Do not burn random fuses hoping for a miracle.</p>
+<p>I took a deep breath, plugged <code>COM10</code> back in, and queried the silicon security state:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>powershell</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-powershell">python -m esptool --chip esp32s3 -p COM10 get-security-info
+python -m espefuse --chip esp32s3 -p COM10 summary</code></pre>
+                
+            </figure>
+<p>The output gave me a roadmap of my own destruction:</p>
+<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">eFuse Register</th><th scope="col" style="text-align: left;">Live Value</th><th scope="col" style="text-align: left;">Meaning</th></tr></thead><tbody><tr><td style="text-align: left;"><code>SECURE_BOOT_EN</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">Secure Boot was NOT enabled (Thank goodness!)</td></tr>
+<tr><td style="text-align: left;"><code>DIS_DOWNLOAD_MODE</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">ROM Download mode still works over USB Serial</td></tr>
+<tr><td style="text-align: left;"><code>DIS_PAD_JTAG</code></td><td style="text-align: left;"><code>1</code></td><td style="text-align: left;">Hardware JTAG pins permanently dead</td></tr>
+<tr><td style="text-align: left;"><code>DIS_USB_JTAG</code></td><td style="text-align: left;"><code>1</code></td><td style="text-align: left;">USB JTAG debugging permanently dead</td></tr>
+<tr><td style="text-align: left;"><code>BLOCK_KEY0</code></td><td style="text-align: left;">Protected</td><td style="text-align: left;">Internal AES-XTS key cannot be read or overwritten</td></tr>
+<tr><td style="text-align: left;"><code>SPI_BOOT_CRYPT_CNT</code></td><td style="text-align: left;"><code>0x1</code> (writable)</td><td style="text-align: left;"><strong>Flash Encryption is ENABLED</strong></td></tr></tbody></table></div>
+<p>Notice something tragic? JTAG was truly dead. You cannot un-blow a fuse. The silicon physically severed those pathways.</p>
+<p>But look closely at the last line:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">SPI_BOOT_CRYPT_CNT = 0b001 (value 0x1, readable and writable)</code></pre>
+                
+            </figure>
+<p>Why on earth is an on/off encryption switch a <strong>3-bit field</strong> (<code>0b001</code>) instead of a single 1-bit boolean?</p>
+<h2 id="4-the-epiphany-espressif-s-brilliant-parity-trick">4. The Epiphany: Espressif&#39;s Brilliant Parity Trick</h2>
+<p>Here is where the genius of embedded hardware engineers saved my clumsy hacker soul.</p>
+<p>In physical silicon, eFuses have a fundamental limitation: <strong>you can only burn a 0 into a 1.</strong> You can never, ever turn a 1 back into a 0. If Flash Encryption were governed by a single bit (<code>0</code> = OFF, <code>1</code> = ON), the very first time you tested encryption on a dev board, that board would be permanently locked into encryption mode until the end of time.</p>
+<p>To prevent developers from creating millions of accidental electronic paperweights, Espressif introduced a clever mechanism for <strong>Development Mode</strong>: <strong>Bit-Count Parity.</strong></p>
+<p>The chip doesn&#39;t check if the counter is non-zero. Instead, the hardware bootloader counts the <strong>number of set bits (1s)</strong> in <code>SPI_BOOT_CRYPT_CNT</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>mermaid</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-mermaid">flowchart TD
+    State0[&quot;0b000 (0 bits set)\nCount = EVEN\nEncryption: OFF\n(Factory Default)&quot;]
+    State1[&quot;0b001 (1 bit set)\nCount = ODD\nEncryption: ON\n(Where I was stuck!)&quot;]
+    State2[&quot;0b011 (2 bits set)\nCount = EVEN\nEncryption: OFF\n(The Escape Hatch!)&quot;]
+    State3[&quot;0b111 (3 bits set)\nCount = ODD\nEncryption: ON\n(Permanent Release Mode)&quot;]
+
+    State0 --&gt;|&quot;Burn 1st bit (Bootloader)&quot;| State1
+    State1 --&gt;|&quot;Burn 2nd bit (Recovery!)&quot;| State2
+    State2 --&gt;|&quot;Burn 3rd bit (No return)&quot;| State3
+
+    classDef normal fill:#161b22,stroke:#30363d,stroke-width:1px,color:#c9d1d9;
+    classDef warning fill:#2d1b00,stroke:#d29922,stroke-width:2px,color:#f0883e;
+    classDef success fill:#04260f,stroke:#238636,stroke-width:2px,color:#3fb950;
+    classDef danger fill:#3d0808,stroke:#f85149,stroke-width:2px,color:#f85149;
+
+    class State0 normal;
+    class State1 warning;
+    class State2 success;
+    class State3 danger;</code></pre>
+                
+            </figure>
+<p>Look at that state table:</p>
+<ul><li><strong>0 bits set (<code>0b000</code> = 0):</strong> Even count → <strong>Flash Encryption DISABLED</strong> (Factory state).</li><li><strong>1 bit set (<code>0b001</code> = 1):</strong> Odd count → <strong>Flash Encryption ENABLED</strong> (Where my dumb self was stuck).</li><li><strong>2 bits set (<code>0b011</code> = 3):</strong> Even count → <strong>Flash Encryption DISABLED</strong> 🎉</li><li><strong>3 bits set (<code>0b111</code> = 7):</strong> Odd count → <strong>Flash Encryption ENABLED</strong> (Game over, all fuses spent).</li></ul>
+<p>Do you see the miracle?</p>
+<p>Because my board was only at <code>0b001</code>, I still had <strong>two unburned zeroes</strong> in that register! And since the register was not write-protected, I could intentionally burn <strong>one more bit</strong>, transitioning the value from <code>0b001</code> to <code>0b011</code> (decimal <code>3</code>).</p>
+<p>Two bits set means an <strong>EVEN</strong> number of bits. The hardware interprets an even count as: <strong>DISABLE FLASH ENCRYPTION.</strong></p>
+<p>The hardware engineers literally gave us one built-in &quot;undo&quot; button.</p>
+<h2 id="5-the-rescue-mission-step-by-step">5. The Rescue Mission: Step-by-Step</h2>
+<p>Knowing the theory is great. But executing an irreversible eFuse burn when your heart is pounding is an exercise in pure adrenaline. If I slipped and burned <code>0b111</code> instead of <code>0b011</code>, the board would be permanently locked forever.</p>
+<p>Here is the exact battle plan I executed to pull my ESP32-S3 back from the grave.</p>
+<h3 id="step-1-full-flash-preservation-because-we-aren-t-savages">Step 1: Full Flash Preservation (Because We Aren&#39;t Savages)</h3>
+<p>Before wiping anything, I took two independent 4MB dumps of the flash memory to verify data integrity:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>powershell</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-powershell">python -m esptool --chip esp32s3 -p COM10 --baud 460800 --after no-reset read-flash 0x0 0x400000 flash-backup-1.bin
+python -m esptool --chip esp32s3 -p COM10 --baud 460800 --after no-reset read-flash 0x0 0x400000 flash-backup-2.bin
+Get-FileHash -Algorithm SHA256 flash-backup-1.bin, flash-backup-2.bin</code></pre>
+                
+            </figure>
+<p>Both SHA-256 hashes matched identically (<code>CEB2E79B8F61D346...</code>). Evidence secured.</p>
+<h3 id="step-2-prepare-a-clean-unencrypted-firmware-set">Step 2: Prepare a Clean, Unencrypted Firmware Set</h3>
+<p>I built a minimal Arduino sketch (<code>recovery_smoke_test.ino</code>) that simply initialized USB CDC serial and reported security status:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>cpp</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-cpp">void setup() {
+    Serial.begin(115200);
+}
+
+void loop() {
+    Serial.printf(&quot;RECOVERY_OK uptime=%lu s flash=%u bytes encryption=OFF\n&quot;, 
+                  millis() / 1000, ESP.getFlashChipSize());
+    delay(1000);
+}</code></pre>
+                
+            </figure>
+<p>I made sure <code>sdkconfig</code> had:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text"># CONFIG_SECURE_BOOT is not set
+# CONFIG_SECURE_FLASH_ENC_ENABLED is not set</code></pre>
+                
+            </figure>
+<h3 id="step-3-the-moment-of-truth-burning-the-parity-bit">Step 3: The Moment of Truth — Burning the Parity Bit</h3>
+<p>With trembling fingers, I ran the command to transition the counter from <code>1</code> to <code>3</code>:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>powershell</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-powershell">python -m espefuse --chip esp32s3 -p COM10 burn-efuse SPI_BOOT_CRYPT_CNT 3</code></pre>
+                
+            </figure>
+<p>The terminal printed the warning:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">Connecting...
+Detecting chip type... ESP32-S3 (QFN56) (revision v0.2)
+
+Check fuses:
+    SPI_BOOT_CRYPT_CNT: 0b001 -&gt; 0b011
+
+Burning fuses:
+    &#39;SPI_BOOT_CRYPT_CNT&#39; (SPI boot crypt count) 0b001 -&gt; 0b011
+
+This is an IRREVERSIBLE operation.
+Type &#39;BURN&#39; (all capitals) to continue: </code></pre>
+                
+            </figure>
+<p>I typed <code>BURN</code> and hit Enter.</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">Wrote 1 eFuses
+Checking eFuses...
+Successful!</code></pre>
+                
+            </figure>
+<p>I ran <code>get-security-info</code> immediately:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">Flash Encryption: Disabled (counter: 0x3)</code></pre>
+                
+            </figure>
+<p><strong>IT WORKED.</strong> The parity count was now 2 (even). Hardware encryption was officially switched off!</p>
+<h3 id="step-4-erase-and-re-flash-everything">Step 4: Erase and Re-flash Everything</h3>
+<p>Now that the chip no longer expected encrypted ciphertext, I gave the flash memory a clean slate:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>powershell</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-powershell">python -m esptool --chip esp32s3 -p COM10 --after no-reset erase-flash</code></pre>
+                
+            </figure>
+<p>And flashed the complete unencrypted firmware stack:</p>
+<ul><li><strong>Clean Bootloader (<code>0x0000</code>):</strong> <code>recovery_smoke_test.ino.bootloader.bin</code></li><li><strong>Partition Table (<code>0x8000</code>):</strong> <code>recovery_smoke_test.ino.partitions.bin</code></li><li><strong>Arduino OTA Init (<code>0xE000</code>):</strong> <code>boot_app0.bin</code></li><li><strong>Application (<code>0x10000</code>):</strong> <code>recovery_smoke_test.ino.bin</code></li></ul>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>powershell</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-powershell">python -m esptool --chip esp32s3 -p COM10 --baud 460800 write-flash `
+    0x0000 recovery_smoke_test.ino.bootloader.bin `
+    0x8000 recovery_smoke_test.ino.partitions.bin `
+    0xE000 boot_app0.bin `
+    0x10000 recovery_smoke_test.ino.bin</code></pre>
+                
+            </figure>
+<p>All 4 chunks passed 100% hash verification.</p>
+<h3 id="step-5-the-resurrected-heartbeat">Step 5: The Resurrected Heartbeat</h3>
+<p>I pressed the physical <code>RST</code> button on the board and opened the serial monitor.</p>
+<p>Line after line, smooth as silk:</p>
+<figure class="code-block" data-code-block>
+                <div class="code-block__header">
+                    <span>text</span>
+                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-text">RECOVERY_OK uptime=20 s flash=4194304 bytes encryption=OFF secure_boot=OFF
+RECOVERY_OK uptime=21 s flash=4194304 bytes encryption=OFF secure_boot=OFF
+RECOVERY_OK uptime=22 s flash=4194304 bytes encryption=OFF secure_boot=OFF</code></pre>
+                
+            </figure>
+<p>No panics. No illegal instructions. No infinite reboots.</p>
+<p>The patient had survived the surgery.</p>
+<h2 id="6-what-did-we-learn-besides-being-a-dummy">6. What Did We Learn? (Besides Being a Dummy)</h2>
+<p>Looking back at this mini-crisis, I came away with three golden takeaways that every embedded engineer and CTF author should tattoo on their forearm:</p>
+<h3 id="1-hardware-security-has-no-undo-unless-it-s-planned-by-design">1. Hardware Security Has No &quot;Undo&quot; (Unless It&#39;s Planned by Design)</h3>
+<p>When you author CTF challenges on your own personal hardware, remember that the bootloader does not know you are &quot;just practicing.&quot; If your code says <code>burn eFuse</code>, it will burn that fuse with remorseless silicon finality. My JTAG pins (<code>DIS_PAD_JTAG</code>, <code>DIS_USB_JTAG</code>) are gone forever. No software trick in the world will ever bring them back.</p>
+<h3 id="2-parity-bits-are-a-developer-s-best-friend">2. Parity Bits Are a Developer&#39;s Best Friend</h3>
+<p>The fact that Espressif designed <code>SPI_BOOT_CRYPT_CNT</code> as an odd-even parity counter instead of a 1-bit boolean switch is an absolute masterclass in developer empathy. They knew people like me would accidentally lock their boards during testing, and they built a mathematical escape route directly into the silicon logic.</p>
+<h3 id="3-i-have-exactly-zero-lives-left">3. I Have Exactly Zero Lives Left</h3>
+<p>My board&#39;s <code>SPI_BOOT_CRYPT_CNT</code> is currently <code>0b011</code> (value 3). If I ever accidentally enable Flash Encryption on this board again, the counter will transition to <code>0b111</code> (value 7).</p>
+<p>At that point, all three bits will be <code>1</code>. There are no more bits to burn. There will be no even parity. There will be no redemption.</p>
+<p>So if you see me reaching for <code>--commit</code> on this ESP32-S3 ever again... please slap the keyboard out of my hands.</p>
+<p>Happy hacking, and may your eFuses stay unburned!</p></article>
+        </div>
+        <div class="post-feed-strip">
+            <span class="post-feed-prompt">Found this research useful?</span>
+            <button type="button" class="post-feed-trigger" data-open-feed-me>
+                <span>Feed Me</span>
+                <span class="post-feed-arrow" aria-hidden="true">&rarr;</span>
+            </button>
+        </div>
+        <nav class="post-navigation" aria-label="Adjacent research notes"><a href="/blog/v1t-ctf-2026-writeups/">V1T CTF 2026 writeup</a><a href="/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/">Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit</a></nav>
+    </main>
+
+    <footer class="site-footer">
+        <div class="site-shell footer-layout">
+            <p>Jaze · Security Research · <a href="https://v1t.site/" rel="external">V1T</a></p>
+            <nav aria-label="Footer navigation">
+                <button type="button" class="footer-feed-trigger" data-open-feed-me>Feed Me</button>
+                <a href="/feed.xml">RSS</a>
+                <a href="/sitemap.xml">Sitemap</a>
+            </nav>
+        </div>
+    </footer>
+
+    <dialog class="feed-me-dialog" id="feed-me-dialog" aria-labelledby="feed-me-dialog-title">
+        <div class="feed-me-dialog__surface">
+            <div class="feed-me-dialog__header">
+                <div>
+                    <span class="feed-me-dialog__tag">DONATE / TIP JAR</span>
+                    <h2 id="feed-me-dialog-title" class="feed-me-dialog__title">Feed Me<span class="feed-me-cursor" aria-hidden="true">_</span></h2>
+                </div>
+                <button type="button" class="feed-me-dialog__close" data-close-feed-me aria-label="Close dialog">&times;</button>
+            </div>
+
+            <p class="feed-me-dialog__desc">Support vulnerability research, hardware exploits & caffeine.</p>
+
+            <div class="feed-me-list">
+                <!-- Bitcoin -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Bitcoin</span>
+                        <span class="feed-me-item__chain">BTC (Native SegWit)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97">bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97" aria-label="Copy Bitcoin address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ethereum -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Ethereum</span>
+                        <span class="feed-me-item__chain">ETH (EVM / L2s)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0">0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0" aria-label="Copy Ethereum address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+</body>
+</html>
