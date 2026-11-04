@@ -21,10 +21,9 @@
 
 .post-header {
     display: grid;
-    gap: clamp(var(--space-2), 2vw, var(--space-3));
+    gap: clamp(var(--space-2), 2vw, var(--space-4));
     width: 100%;
-    max-width: 62rem;
-    margin-inline: auto;
+    max-width: 100%;
 }
 
 .post-header .post-meta {
@@ -45,14 +44,16 @@
 .post-header h1 {
     font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
-    font-size: clamp(1.35rem, 3.2vw + 0.4rem, 2.35rem);
+    font-size: clamp(1.4rem, 2.5vw, 2.35rem);
     line-height: 1.22;
     letter-spacing: -0.015em;
     color: var(--text);
     overflow-wrap: break-word;
     word-break: break-word;
+    text-wrap: pretty;
     hyphens: auto;
     margin-block: 0;
+    max-width: 100%;
 }
 
 .blog-header > p,
@@ -66,9 +67,9 @@
 
 .post-deck {
     font-family: var(--font-content, 'Chakra Petch', sans-serif);
-    max-width: 64ch;
+    max-width: 78ch;
     color: var(--muted);
-    font-size: clamp(0.92rem, 1.2vw + 0.5rem, 1.05rem);
+    font-size: clamp(0.95rem, 1.1vw + 0.45rem, 1.08rem);
     line-height: 1.6;
     margin-block: 0;
 }
@@ -77,8 +78,7 @@
 .post-page .post-feed-strip,
 .post-page .post-navigation {
     width: 100%;
-    max-width: 62rem;
-    margin-inline: auto;
+    max-width: 100%;
 }
 
 .blog-toolbar,
@@ -1040,9 +1040,14 @@
 @media (min-width: 64rem) {
     .post-layout,
     .article-layout {
-        grid-template-columns: minmax(12rem, 16rem) minmax(0, var(--prose-width));
+        grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
         align-items: start;
-        justify-content: center;
+        width: 100%;
+    }
+
+    .post-prose,
+    .prose {
+        max-width: 50rem;
     }
 
     .table-of-contents,
