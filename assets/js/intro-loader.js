@@ -577,7 +577,7 @@
     function getZoomInParams() {
         const isMobile = window.innerWidth < 768 || (window.innerWidth < window.innerHeight);
         return {
-            cameraZ: isMobile ? 1.04 : 1.18,
+            cameraZ: isMobile ? 0.95 : 1.05,
             scaleMultiplier: isMobile ? 1.95 : 1.35,
             surfaceFill: 1.00 // 100% full density surface fill
         };
