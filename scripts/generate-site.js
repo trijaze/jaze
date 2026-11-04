@@ -327,6 +327,7 @@ function renderHomePage(siteData, cves) {
                     ${profile.socials.map(soc => `
                         <a class="hero-link hero-link--ghost" href="${escapeHtml(soc.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(soc.label)}</a>
                     `).join('')}
+                    <button type="button" class="hero-link hero-link--ghost" data-open-feed-me>Feed Me</button>
                     <a class="hero-link hero-link--ghost" href="https://v1t.site/" rel="external">V1T</a>
                 </div>
             </div>
@@ -786,6 +787,13 @@ function renderBlogDetailPage(siteData, post, previousPost, nextPost) {
         <div class="post-layout">
             ${toc}
             <article class="post-prose">${rendered.html}</article>
+        </div>
+        <div class="post-feed-strip">
+            <span class="post-feed-prompt">Found this research useful?</span>
+            <button type="button" class="post-feed-trigger" data-open-feed-me>
+                <span>Feed Me</span>
+                <span class="post-feed-arrow" aria-hidden="true">&rarr;</span>
+            </button>
         </div>
         <nav class="post-navigation" aria-label="Adjacent research notes">${navigation}</nav>
     </main>`;

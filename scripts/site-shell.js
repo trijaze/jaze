@@ -75,11 +75,62 @@ function renderFooter() {
         <div class="site-shell footer-layout">
             <p>Jaze · Security Research · <a href="https://v1t.site/" rel="external">V1T</a></p>
             <nav aria-label="Footer navigation">
+                <button type="button" class="footer-feed-trigger" data-open-feed-me>Feed Me</button>
                 <a href="/feed.xml">RSS</a>
                 <a href="/sitemap.xml">Sitemap</a>
             </nav>
         </div>
     </footer>`;
+}
+
+function renderFeedMeDialog() {
+    const btcAddress = 'bc1qyd2v6ld279uqkqjkardhd4y2em8qlrr2zk5r97';
+    const ethAddress = '0x40f75CDFd70b8F665df1E226bBe0446E2A7E41c0';
+
+    return `
+    <dialog class="feed-me-dialog" id="feed-me-dialog" aria-labelledby="feed-me-dialog-title">
+        <div class="feed-me-dialog__surface">
+            <div class="feed-me-dialog__header">
+                <div>
+                    <span class="feed-me-dialog__tag">DONATE / TIP JAR</span>
+                    <h2 id="feed-me-dialog-title" class="feed-me-dialog__title">Feed Me<span class="feed-me-cursor" aria-hidden="true">_</span></h2>
+                </div>
+                <button type="button" class="feed-me-dialog__close" data-close-feed-me aria-label="Close dialog">&times;</button>
+            </div>
+
+            <p class="feed-me-dialog__desc">Support vulnerability research, hardware exploits & caffeine.</p>
+
+            <div class="feed-me-list">
+                <!-- Bitcoin -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Bitcoin</span>
+                        <span class="feed-me-item__chain">BTC (Native SegWit)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="${btcAddress}">${btcAddress}</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="${btcAddress}" aria-label="Copy Bitcoin address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ethereum -->
+                <div class="feed-me-item">
+                    <div class="feed-me-item__label">
+                        <span class="feed-me-item__name">Ethereum</span>
+                        <span class="feed-me-item__chain">ETH (EVM / L2s)</span>
+                    </div>
+                    <div class="feed-me-item__field">
+                        <code class="feed-me-item__addr" title="${ethAddress}">${ethAddress}</code>
+                        <button type="button" class="feed-me-copy-btn" data-copy-crypto="${ethAddress}" aria-label="Copy Ethereum address">
+                            <span class="feed-me-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>`;
 }
 
 function renderDocument({
@@ -182,6 +233,7 @@ ${scriptTags}
 ${renderNavigation(activePage)}
 ${body}
 ${renderFooter()}
+${renderFeedMeDialog()}
 </body>
 </html>
 `;

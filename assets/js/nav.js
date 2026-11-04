@@ -169,7 +169,131 @@
         });
     }
 
+    function initCryptoCopy() {
+        const RESET_DELAY_MS = 2000;
+
+        async function copyText(value) {
+            if (navigator.clipboard?.writeText && window.isSecureContext) {
+                await navigator.clipboard.writeText(value);
+                return;
+            }
+
+            const field = document.createElement('textarea');
+            field.value = value;
+            field.setAttribute('readonly', '');
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.append(field);
+            field.select();
+            const copied = document.execCommand('copy');
+            field.remove();
+            if (!copied) throw new Error('Copy command failed.');
+        }
+
+        document.addEventListener('click', async event => {
+            const button = event.target.closest('[data-copy-crypto]');
+            if (!button) return;
+            const address = button.getAttribute('data-copy-crypto') || '';
+            if (!address) return;
+
+            const textSpan = button.querySelector('.feed-me-copy-text') || button;
+            const originalText = textSpan.textContent;
+
+            try {
+                await copyText(address);
+                textSpan.textContent = 'Copied!';
+                button.classList.add('is-copied');
+                button.setAttribute('aria-label', 'Address copied to clipboard');
+            } catch {
+                textSpan.textContent = 'Failed';
+                button.setAttribute('aria-label', 'Unable to copy address');
+            }
+
+            window.setTimeout(() => {
+                textSpan.textContent = originalText;
+                button.classList.remove('is-copied');
+                button.removeAttribute('aria-label');
+            }, RESET_DELAY_MS);
+        });
+    }
+
+    function initFeedMeModal() {
+        const dialog = document.getElementById('feed-me-dialog');
+        if (!dialog) return;
+
+        let isClosing = false;
+
+        function openModal() {
+            isClosing = false;
+            dialog.classList.remove('is-closing');
+            if (typeof dialog.showModal === 'function') {
+                dialog.showModal();
+            } else {
+                dialog.setAttribute('open', '');
+            }
+        }
+
+        function closeModalWithAnimation() {
+            if (isClosing || !dialog.open) return;
+            isClosing = true;
+            dialog.classList.add('is-closing');
+
+            const finishClose = () => {
+                if (!isClosing) return;
+                dialog.classList.remove('is-closing');
+                isClosing = false;
+                if (typeof dialog.close === 'function') {
+                    dialog.close();
+                } else {
+                    dialog.removeAttribute('open');
+                }
+            };
+
+            const surface = dialog.querySelector('.feed-me-dialog__surface');
+            if (surface) {
+                const onAnimationEnd = event => {
+                    if (event.target === surface) {
+                        surface.removeEventListener('animationend', onAnimationEnd);
+                        finishClose();
+                    }
+                };
+                surface.addEventListener('animationend', onAnimationEnd);
+            }
+
+            // Safety timeout fallback (180ms) in case animationend does not fire
+            window.setTimeout(finishClose, 180);
+        }
+
+        // Intercept native Escape key on dialog to play smooth close animation
+        dialog.addEventListener('cancel', event => {
+            event.preventDefault();
+            closeModalWithAnimation();
+        });
+
+        document.addEventListener('click', event => {
+            const openTrigger = event.target.closest('[data-open-feed-me]');
+            if (openTrigger) {
+                event.preventDefault();
+                openModal();
+                return;
+            }
+
+            const closeTrigger = event.target.closest('[data-close-feed-me]');
+            if (closeTrigger) {
+                event.preventDefault();
+                closeModalWithAnimation();
+                return;
+            }
+
+            if (event.target === dialog) {
+                closeModalWithAnimation();
+            }
+        });
+    }
+
     initSiteNavigation();
     initBackgroundBlurToggle();
     initGreenBrightnessToggle();
+    initCryptoCopy();
+    initFeedMeModal();
 })();
