@@ -88,7 +88,7 @@
     "readingMinutes": 22,
     "featured": false,
     "status": "published",
-    "order": 30
+    "order": 20
   },
   {
     "slug": "how-dummy-i-am-esp32-s3-recovery",
@@ -107,7 +107,7 @@
     "readingMinutes": 10,
     "featured": true,
     "status": "published",
-    "order": 20
+    "order": 30
   },
   {
     "slug": "v1t-ctf-2025-writeups",
