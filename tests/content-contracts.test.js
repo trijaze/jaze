@@ -274,18 +274,18 @@ test('post index supports optional custom order field and validates bounds', () 
     );
 });
 
-test('comparePosts prioritizes explicit order ascending then falls back to publishedAt descending', () => {
+test('comparePosts prioritizes explicit order descending then falls back to publishedAt descending', () => {
     const list = [
         { slug: 'date-old', order: null, publishedAt: '2026-10-01', title: 'Old Post' },
-        { slug: 'ordered-2', order: 2, publishedAt: '2026-09-01', title: 'Second Post' },
+        { slug: 'ordered-2', order: 20, publishedAt: '2026-09-01', title: 'Second Post' },
         { slug: 'date-new', order: null, publishedAt: '2026-10-25', title: 'New Post' },
-        { slug: 'ordered-1', order: 1, publishedAt: '2026-08-01', title: 'First Post' }
+        { slug: 'ordered-1', order: 10, publishedAt: '2026-08-01', title: 'First Post' }
     ];
 
     const sorted = [...list].sort(comparePosts);
     assert.deepEqual(sorted.map(p => p.slug), [
-        'ordered-1',
         'ordered-2',
+        'ordered-1',
         'date-new',
         'date-old'
     ]);

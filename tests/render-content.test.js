@@ -96,6 +96,22 @@ test('math equation rendering correctly converts LaTeX formulas into accessible 
             {
                 type: 'paragraph',
                 text: 'Outer layer is keyed by $\\text{SHA256}(\\text{MAC} \\parallel \\text{Nonce})$.'
+            },
+            {
+                type: 'paragraph',
+                text: 'For each iteration $j \\in [0, 15]$, the top 8 bits of state `(S[j+1] >> 24) & 0xFF` are appended to form a 16-byte key.'
+            },
+            {
+                type: 'paragraph',
+                text: '$$S_{n+1} = (S_n \\times \\text{MUL} + \\text{ADD}) \\pmod{2^{32}}$$'
+            },
+            {
+                type: 'paragraph',
+                text: '$$\\text{Plaintext}[i] = \\text{ENC\\_TOTAL}[i] \\oplus (i \\ \\& \\ \\text{0xFF}) \\oplus \\text{Key}[i \\pmod{16}]$$'
+            },
+            {
+                type: 'paragraph',
+                text: 'PHP variable `$total = $a + $b;` is unmodified.'
             }
         ]
     });
@@ -103,4 +119,9 @@ test('math equation rendering correctly converts LaTeX formulas into accessible 
     assert.match(result.html, /<div class="math-block" role="region" aria-label="Mathematical formula">/);
     assert.match(result.html, /Token\[i\] = AUTH_MAGIC\[i\] ⊕ Nonce\[i\] ⊕ Key\[i\]/);
     assert.match(result.html, /<span class="math-inline">SHA256\(MAC ∥ Nonce\)<\/span>/);
+    assert.match(result.html, /<span class="math-inline">j ∈ \[0, 15\]<\/span>/);
+    assert.match(result.html, /<code>\(S\[j\+1\] &gt;&gt; 24\) &amp; 0xFF<\/code>/);
+    assert.match(result.html, /S<sub>n\+1<\/sub> = \(S<sub>n<\/sub> × MUL \+ ADD\) \(mod 2<sup>32<\/sup>\)/);
+    assert.match(result.html, /Plaintext\[i\] = ENC_TOTAL\[i\] ⊕ \(i  &amp;  0xFF\) ⊕ Key\[i \(mod 16\)\]/);
+    assert.match(result.html, /<code>\$total = \$a \+ \$b;<\/code>/);
 });

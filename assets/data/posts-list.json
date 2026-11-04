@@ -15,7 +15,7 @@
     "readingMinutes": 12,
     "featured": false,
     "status": "published",
-    "order": null
+    "order": 70
   },
   {
     "slug": "cve-2026-62025-tailored-tools-unauthenticated-rce",
@@ -33,7 +33,7 @@
     "readingMinutes": 14,
     "featured": true,
     "status": "published",
-    "order": null
+    "order": 60
   },
   {
     "slug": "cve-2026-115607-dxp-toolkit-unauthenticated-sqli",
@@ -51,7 +51,7 @@
     "readingMinutes": 8,
     "featured": false,
     "status": "published",
-    "order": null
+    "order": 50
   },
   {
     "slug": "19-xss-in-24-hours",
@@ -69,7 +69,7 @@
     "readingMinutes": 12,
     "featured": true,
     "status": "published",
-    "order": null
+    "order": 40
   },
   {
     "slug": "v1t-ctf-2026-writeups",
@@ -88,7 +88,26 @@
     "readingMinutes": 22,
     "featured": false,
     "status": "published",
-    "order": null
+    "order": 30
+  },
+  {
+    "slug": "how-dummy-i-am-esp32-s3-recovery",
+    "title": "How Dummy I Am: I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)",
+    "excerpt": "What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.",
+    "publishedAt": "2026-11-04",
+    "updatedAt": "2026-11-04",
+    "tags": [
+      "esp32",
+      "hardware-security",
+      "flash-encryption",
+      "efuse",
+      "ctf",
+      "recovery"
+    ],
+    "readingMinutes": 10,
+    "featured": true,
+    "status": "published",
+    "order": 20
   },
   {
     "slug": "v1t-ctf-2025-writeups",
@@ -107,6 +126,6 @@
     "readingMinutes": 18,
     "featured": false,
     "status": "published",
-    "order": null
+    "order": 10
   }
 ]

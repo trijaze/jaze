@@ -11,7 +11,8 @@ function formatMathEquation(raw, isAlreadyEscaped = false) {
     str = str.replace(/\\_/g, '@@UNDERSCORE@@');
     str = str.replace(/\\text\{([^}]+)\}/g, '$1');
     str = str.replace(/\\(?:mathbf|mathrm|mathit)\{([^}]+)\}/g, '$1');
-    str = str.replace(/\\&/g, '&');
+    str = str.replace(/\\\{/g, '{').replace(/\\\}/g, '}');
+    str = str.replace(/\\&(?:amp;)?/g, '&');
     str = str.replace(/\\#/g, '#');
     str = str.replace(/\\%/g, '%');
 
@@ -20,37 +21,60 @@ function formatMathEquation(raw, isAlreadyEscaped = false) {
         str = escapeHtml(str);
     }
 
-    // 3. LaTeX math symbols -> clean unicode
-    str = str.replace(/\\(?:oplus|bigoplus)/g, '⊕');
-    str = str.replace(/\\times/g, '×');
-    str = str.replace(/\\parallel/g, '∥');
-    str = str.replace(/\\(?:rightarrow|to)/g, '→');
-    str = str.replace(/\\leftarrow/g, '←');
-    str = str.replace(/\\(?:leftrightarrow)/g, '↔');
-    str = str.replace(/\\(?:le|leq)/g, '≤');
-    str = str.replace(/\\(?:ge|geq)/g, '≥');
-    str = str.replace(/\\neq/g, '≠');
-    str = str.replace(/\\approx/g, '≈');
-    str = str.replace(/\\Delta/g, 'Δ');
-    str = str.replace(/\\gg/g, '≫');
-    str = str.replace(/\\ll/g, '≪');
-    str = str.replace(/\\sum/g, '∑');
-    str = str.replace(/\\prod/g, '∏');
-    str = str.replace(/\\pmod\{([^}]+)\}/g, '(mod $1)');
-    str = str.replace(/\\bmod\{([^}]+)\}/g, 'mod $1');
-    str = str.replace(/\\(?:quad|qquad)/g, '&emsp;');
+    // 3. Modulo expressions (with support for nested braces/superscripts)
+    str = str.replace(/\\pmod\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g, '(mod $1)');
+    str = str.replace(/\\pmod\s+([a-zA-Z0-9^_{}]+)/g, '(mod $1)');
+    str = str.replace(/\\bmod\s*\{((?:[^{}]|\{[^{}]*\})*)\}/g, 'mod $1');
+    str = str.replace(/\\bmod\s+([a-zA-Z0-9^_{}]+)/g, 'mod $1');
 
-    // 4. Subscripts and superscripts
+    // 4. LaTeX math symbols -> clean unicode
+    str = str.replace(/\\(?:oplus|bigoplus)(?![a-zA-Z])/g, '⊕');
+    str = str.replace(/\\times(?![a-zA-Z])/g, '×');
+    str = str.replace(/\\parallel(?![a-zA-Z])/g, '∥');
+    str = str.replace(/\\(?:rightarrow|to)(?![a-zA-Z])/g, '→');
+    str = str.replace(/\\leftarrow(?![a-zA-Z])/g, '←');
+    str = str.replace(/\\(?:leftrightarrow)(?![a-zA-Z])/g, '↔');
+    str = str.replace(/\\(?:le|leq)(?![a-zA-Z])/g, '≤');
+    str = str.replace(/\\(?:ge|geq)(?![a-zA-Z])/g, '≥');
+    str = str.replace(/\\(?:neq|ne)(?![a-zA-Z])/g, '≠');
+    str = str.replace(/\\approx(?![a-zA-Z])/g, '≈');
+    str = str.replace(/\\in(?![a-zA-Z])/g, '∈');
+    str = str.replace(/\\notin(?![a-zA-Z])/g, '∉');
+    str = str.replace(/\\(?:subset|subsetneq)(?![a-zA-Z])/g, '⊂');
+    str = str.replace(/\\subseteq(?![a-zA-Z])/g, '⊆');
+    str = str.replace(/\\(?:supset|supsetneq)(?![a-zA-Z])/g, '⊃');
+    str = str.replace(/\\supseteq(?![a-zA-Z])/g, '⊇');
+    str = str.replace(/\\cap(?![a-zA-Z])/g, '∩');
+    str = str.replace(/\\cup(?![a-zA-Z])/g, '∪');
+    str = str.replace(/\\forall(?![a-zA-Z])/g, '∀');
+    str = str.replace(/\\exists(?![a-zA-Z])/g, '∃');
+    str = str.replace(/\\infty(?![a-zA-Z])/g, '∞');
+    str = str.replace(/\\pm(?![a-zA-Z])/g, '±');
+    str = str.replace(/\\mp(?![a-zA-Z])/g, '∓');
+    str = str.replace(/\\cdot(?![a-zA-Z])/g, '·');
+    str = str.replace(/\\circ(?![a-zA-Z])/g, '∘');
+    str = str.replace(/\\equiv(?![a-zA-Z])/g, '≡');
+    str = str.replace(/\\(?:dots|ldots|cdots)(?![a-zA-Z])/g, '…');
+    str = str.replace(/\\Delta(?![a-zA-Z])/g, 'Δ');
+    str = str.replace(/\\gg(?![a-zA-Z])/g, '≫');
+    str = str.replace(/\\ll(?![a-zA-Z])/g, '≪');
+    str = str.replace(/\\sum(?![a-zA-Z])/g, '∑');
+    str = str.replace(/\\prod(?![a-zA-Z])/g, '∏');
+    str = str.replace(/\\(?:left|right)(?![a-zA-Z])/g, '');
+    str = str.replace(/\\(?:quad|qquad)(?![a-zA-Z])/g, '&emsp;');
+
+    // 5. Subscripts and superscripts
     str = str.replace(/_\{([^}]+)\}/g, '<sub>$1</sub>');
     str = str.replace(/\b([a-zA-Z])_([a-zA-Z0-9])\b/g, '$1<sub>$2</sub>');
     str = str.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>');
     str = str.replace(/\b([a-zA-Z0-9]+)\^([a-zA-Z0-9]+)\b/g, '$1<sup>$2</sup>');
 
-    // 5. Restore literal underscores
+    // 6. Restore literal underscores
     str = str.replace(/@@UNDERSCORE@@/g, '_');
 
-    // 6. Clean up any remaining LaTeX backslashes before spaces or letters
-    str = str.replace(/\\[ ,;]/g, ' ');
+    // 7. Clean up any remaining LaTeX backslashes before spaces, punctuation, or commands
+    str = str.replace(/\\[ ,;:]/g, ' ');
+    str = str.replace(/\\!/g, '');
     str = str.replace(/\\[a-zA-Z]+/g, '');
 
     return str;
@@ -65,8 +89,8 @@ function renderInlineMarkdown(text) {
         return `<div class="math-block" role="region" aria-label="Mathematical formula"><div class="math-formula">${formatMathEquation(mathInner, true)}</div></div>`;
     });
 
-    // Inline math: $...$ with LaTeX commands or subscript notation
-    escaped = escaped.replace(/\$((?:\\[a-zA-Z]+|[a-zA-Z0-9]+_[a-zA-Z0-9{}]+)[^$\n]*?)\$/g, (_match, mathInner) => {
+    // Inline math: $...$ with LaTeX commands, subscripts, or superscripts
+    escaped = escaped.replace(/\$((?:[^$`\n]*?(?:\\[a-zA-Z]+|[a-zA-Z0-9]+_[a-zA-Z0-9{}]+|\^[a-zA-Z0-9{}]+))[^$`\n]*?)\$/g, (_match, mathInner) => {
         return `<span class="math-inline">${formatMathEquation(mathInner, true)}</span>`;
     });
 
@@ -206,6 +230,7 @@ function renderPostContent(document) {
 }
 
 module.exports = Object.freeze({
+    formatMathEquation,
     renderInlineMarkdown,
     renderPostContent,
     slugifyHeading

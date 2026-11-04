@@ -123,9 +123,15 @@
                     return b.title.localeCompare(a.title, 'en') || (b.date - a.date) || (a.index - b.index);
                 case 'newest':
                 default: {
-                    const orderA = a.order !== null ? a.order : Infinity;
-                    const orderB = b.order !== null ? b.order : Infinity;
-                    if (orderA !== orderB) return orderA - orderB;
+                    const hasOrderA = a.order !== null && !Number.isNaN(Number(a.order));
+                    const hasOrderB = b.order !== null && !Number.isNaN(Number(b.order));
+                    if (hasOrderA && hasOrderB) {
+                        if (a.order !== b.order) return b.order - a.order; // Descending: higher order number comes first
+                    } else if (hasOrderA) {
+                        return -1;
+                    } else if (hasOrderB) {
+                        return 1;
+                    }
                     return (b.date - a.date) || a.title.localeCompare(b.title, 'en') || (a.index - b.index);
                 }
             }

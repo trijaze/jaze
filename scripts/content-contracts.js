@@ -765,9 +765,15 @@ function validateContentDataset({ profile, postsList, postsBySlug = {}, members 
 }
 
 function comparePosts(a, b) {
-    const orderA = Number.isInteger(a?.order) ? a.order : Infinity;
-    const orderB = Number.isInteger(b?.order) ? b.order : Infinity;
-    if (orderA !== orderB) return orderA - orderB;
+    const hasOrderA = Number.isInteger(a?.order);
+    const hasOrderB = Number.isInteger(b?.order);
+    if (hasOrderA && hasOrderB) {
+        if (a.order !== b.order) return b.order - a.order; // Descending: higher order number comes first
+    } else if (hasOrderA) {
+        return -1; // Explicit order has priority over un-ordered posts
+    } else if (hasOrderB) {
+        return 1;
+    }
     return String(b?.publishedAt || '').localeCompare(String(a?.publishedAt || ''))
         || String(a?.title || '').localeCompare(String(b?.title || ''), 'en');
 }
