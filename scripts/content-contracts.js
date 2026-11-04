@@ -9,7 +9,8 @@ const CONTENT_BLOCK_TYPES = Object.freeze([
     'image',
     'quote',
     'callout',
-    'references'
+    'references',
+    'table'
 ]);
 
 const POST_STATUS_SET = new Set(POST_STATUSES);
@@ -35,7 +36,7 @@ const PROFILE_FIELDS = new Set([
     'location'
 ]);
 const SOCIAL_FIELDS = new Set(['label', 'url']);
-const POST_INDEX_FIELDS = new Set([
+const POST_REQUIRED_FIELDS = Object.freeze([
     'slug',
     'title',
     'excerpt',
@@ -45,6 +46,10 @@ const POST_INDEX_FIELDS = new Set([
     'readingMinutes',
     'featured',
     'status'
+]);
+const POST_INDEX_FIELDS = new Set([
+    ...POST_REQUIRED_FIELDS,
+    'order'
 ]);
 const POST_DOCUMENT_FIELDS = new Set(['slug', 'content']);
 
@@ -374,7 +379,7 @@ function normalizePostIndexEntry(rawPost, index) {
     const location = `posts-list.json[${index}]`;
     assertPlainObject(rawPost, location);
     assertAllowedKeys(rawPost, POST_INDEX_FIELDS, location);
-    assertRequiredKeys(rawPost, [...POST_INDEX_FIELDS], location);
+    assertRequiredKeys(rawPost, POST_REQUIRED_FIELDS, location);
 
     const slug = normalizeText(rawPost.slug, `${location}.slug`, {
         maxLength: 100,
@@ -416,6 +421,14 @@ function normalizePostIndexEntry(rawPost, index) {
         throw new Error(`${location}.featured may only be true for published posts.`);
     }
 
+    let order = null;
+    if (hasOwn(rawPost, 'order') && rawPost.order !== null && rawPost.order !== undefined) {
+        if (!Number.isInteger(rawPost.order) || rawPost.order < 1 || rawPost.order > 10000) {
+            throw new Error(`${location}.order must be an integer from 1 to 10000.`);
+        }
+        order = rawPost.order;
+    }
+
     return {
         slug,
         title,
@@ -425,7 +438,8 @@ function normalizePostIndexEntry(rawPost, index) {
         tags,
         readingMinutes: rawPost.readingMinutes,
         featured: rawPost.featured,
-        status
+        status,
+        order
     };
 }
 
@@ -593,6 +607,62 @@ function normalizeReferencesBlock(block, location) {
     return { type: 'references', items };
 }
 
+const TABLE_ALIGNMENTS = new Set(['left', 'center', 'right']);
+
+function normalizeTableBlock(block, location) {
+    const fields = new Set(['type', 'headers', 'rows', 'alignments', 'caption']);
+    assertAllowedKeys(block, fields, location);
+    assertRequiredKeys(block, ['type', 'headers', 'rows'], location);
+
+    if (!Array.isArray(block.headers) || !block.headers.length) {
+        throw new Error(`${location}.headers must be a non-empty array of strings.`);
+    }
+    if (block.headers.length > 20) {
+        throw new Error(`${location}.headers must not contain more than 20 columns.`);
+    }
+
+    const headers = block.headers.map((h, i) => normalizeText(h, `${location}.headers[${i}]`, { maxLength: 500 }));
+    const colCount = headers.length;
+
+    let alignments = null;
+    if (hasOwn(block, 'alignments') && block.alignments !== null) {
+        if (!Array.isArray(block.alignments) || block.alignments.length !== colCount) {
+            throw new Error(`${location}.alignments must be an array matching headers length.`);
+        }
+        alignments = block.alignments.map((a, i) => {
+            const val = normalizeText(a, `${location}.alignments[${i}]`, { maxLength: 10 }).toLowerCase();
+            if (!TABLE_ALIGNMENTS.has(val)) {
+                throw new Error(`${location}.alignments[${i}] must be one of: left, center, right.`);
+            }
+            return val;
+        });
+    }
+
+    if (!Array.isArray(block.rows)) {
+        throw new Error(`${location}.rows must be an array of string arrays.`);
+    }
+    if (block.rows.length > 200) {
+        throw new Error(`${location}.rows must not exceed 200 rows.`);
+    }
+
+    const rows = block.rows.map((row, rIndex) => {
+        if (!Array.isArray(row) || row.length !== colCount) {
+            throw new Error(`${location}.rows[${rIndex}] must have exactly ${colCount} columns.`);
+        }
+        return row.map((cell, cIndex) => normalizeText(cell, `${location}.rows[${rIndex}][${cIndex}]`, { allowEmpty: true, maxLength: 5000 }));
+    });
+
+    const caption = normalizeOptionalText(block, 'caption', location, { maxLength: 500 });
+
+    return {
+        type: 'table',
+        headers,
+        rows,
+        alignments,
+        caption
+    };
+}
+
 const BLOCK_NORMALIZERS = Object.freeze({
     paragraph: normalizeParagraphBlock,
     heading: normalizeHeadingBlock,
@@ -601,7 +671,8 @@ const BLOCK_NORMALIZERS = Object.freeze({
     image: normalizeImageBlock,
     quote: normalizeQuoteBlock,
     callout: normalizeCalloutBlock,
-    references: normalizeReferencesBlock
+    references: normalizeReferencesBlock,
+    table: normalizeTableBlock
 });
 
 function normalizeContentBlock(rawBlock, index) {
@@ -689,12 +760,20 @@ function validateContentDataset({ profile, postsList, postsBySlug = {}, members 
         profile: normalizedProfile,
         posts: normalizedPosts,
         postDocuments: normalizedDocuments,
-        publishedPosts: normalizedPosts.filter(post => post.status === 'published')
+        publishedPosts: normalizedPosts.filter(post => post.status === 'published').sort(comparePosts)
     };
 }
 
+function comparePosts(a, b) {
+    const orderA = Number.isInteger(a?.order) ? a.order : Infinity;
+    const orderB = Number.isInteger(b?.order) ? b.order : Infinity;
+    if (orderA !== orderB) return orderA - orderB;
+    return String(b?.publishedAt || '').localeCompare(String(a?.publishedAt || ''))
+        || String(a?.title || '').localeCompare(String(b?.title || ''), 'en');
+}
+
 function getPublishedPosts(rawPosts) {
-    return normalizePostsList(rawPosts).filter(post => post.status === 'published');
+    return normalizePostsList(rawPosts).filter(post => post.status === 'published').sort(comparePosts);
 }
 
 function escapeHtml(value) {
@@ -710,6 +789,7 @@ function escapeHtml(value) {
 module.exports = Object.freeze({
     CONTENT_BLOCK_TYPES,
     POST_STATUSES,
+    comparePosts,
     escapeHtml,
     getPublishedPosts,
     isSafeContentUrl,

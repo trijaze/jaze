@@ -52,6 +52,17 @@ function validateHtmlDocument(html, relativePath) {
     if (/unsafe-inline|unsafe-eval/i.test(cspMatch[1])) {
         throw new Error(`${relativePath}: CSP must not allow unsafe-inline or unsafe-eval.`);
     }
+    // Check exact inline bytes, not merely that an arbitrary hash is present.
+    for (const match of html.matchAll(/<(script|style)\b([^>]*)>([\s\S]*?)<\/\1>/gi)) {
+        if (/\bsrc\s*=/i.test(match[2])) continue;
+        const hash = crypto.createHash('sha256').update(match[3], 'utf8').digest('base64');
+        const directive = match[1].toLowerCase() === 'style' ? 'style-src' : 'script-src';
+        const policy = cspMatch[1].replaceAll('&#39;', "'").replaceAll('&quot;', '"');
+        const allowed = policy.split(';').find(value => value.trim().startsWith(`${directive} `)) || '';
+        if (!allowed.includes(`'sha256-${hash}'`)) {
+            throw new Error(`${relativePath}: CSP does not allow its inline ${match[1]} payload.`);
+        }
+    }
     assertIncludes(html, /<title>[^<]+<\/title>/i, `${relativePath}: missing a non-empty title.`);
     assertIncludes(html, /<meta\s[^>]*name=["']description["'][^>]*content=["'][^"']+["']/i,
         `${relativePath}: missing a non-empty meta description.`);
@@ -84,7 +95,8 @@ function validateHtmlDocument(html, relativePath) {
     if (isNotFoundPage && !hasNoIndex) throw new Error('404.html: expected noindex robots metadata.');
     if (!isNotFoundPage && hasNoIndex) throw new Error(`${relativePath}: generated public page must not be noindex.`);
 
-    if (/\{\{[^}]+\}\}|__[A-Z0-9_]+__/.test(html)) {
+    const textOutsideCode = html.replace(/<pre\b[^>]*>[\s\S]*?<\/pre>/gi, '');
+    if (/\{\{[^}]+\}\}|__[A-Z0-9_]+__/.test(textOutsideCode)) {
         throw new Error(`${relativePath}: unresolved template placeholder found.`);
     }
 }

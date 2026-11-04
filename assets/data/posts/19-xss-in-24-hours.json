@@ -1,0 +1,529 @@
+{
+  "slug": "19-xss-in-24-hours",
+  "content": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Preface"
+    },
+    {
+      "type": "paragraph",
+      "text": "19 reports in 24 hours 🤯."
+    },
+    {
+      "type": "paragraph",
+      "text": "A few weeks ago, I had a bug hunting experience that surprised me in two very different ways."
+    },
+    {
+      "type": "paragraph",
+      "text": "I found 19 issues in one day once I realized the same trick worked across different plugins. This was my first time finding this many bugs in a row. I honestly wasn’t expecting that, especially when it feels like AI is everywhere in bug bounty lately."
+    },
+    {
+      "type": "paragraph",
+      "text": "Finding 19 Cross-Site Scripting vulnerabilities across 19 different plugins within a single day might sound flashy from the outside, but anyone who has spent real time auditing WordPress code knows the truth: it wasn't genius, and there was nothing superhuman about it."
+    },
+    {
+      "type": "paragraph",
+      "text": "It was simply a novel experience for me—a day where a specific architectural pattern clicked, the code signatures became glaringly repetitive, and tracing source-to-sink flows turned into a consistent, methodical routine."
+    },
+    {
+      "type": "paragraph",
+      "text": "I am sharing these notes not as a trophy case, but as a technical post-mortem, an architectural audit guide, and an honest reflection. We will look at how modern WordPress plugins—especially those bridging PHP server-side renderers with modern React frontends, Elementor widgets, and administrative export tables—repeatedly fall victim to the exact same architectural blindspots."
+    },
+    {
+      "type": "paragraph",
+      "text": "*Note: In accordance with responsible disclosure practices and to focus purely on the defensive engineering lessons, no exploit payloads or specific attack strings are disclosed in this document. We focus strictly on the entry points, the data flows, the sink mechanisms, and the root-cause code patterns.*"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "1. The Anatomy of Modern WordPress Architectures"
+    },
+    {
+      "type": "paragraph",
+      "text": "A few years ago, WordPress XSS was simple: someone called `echo $_GET['msg']` without `esc_html()`."
+    },
+    {
+      "type": "paragraph",
+      "text": "Today, the ecosystem looks very different. The WordPress editor has evolved into the Block Editor (Gutenberg), third-party page builders like Elementor dominate theme development, and administrative dashboards are increasingly built with decoupled JavaScript frontends (React, Vue, jQuery micro-frameworks)."
+    },
+    {
+      "type": "paragraph",
+      "text": "This architectural evolution has shifted where vulnerabilities live:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**The Server-to-Client Data Bridge (`data-attributes`):** Server-side renderers (`render.php`) serialize block attributes as JSON and attach them to wrapper elements. PHP considers this \"safe\" because it calls `wp_json_encode()` and `esc_attr()`.",
+        "**The Client-Side Hydration Sink:** Client-side React scripts boot up on `DOMContentLoaded`, read the DOM attribute via `JSON.parse(element.dataset.attributes)`, and mount components.",
+        "**The Blind Faith in Stored Block Attributes:** Developers assume that because Gutenberg block attributes are saved inside post content comments (`<!-- wp:block {...} -->`), they are inherently clean. In reality, any authenticated user with draft editing privileges (**Contributor+**) can send arbitrary JSON objects in block delimiters."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Once you understand this three-step pipeline, you realize that hundreds of plugins share the exact same structural flaw."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "2. Breaking Down the 19 Vulnerability Flow Signatures"
+    },
+    {
+      "type": "paragraph",
+      "text": "Across the 19 plugins audited during this sprint, the root causes fell cleanly into four distinct vulnerability signatures."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "+-----------------------------------------------------------------------------------------+\n|                               FOUR CORE SINK SIGNATURES                                 |\n+-----------------------------------------------------------------------------------------+\n|                                                                                         |\n|  Signature 1: The React dangerouslySetInnerHTML Bridge                                  |\n|  PHP: wp_json_encode($attrs) -> DOM: data-attributes -> JS: dangerouslySetInnerHTML     |\n|                                                                                         |\n|  Signature 2: Protocol Validation Gaps in Client-Side Navigation                        |\n|  PHP: raw link attribute -> DOM: dataset -> JS: <a href={link}> / window.location       |\n|                                                                                         |\n|  Signature 3: Third-Party JS Player & Widget Configuration Injection                    |\n|  Elementor / Gutenberg settings -> Unsanitized Options Bag -> ArtPlayer / Plyr DOM      |\n|                                                                                         |\n|  Signature 4: Administrative UI Reflected Ingestion                                     |\n|  Database Post Titles / REST Collections -> Admin AJAX / Export View -> jQuery .html()  |\n|                                                                                         |\n+-----------------------------------------------------------------------------------------+"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Signature",
+        "Vulnerability Pattern",
+        "Server Origin",
+        "DOM / Client Sink",
+        "Severity"
+      ],
+      "rows": [
+        [
+          "Sig 1",
+          "React `dangerouslySetInnerHTML`",
+          "`wp_json_encode($attrs)`",
+          "`data-attributes` → React Component",
+          "High"
+        ],
+        [
+          "Sig 2",
+          "Protocol Validation Bypass",
+          "Unsanitized URL attribute",
+          "`<a href={link}>` / `window.location`",
+          "Medium"
+        ],
+        [
+          "Sig 3",
+          "Widget Options Bag Injection",
+          "Unsanitized config payload",
+          "ArtPlayer / Plyr / Carousel DOM",
+          "High"
+        ],
+        [
+          "Sig 4",
+          "Admin AJAX / Export Reflection",
+          "Stored post titles / REST",
+          "jQuery `.html()` in admin dashboard",
+          "Medium"
+        ]
+      ],
+      "alignments": [
+        "left",
+        "left",
+        "left",
+        "left",
+        "center"
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Category A: The React `dangerouslySetInnerHTML` Hydration Flaw"
+    },
+    {
+      "type": "paragraph",
+      "text": "This was the single most common pattern discovered across Gutenberg block collections."
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "The Architecture Flow:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**Source:** A block attribute defined in `block.json` (e.g., `title`, `desc`, `prefixText`, `icon.svg`).",
+        "**Storage:** The Contributor creates a post or draft containing raw block attributes inside the Gutenberg post content.",
+        "**Server-Side Render (`build/render.php`):**"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "code": "   // Pattern seen in b-blocks, advanced-post-block, b-slider, button-block, text-typing:\n   $json_attributes = wp_json_encode( $attributes );\n   ?>\n   <div <?php echo get_block_wrapper_attributes(); ?>\n        data-attributes=\"<?php echo esc_attr( $json_attributes ); ?>\">\n   </div>"
+    },
+    {
+      "type": "paragraph",
+      "text": "*Why developers think it's safe:* `esc_attr()` protects the HTML attribute itself. The page source does not execute HTML tags here."
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**Client-Side Sink (`build/view.js`):**"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "   document.addEventListener(\"DOMContentLoaded\", () => {\n       const wrapper = document.querySelector(\".wp-block-custom\");\n       const attributes = JSON.parse(wrapper.dataset.attributes);\n       \n       // SINK: Directly injecting user-controlled properties into the DOM\n       root.render(\n           <div dangerouslySetInnerHTML={{ __html: attributes.icon?.svg }} />\n       );\n   });"
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "Plugins Exhibiting This Signature:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "**`b-blocks` (`build/accordion-block/render.php`):** Block attributes serialized into `data-attributes`, hydrated by React and injected via `dangerouslySetInnerHTML` into accordion titles and contents.",
+        "**`advanced-post-block` (`build/render.php`):** The `readMore.icon` attribute parsed on the frontend in the Read More component and passed directly to raw HTML injection.",
+        "**`b-slider` (`build/render.php`):** The post slider renderer passes the full attributes object. When `sourceType` is set to post items, the button text property is pushed directly to `dangerouslySetInnerHTML`.",
+        "**`before-after-image-compare` (`build/render.php`):** The `beforeLabel` and `afterLabel` attributes are parsed from `dataset.attributes` and rendered via raw inner HTML.",
+        "**`button-block` (`build/render.php`):** Unsets the `securityPassword` attribute, but leaves the nested `icon.svg` object completely intact, which React mounts via `dangerouslySetInnerHTML`.",
+        "**`text-typing` (`build/render.php`):** Attributes `prefixText` and `suffixText` are parsed from the DOM dataset and injected directly into the React DOM tree without escaping.",
+        "**`panorama` (`build/blocks/product-spot/render.php`):** Hotspot marker icons are parsed on the client side and passed to `dangerouslySetInnerHTML: { __html: hotspot.icon }`.",
+        "**`stepped-content`:** Step navigation headings and step descriptions follow the same block attribute hydration cycle into unescaped DOM nodes."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Category B: Missing Protocol Allowlist on Client-Side Links (`href` & `iframe`)"
+    },
+    {
+      "type": "paragraph",
+      "text": "In this pattern, developers assumed that because an attribute was rendered as an HTML attribute rather than HTML markup, standard attribute escaping (`esc_attr` or React JSX string binding) was sufficient."
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "The Architecture Flow:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**Source:** A URL attribute (e.g., `gallery[].link`, `btnLink`, `item.content`).",
+        "**Transformation:** The string is bound to the `href` attribute of an anchor tag `<a>` or the `src` attribute of an `<iframe>`.",
+        "**The Blindspot:** React JSX automatically escapes characters like `<` and `>`, preventing tag breakouts. **However, React does NOT inspect URL protocol schemes.** If a string begins with a non-web scheme, React writes `href=\"...\"` verbatim.",
+        "**The Sink:** When a user clicks the button or views the iframe, the browser invokes script execution."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "Plugins Exhibiting This Signature:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "**`3d-image-gallery` (`build/render.php`):** The `gallery[].link` attribute is passed through `wp_json_encode()`. On the frontend, the carousel library renders each slide wrapped in an `<a>` tag whose `href` is assigned directly from the JSON link property without validating against `http://` or `https://`.",
+        "**`embed-lottie-player` (`build/render.php`):** The block's `link` attribute is passed to React's `createElement(\"a\", { href: link })` without protocol verification.",
+        "**`content-slider-block` (`build/render.php`):** The slider button link (`slides[].btnLink`) is parsed from `data-attributes` and passed directly into `href: btnLink`. The developer attempted to sanitize slide text, but forgot protocol validation on button destinations.",
+        "**`icon-list-block` (`build/render.php`):** Server-side sanitization runs `esc_url_raw()` on `lists[].link`, but client-side rendering uses a custom regex that preserves links on nested tags without enforcing protocol allowlists.",
+        "**`lightbox-block` (`build/render.php`):** In `build/view.js`, when rendering external media, the component mounts an `<iframe>` whose `src` attribute is populated directly with unvalidated `item.content`."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Category C: Unsanitized Options Bags in Media Players & Page Builders"
+    },
+    {
+      "type": "paragraph",
+      "text": "This category involves plugins integrating complex third-party JavaScript libraries (such as Plyr, ArtPlayer, or custom video wrappers) or Page Builder extensions."
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "The Architecture Flow:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**Source:** Plugin settings, Elementor widget options, or block settings dictionaries.",
+        "**The Flaw:** Developers often sanitize the primary fields (e.g., video URL, poster image), but leave the generic \"options\" or \"player config\" bag uninspected.",
+        "**The Sink:** The options dictionary is passed to the underlying player library's initialization function, which generates internal DOM elements (tooltips, controls, custom overlays)."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "Plugins Exhibiting This Signature:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "**`html5-video-player` (`inc/functions.php` & `build/blocks/render.php`):** The sanitization routine `h5vp_process_block_attributes()` explicitly cleans `source`, `poster`, and `styles`, but completely ignores `$attributes['options']`. This configuration object is embedded in `data-attributes` and ingested by the Plyr player instance on the frontend.",
+        "**`media-player-addons-for-elementor` (`widgets/`):** An Elementor widget where poster metadata and video album attributes are stored in `_elementor_data`. When ArtPlayer initializes the player layout, it pulls the unescaped album poster configuration directly into its DOM rendering pipeline.",
+        "**`advance-custom-html` (`build/block/render.php`):** The plugin renders custom HTML blocks via PHP. In `build/block/render.php`, the attribute `$attributes['HTML']` is output with an explicit `// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped` comment, trusting that the user who saved the block has full unfiltered HTML rights, even when authored by a Contributor.",
+        "**`parallax-section` (`build/render.php`):** The server-side renderer applies `wp_kses()` to block content, but its custom `$allowed_html` schema explicitly permits `iframe` elements combined with the `srcdoc` attribute, allowing full nested HTML contexts to be saved and rendered."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Category D: Administrative UI & REST Collection Reflected Ingestion"
+    },
+    {
+      "type": "paragraph",
+      "text": "Not all findings lived on the public frontend. Several lived inside the WordPress administrative interface, where administrative actions processed data generated by lower-privileged users."
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "The Architecture Flow:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**Source:** Stored database records (post titles created by Contributors) or REST API collection endpoints.",
+        "**The Bridge:** Admin JavaScript making AJAX requests to fetch records for bulk actions, export dialogs, or map marker editors.",
+        "**The Sink:** Admin JavaScript taking server responses and inserting them into modal dialogs or table dropdowns using jQuery's `.html()`."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 4,
+      "text": "Plugins Exhibiting This Signature:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "**`e2pdf` (`js/e2pdf.backend.js` & `Helper_E2pdf_Field::render()`):** In the admin bulk export modal, E2Pdf renders a list of post datasets. When building the list of available items, `js/e2pdf.backend.js` reads post titles returned by the server and calls `jQuery('<label>').html(option.value)`. Because Contributors can create posts with crafted titles, an Administrator opening the PDF export window has their browser execute the injected script.",
+        "**`mapsvg-lite-interactive-vector-maps` (`POST /wp-json/mapsvg/v1/collection/{collection_name}`):** The map marker collection REST API endpoint allows users with `edit_posts` privileges to save region and marker metadata. When these markers are rendered in administrative popovers or frontend views, the template engine processes unescaped Handlebars expressions (triple curly braces around description), pushing raw database content straight into the DOM."
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "3. The Methodology: How to Systematically Trace These Paths"
+    },
+    {
+      "type": "paragraph",
+      "text": "Auditing 19 plugins in 24 hours was not about reading hundreds of thousands of lines of code top-to-bottom. It was about developing an efficient mental parser for modern WordPress block architectures."
+    },
+    {
+      "type": "paragraph",
+      "text": "Here is the exact three-step audit loop I followed:"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Step 1: Pinpoint the Hydration Bridge"
+    },
+    {
+      "type": "paragraph",
+      "text": "Whenever you inspect a plugin with Gutenberg blocks, skip the admin settings entirely. Open the `build/` folder and inspect `render.php`. Look for one single pattern:"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "code": "data-attributes='<?php echo esc_attr( wp_json_encode( $attributes ) ); ?>'"
+    },
+    {
+      "type": "paragraph",
+      "text": "If the server serializes raw, unfiltered `$attributes` into the DOM, you have found an unvalidated bridge. The server has essentially outsourced its security to the client."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Step 2: Grep the Client-Side Sinks"
+    },
+    {
+      "type": "paragraph",
+      "text": "Open the compiled frontend JavaScript (`view.js` or `index.js`) and search for dangerous DOM operations:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "`dangerouslySetInnerHTML`",
+        "`innerHTML`",
+        "`jQuery.html()`",
+        "Direct property assignments to `.src` or `.href`",
+        "URL assignments to `window.location`"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Trace backwards from the sink to the parsed `dataset.attributes` object. If the variable originates from an attribute that a Contributor can set in the editor, you have a confirmed vulnerability."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "Step 3: Verify the WordPress Core Boundary"
+    },
+    {
+      "type": "paragraph",
+      "text": "Always verify WordPress core's role in the equation:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "Does WordPress KSES sanitize block attributes? **No.** KSES only inspects the post's HTML markup; it ignores JSON objects stored within block comment delimiters (`<!-- wp:custom-block {...} -->`).",
+        "Does `esc_attr()` protect the React DOM? **No.** `esc_attr()` only protects the browser's initial HTML parsing of the attribute tag. Once `JSON.parse()` reads it, the string is restored to its raw state.",
+        "Can a Contributor save arbitrary block attributes? **Yes.** Contributors have the capability to create posts and submit them for review."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "When all three checks align, the flow is mathematically proven."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "4. The Defensive Engineering Lessons"
+    },
+    {
+      "type": "paragraph",
+      "text": "Why do these bugs keep happening, and how do we fix them permanently?"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1. Never Trust React to Validate URLs"
+    },
+    {
+      "type": "paragraph",
+      "text": "React protects against tag injection, but it is completely agnostic to URL protocols. Any user-controlled URL rendered into an `<a>` or `<iframe>` tag must be passed through a strict protocol allowlist:"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "code": "// Server-side fix in render.php:\n$clean_url = esc_url_raw( $attributes['link'], array( 'http', 'https' ) );"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// Client-side fix in React:\nconst isSafeUrl = (url) => {\n    try {\n        const parsed = new URL(url, window.location.origin);\n        return ['http:', 'https:'].includes(parsed.protocol);\n    } catch {\n        return false;\n    }\n};"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2. Sanitize on the Server Before Serialization"
+    },
+    {
+      "type": "paragraph",
+      "text": "Do not pass the raw `$attributes` array to `wp_json_encode()`. Sanitize and strip unwanted HTML on the PHP side *before* it ever reaches the DOM:"
+    },
+    {
+      "type": "code",
+      "language": "php",
+      "code": "// Bad:\ndata-attributes=\"<?php echo esc_attr( wp_json_encode( $attributes ) ); ?>\"\n\n// Good:\n$clean_attributes = array(\n    'title' => sanitize_text_field( $attributes['title'] ?? '' ),\n    'icon'  => wp_kses_post( $attributes['icon'] ?? '' ),\n    'link'  => esc_url_raw( $attributes['link'] ?? '', array( 'http', 'https' ) ),\n);\ndata-attributes=\"<?php echo esc_attr( wp_json_encode( $clean_attributes ) ); ?>\""
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3. Replace `dangerouslySetInnerHTML` with Structured Components"
+    },
+    {
+      "type": "paragraph",
+      "text": "If a block needs to support SVG icons, don't allow users to submit raw SVG XML strings. Instead, provide a curated allowlist of icon names (e.g., `'arrow-right'`, `'star'`, `'check'`) and render pre-compiled, safe SVG components on the frontend."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "4. Use `.text()` Instead of `.html()` for Data Ingestion"
+    },
+    {
+      "type": "paragraph",
+      "text": "In administrative scripts, whenever inserting dynamic database fields (like post titles, author names, or category labels) into table cells or modal dialogs, use jQuery's `.text()` or native `textContent`:"
+    },
+    {
+      "type": "code",
+      "language": "javascript",
+      "code": "// Vulnerable:\njQuery('<label>').html(option.value);\n\n// Secure:\njQuery('<label>').text(option.value);"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "5. The Triage Reality: What Actually Happened to the 19 Reports?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Submitting 19 reports in a single day is only half the journey. The real educational curve started when triage began."
+    },
+    {
+      "type": "paragraph",
+      "text": "Around 36% of my reports were rejected. Roughly half of the rejected reports were scope mistakes on my part (the stored XSS required a second action that the program didn’t cover). In other cases, vendors released patched versions roughly an hour after I recorded my PoCs, so the issues were already fixed in production by the time my reports reached the triager. In one case, the reporting platform even sanitized my payload, so it didn’t show up in the report exactly as I’d written it."
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Triage Outcome",
+        "Count",
+        "Ratio",
+        "Key Observations & Root Causes"
+      ],
+      "rows": [
+        [
+          "**Validated**",
+          "8",
+          "~42%",
+          "Cleanly confirmed and rewarded by program triagers"
+        ],
+        [
+          "**Duplicates**",
+          "4",
+          "~21%",
+          "Valid issues that other researchers had submitted earlier"
+        ],
+        [
+          "**Rejected (Scope / Timing / Platform)**",
+          "7",
+          "~36%",
+          "Out-of-scope secondary action, 1-hour vendor ninja patches, platform markdown payload sanitization"
+        ]
+      ],
+      "alignments": [
+        "left",
+        "center",
+        "center",
+        "left"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "I’d had reports marked as duplicates before, and I’d also seen issues patched around the time I reported them. But seeing so many happen at once really surprised me and changed how I look at bug bounty."
+    },
+    {
+      "type": "paragraph",
+      "text": "In just 24 hours, I went from asking **how?** to asking **why?** ;-;"
+    },
+    {
+      "type": "paragraph",
+      "text": "This dynamic may be familiar to other hunters, but it was new to me. I still enjoyed the research, learned a few lessons, and came away with **8 validated reports and 4 duplicates**."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "6. Personal Reflections"
+    },
+    {
+      "type": "paragraph",
+      "text": "Stepping back from the 24-hour sprint, the experience was deeply grounding."
+    },
+    {
+      "type": "paragraph",
+      "text": "It taught me that bug bounty hunting isn't about guessing clever payloads or hoping for a stroke of luck. It is about understanding **data flow models** and recognizing the systemic blindspots created when two different paradigms—classic PHP templating and modern client-side JavaScript hydration—meet in the middle."
+    },
+    {
+      "type": "paragraph",
+      "text": "There will always be new frameworks, new block libraries, and new build tools. But as long as developers pass data across boundaries without defining explicit sanitization contracts, the exact same source-to-sink flows will continue to exist."
+    },
+    {
+      "type": "paragraph",
+      "text": "Audit the boundaries. Trace the data. Verify the framework. Everything else is just details."
+    }
+  ]
+}

@@ -1,6 +1,42 @@
 'use strict';
 
 const { escapeHtml } = require('./render-utils');
+const { isSafeContentUrl } = require('./content-contracts');
+
+function renderInlineMarkdown(text) {
+    if (!text) return '';
+    let escaped = escapeHtml(text);
+
+    // Task list checkboxes
+    escaped = escaped.replace(/^\[ \]\s+/, '<input type="checkbox" disabled aria-hidden="true"> ');
+    escaped = escaped.replace(/^\[[xX]\]\s+/, '<input type="checkbox" checked disabled aria-hidden="true"> ');
+
+    // Inline code
+    escaped = escaped.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+    // Bold (** or __)
+    escaped = escaped.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    escaped = escaped.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
+
+    // Italic (* or _)
+    escaped = escaped.replace(/(^|[^*])\*([^*\n]+)\*([^*]|$)/g, '$1<em>$2</em>$3');
+
+    // Strikethrough (~~)
+    escaped = escaped.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
+
+    // Safe Links: [label](url)
+    escaped = escaped.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (match, label, rawUrl) => {
+        const decodedUrl = rawUrl.replace(/&amp;/g, '&');
+        if (isSafeContentUrl(decodedUrl, { allowLocal: true, allowFragment: true })) {
+            const isLocal = decodedUrl.startsWith('/');
+            const targetAttr = isLocal ? '' : ' target="_blank" rel="noopener noreferrer"';
+            return `<a href="${escapeHtml(decodedUrl)}"${targetAttr}>${label}</a>`;
+        }
+        return match;
+    });
+
+    return escaped;
+}
 
 function slugifyHeading(value, fallback = 'section') {
     const slug = String(value || '')
@@ -22,15 +58,17 @@ function createHeadingId(text, seen) {
 function renderBlock(block, context) {
     switch (block.type) {
         case 'paragraph':
-            return `<p>${escapeHtml(block.text)}</p>`;
+            return `<p>${renderInlineMarkdown(block.text)}</p>`;
         case 'heading': {
             const id = createHeadingId(block.text, context.headingIds);
             context.toc.push({ id, level: block.level, text: block.text });
             return `<h${block.level} id="${escapeHtml(id)}">${escapeHtml(block.text)}</h${block.level}>`;
         }
         case 'list': {
+            const isTaskList = block.items.some(item => /^\[[ xX]\]/.test(item));
             const tag = block.style === 'ordered' ? 'ol' : 'ul';
-            return `<${tag}>${block.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</${tag}>`;
+            const cls = isTaskList ? ' class="task-list"' : '';
+            return `<${tag}${cls}>${block.items.map(item => `<li>${renderInlineMarkdown(item)}</li>`).join('')}</${tag}>`;
         }
         case 'code': {
             const label = block.filename || block.language;
@@ -59,13 +97,29 @@ function renderBlock(block, context) {
                     ? `<a href="${escapeHtml(block.sourceUrl)}">${escapeHtml(block.attribution)}</a>`
                     : escapeHtml(block.attribution)}</footer>`
                 : '';
-            return `<blockquote><p>${escapeHtml(block.text)}</p>${attribution}</blockquote>`;
+            return `<blockquote><p>${renderInlineMarkdown(block.text)}</p>${attribution}</blockquote>`;
         }
         case 'callout':
             return `<aside class="post-callout" data-tone="${escapeHtml(block.tone)}">
-                ${block.title ? `<strong>${escapeHtml(block.title)}</strong>` : ''}
-                <p>${escapeHtml(block.text)}</p>
+                ${block.title ? `<strong>${renderInlineMarkdown(block.title)}</strong>` : ''}
+                <p>${renderInlineMarkdown(block.text)}</p>
             </aside>`;
+        case 'table': {
+            const caption = block.caption ? `<caption>${escapeHtml(block.caption)}</caption>` : '';
+            const alignments = block.alignments || [];
+            const ths = block.headers.map((h, i) => {
+                const align = alignments[i] ? ` style="text-align: ${alignments[i]};"` : '';
+                return `<th scope="col"${align}>${renderInlineMarkdown(h)}</th>`;
+            }).join('');
+            const trs = block.rows.map(row => {
+                const tds = row.map((cell, i) => {
+                    const align = alignments[i] ? ` style="text-align: ${alignments[i]};"` : '';
+                    return `<td${align}>${renderInlineMarkdown(cell)}</td>`;
+                }).join('');
+                return `<tr>${tds}</tr>`;
+            }).join('\n');
+            return `<div class="table-wrap"><table class="post-table">${caption}<thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+        }
         case 'references':
             return `<section class="post-references" aria-labelledby="post-references-title">
                 <h2 id="post-references-title">References</h2>
@@ -83,6 +137,7 @@ function renderPostContent(document) {
 }
 
 module.exports = Object.freeze({
+    renderInlineMarkdown,
     renderPostContent,
     slugifyHeading
 });

@@ -59,7 +59,7 @@
     border-radius: var(--radius-full, 9999px);
     background: rgba(25, 168, 0, 0.08);
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: clamp(0.72rem, 0.9vw, 0.82rem);
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -129,7 +129,7 @@
 /* Bio Summary — ALWAYS strictly on a single line across all viewports */
 .hero-bio {
     color: var(--text-soft);
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 400;
     text-align: center;
     margin: 0 auto;
@@ -200,7 +200,7 @@
     border-radius: var(--radius-md);
     background: rgba(17, 45, 17, 0.38);
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
     font-weight: 500;
     text-decoration: none;
@@ -269,7 +269,7 @@
     border: none;
     background: transparent;
     box-shadow: none;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     margin: 0;
 }
 
@@ -291,7 +291,7 @@
     border-radius: var(--radius-sm, 4px);
     text-decoration: none;
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     position: relative;
     overflow: hidden;
     touch-action: manipulation;
@@ -316,7 +316,7 @@
 }
 
 .matrix-tag {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -331,7 +331,7 @@
 }
 
 .matrix-val {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: clamp(0.88rem, 1.3vw, 1.05rem);
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -372,7 +372,7 @@
 
 .section-header-compact .view-all {
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     font-weight: 500;
     text-decoration: none;
@@ -562,7 +562,7 @@
 .home-post-row .reading-time,
 .home-empty-note {
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
 }
 
@@ -609,7 +609,7 @@
 
 .cve-row__id {
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -629,7 +629,7 @@
 }
 
 .cve-row__badge {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     font-weight: 600;
     padding: 0.15rem 0.45rem;
@@ -656,7 +656,7 @@
 .cve-row__date {
     display: none;
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -675,5 +675,5 @@
 .home-posts .section-header-compact,
 .cve-row,
 .home-post-row {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
 }

@@ -5,6 +5,7 @@ const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { renderDocument } = require('../scripts/site-shell');
 const {
     extractLocalReferences,
     validateHtmlDocument,
@@ -52,6 +53,13 @@ test('local reference extraction ignores external and protocol-relative URLs', (
         <script src="//cdn.example.com/app.js"></script>
     `);
     assert.deepEqual(references, ['/blog/', '/assets/avatar.png']);
+});
+
+test('build verification checks startup script and CSS against their own CSP directives', () => {
+    const html = renderDocument({ activePage: 'profile', scripts: ['intro-loader.js'], body: '<main><h1>Home</h1></main>' });
+    assert.doesNotThrow(() => validateHtmlDocument(html, 'index.html'));
+    assert.throws(() => validateHtmlDocument(html.replace('<script data-startup-bootstrap>', '<script data-startup-bootstrap>/* modified */'), 'index.html'), /inline script payload/);
+    assert.throws(() => validateHtmlDocument(html.replace('<style data-startup-critical>', '<style data-startup-critical>/* modified */'), 'index.html'), /inline style payload/);
 });
 
 test('build verification accepts a complete static fixture', async t => {

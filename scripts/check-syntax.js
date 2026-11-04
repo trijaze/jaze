@@ -10,7 +10,7 @@ const ignoredDirectories = new Set(['.git', 'dist', 'node_modules', 'note-jaze']
 function collectJavaScriptFiles(directory) {
     const files = [];
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-        if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
+        if (entry.isDirectory() && (ignoredDirectories.has(entry.name) || entry.name.startsWith('.tmp'))) continue;
         const absolutePath = path.join(directory, entry.name);
         if (entry.isDirectory()) {
             files.push(...collectJavaScriptFiles(absolutePath));

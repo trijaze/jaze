@@ -305,6 +305,13 @@ body[data-page="cves"] {
         scrollbar-color: rgba(5, 255, 80, 0.35) transparent;
     }
 
+    /* The pane owns vertical scrolling. Do not shrink its overflow-clipped
+       article to the pane height, which would make lower sections unreachable. */
+    .cve-modal-container.split-mode .cve-detail-view > .cve-detail-article,
+    .cve-modal-container.split-mode .cve-detail-pane > .cve-detail-article {
+        flex-shrink: 0;
+    }
+
     .cve-modal-container.split-mode .cve-detail-view::-webkit-scrollbar {
         width: 6px;
     }
@@ -634,7 +641,7 @@ body[data-page="cves"] {
     border: 1px solid rgba(85, 95, 85, 0.55);
     color: #ffffff;
     border-radius: var(--radius-sm);
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     font-weight: 600;
     padding: 0.35rem 0.8rem;
@@ -656,7 +663,7 @@ body[data-page="cves"] {
 }
 
 .cve-detail-title {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: clamp(1.4rem, 2.5vw, 2rem);
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -721,7 +728,7 @@ body[data-page="cves"] {
 .box-title {
     background: rgba(20, 26, 21, 0.78);
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
     font-weight: 600;
     padding: var(--space-3) var(--space-4);
@@ -787,7 +794,7 @@ body[data-page="cves"] {
 }
 
 .finder-name {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
     color: #ffffff;
     font-size: var(--font-size-sm);
@@ -820,7 +827,7 @@ body[data-page="cves"] {
 }
 
 .cvss-severity-label {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     font-weight: 700;
     text-transform: uppercase;
@@ -835,9 +842,23 @@ body[data-page="cves"] {
 }
 
 .cvss-meter-fill {
+    width: 0;
     height: 100%;
     border-radius: 4px;
     transition: width 0.4s ease;
+}
+
+@media (forced-colors: active) {
+    .cvss-meter-bar {
+        border: 1px solid CanvasText;
+        background: Canvas;
+        forced-color-adjust: none;
+    }
+
+    .cvss-meter-fill {
+        background: Highlight;
+        forced-color-adjust: none;
+    }
 }
 
 .cvss-vector-wrap {
@@ -874,7 +895,7 @@ body[data-page="cves"] {
     display: inline-flex;
     align-items: center;
     padding: 0.15rem 0.55rem;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: 0.72rem;
     font-weight: 600;
     color: var(--accent);
@@ -1010,7 +1031,7 @@ body[data-page="cves"] {
 
 .raw-title {
     color: #ffffff;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
     font-weight: 600;
     display: flex;
@@ -1028,7 +1049,7 @@ body[data-page="cves"] {
     border: 1px solid var(--accent);
     color: var(--accent);
     border-radius: var(--radius-sm);
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     font-weight: 600;
     cursor: pointer;
@@ -1096,7 +1117,7 @@ body[data-page="cves"] {
 }
 
 .cve-popup-title {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-xs);
     font-weight: 600;
     color: #e2e8e2;
@@ -1127,7 +1148,7 @@ body[data-page="cves"] {
 }
 
 .cve-popup-desc {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: 0.76rem;
     color: #a4b3a4;
     line-height: 1.45;

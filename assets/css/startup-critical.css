@@ -1,0 +1,23 @@
+/* Inlined and CSP-hashed: the gate cannot race an external stylesheet. */
+html[data-startup] { background: #010400; }
+html[data-startup="preparing"] body {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
+html[data-startup="playing"] .page-main,
+html[data-startup="playing"] .site-header,
+html[data-startup="playing"] .site-footer {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+html[data-fonts="fallback"] {
+    --font-logo: system-ui, sans-serif;
+    --font-tech: system-ui, sans-serif;
+    --font-content: system-ui, sans-serif;
+    --font-display: system-ui, sans-serif;
+    --font-body: system-ui, sans-serif;
+    --font-code: monospace;
+}

@@ -45,10 +45,13 @@
         const posts = [...root.querySelectorAll('[data-blog-item]')].map((item, index) => {
             const title = item.dataset.title || '';
             const excerpt = item.dataset.excerpt || '';
+            const rawOrder = item.dataset.order;
+            const order = rawOrder && !Number.isNaN(Number(rawOrder)) ? Number(rawOrder) : null;
             return {
                 date: parseDate(item.dataset.date),
                 index,
                 item,
+                order,
                 searchText: normalize([title, excerpt, item.textContent].filter(Boolean).join(' ')),
                 tags: parseTags(item.dataset.tags),
                 title: normalize(title || item.querySelector('h2, h3')?.textContent)
@@ -119,8 +122,12 @@
                 case 'title-desc':
                     return b.title.localeCompare(a.title, 'en') || (b.date - a.date) || (a.index - b.index);
                 case 'newest':
-                default:
+                default: {
+                    const orderA = a.order !== null ? a.order : Infinity;
+                    const orderB = b.order !== null ? b.order : Infinity;
+                    if (orderA !== orderB) return orderA - orderB;
                     return (b.date - a.date) || a.title.localeCompare(b.title, 'en') || (a.index - b.index);
+                }
             }
         }
 

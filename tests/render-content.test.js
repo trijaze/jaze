@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { renderPostContent, slugifyHeading } = require('../scripts/render-content');
+const { renderInlineMarkdown, renderPostContent, slugifyHeading } = require('../scripts/render-content');
 
 test('typed post renderer escapes content and assigns stable unique heading ids', () => {
     const result = renderPostContent({
@@ -40,4 +40,47 @@ test('image blocks reserve their declared aspect ratio', () => {
         }]
     });
     assert.match(result.html, /width="1280" height="720"/);
+});
+
+test('renderInlineMarkdown safely parses bold, code, links, and rejects unsafe schemes', () => {
+    assert.equal(
+        renderInlineMarkdown('This is **bold** and `code`'),
+        'This is <strong>bold</strong> and <code>code</code>'
+    );
+    assert.equal(
+        renderInlineMarkdown('Check [CVE archive](/cves/) and [External](https://example.com)'),
+        'Check <a href="/cves/">CVE archive</a> and <a href="https://example.com" target="_blank" rel="noopener noreferrer">External</a>'
+    );
+    // Unsafe schemes must NOT become active links
+    assert.equal(
+        renderInlineMarkdown('[Attack](javascript:alert(1))'),
+        '[Attack](javascript:alert(1))'
+    );
+    // HTML inside inline markdown is escaped
+    assert.equal(
+        renderInlineMarkdown('`<b>not bold</b>` <script>bad()</script>'),
+        '<code>&lt;b&gt;not bold&lt;/b&gt;</code> &lt;script&gt;bad()&lt;/script&gt;'
+    );
+});
+
+test('table blocks render accessible HTML table with alignments and captions', () => {
+    const result = renderPostContent({
+        slug: 'table-test',
+        content: [{
+            type: 'table',
+            caption: 'Audited Sinks',
+            headers: ['Type', 'Target', 'Severity'],
+            alignments: ['left', 'center', 'right'],
+            rows: [
+                ['AFU', '`move_uploaded_file()`', '**Critical**'],
+                ['SQLi', '`$wpdb->get_results()`', '**High**']
+            ]
+        }]
+    });
+
+    assert.match(result.html, /<table class="post-table">/);
+    assert.match(result.html, /<caption>Audited Sinks<\/caption>/);
+    assert.match(result.html, /<th scope="col" style="text-align: center;">Target<\/th>/);
+    assert.match(result.html, /<code>move_uploaded_file\(\)<\/code>/);
+    assert.match(result.html, /<strong>Critical<\/strong>/);
 });

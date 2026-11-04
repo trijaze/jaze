@@ -7,7 +7,7 @@
             history.scrollRestoration = 'manual';
         } catch (_) {}
     }
-    window.scrollTo(0, 0);
+    if (!window.location.hash) window.scrollTo(0, 0);
 
     function initSiteNavigation() {
         const toggle = document.querySelector('[data-nav-toggle]');

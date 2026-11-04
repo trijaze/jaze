@@ -1,6 +1,14 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+// Normalize line endings so the CSP hashes match the exact emitted payload on
+// both Windows checkouts and the Linux Pages build.
+const startupScript = fs.readFileSync(path.join(__dirname, '../assets/js/startup-bootstrap.js'), 'utf8').replace(/\r\n/g, '\n');
+const startupStyle = fs.readFileSync(path.join(__dirname, '../assets/css/startup-critical.css'), 'utf8').replace(/\r\n/g, '\n');
+const cspHash = payload => `'sha256-${crypto.createHash('sha256').update(payload, 'utf8').digest('base64')}'`;
 
 const {
     SITE_ORIGIN,
@@ -92,10 +100,17 @@ function renderDocument({
     const canonical = absoluteUrl(normalizedPath);
     const pageTitle = String(title || 'Jaze — Security Researcher');
     const pageDescription = String(description || DEFAULT_DESCRIPTION);
-    const stylesheetLinks = ['tokens.css', 'base.css', 'nav.css', ...styles]
+    const hasIntro = scripts.includes('intro-loader.js') && activePage === 'profile';
+    const stylesheetLinks = ['tokens.css', 'base.css', 'nav.css', ...styles, ...(styles.includes('cves.css') ? ['cvss-widths.css'] : [])]
         .map(file => `    <link rel="stylesheet" href="/assets/css/${escapeHtml(file)}">`)
         .join('\n');
-    const defaultScripts = ['nav.js', 'ascii-webgl-renderer.js', 'intro-loader.js'];
+    // Discover render-blocking CSS first, then preload only the key font files.
+    // This avoids font requests occupying all HTTP/1.1 slots ahead of CSS.
+    const fontPreloads = hasIntro ? [
+        'Anta/Anta-Regular.ttf', 'Chakra_Petch/ChakraPetch-Regular.ttf',
+        'Chakra_Petch/ChakraPetch-Bold.ttf', 'IBM_Plex_Mono/IBMPlexMono-Bold.ttf'
+    ].map(file => `    <link rel="preload" href="/assets/fonts/${file}" as="font" type="font/ttf" crossorigin>`).join('\n') : '';
+    const defaultScripts = ['intro-controller.js', 'nav.js', 'ascii-webgl-renderer.js', 'intro-loader.js'];
     const allScripts = [...new Set([...defaultScripts, ...scripts])];
     const scriptTags = allScripts
         .map(file => `    <script src="/assets/js/${escapeHtml(file)}" defer></script>`)
@@ -106,9 +121,7 @@ function renderDocument({
     const schemas = schemaPayloads
         .map(payload => `    <script type="application/ld+json">${payload}</script>`)
         .join('\n');
-    const schemaHashes = schemaPayloads.map(payload =>
-        `'sha256-${crypto.createHash('sha256').update(payload, 'utf8').digest('base64')}'`
-    );
+    const scriptHashes = [...schemaPayloads.map(cspHash), ...(hasIntro ? [cspHash(startupScript)] : [])];
     const contentSecurityPolicy = [
         "default-src 'self'",
         "base-uri 'none'",
@@ -118,25 +131,24 @@ function renderDocument({
         "frame-src 'none'",
         "img-src 'self' data: https:",
         "object-src 'none'",
-        `script-src 'self'${schemaHashes.length ? ` ${schemaHashes.join(' ')}` : ''}`,
-        "style-src 'self'",
+        `script-src 'self'${scriptHashes.length ? ` ${scriptHashes.join(' ')}` : ''}`,
+        `style-src 'self'${hasIntro ? ` ${cspHash(startupStyle)}` : ''}`,
         "worker-src 'none'"
     ].join('; ');
 
-    const hasIntro = scripts.includes('intro-loader.js') && activePage === 'profile';
     const isBlurDefaultOn = activePage !== 'profile';
     const bodyClasses = [];
     if (isBlurDefaultOn) bodyClasses.push('bg-blur-active');
-    if (hasIntro) bodyClasses.push('intro-active');
     const bodyClass = bodyClasses.length ? ` class="${bodyClasses.join(' ')}"` : '';
 
     return `<!doctype html>
-<html lang="en">
+<html lang="en"${hasIntro ? ' data-intro="true"' : ''}>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#020c00">
     <meta http-equiv="Content-Security-Policy" content="${escapeHtml(contentSecurityPolicy)}">
+${hasIntro ? `    <style data-startup-critical>${startupStyle}</style>\n    <script data-startup-bootstrap>${startupScript}</script>` : ''}
     <meta name="robots" content="${escapeHtml(robots)}">
     <link rel="canonical" href="${escapeHtml(canonical)}">
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -156,14 +168,15 @@ function renderDocument({
     <meta name="twitter:description" content="${escapeHtml(pageDescription)}">
     <meta name="twitter:image" content="${escapeHtml(image)}">
 ${stylesheetLinks}
+${fontPreloads}
 ${schemas}
 ${scriptTags}
 </head>
-<body${bodyClass} data-page="${escapeHtml(activePage)}">
+<body${bodyClass} data-page="${escapeHtml(activePage)}" data-intro="${String(hasIntro)}">
     <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
         <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
-        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
-        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
     </div>
     <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 ${renderNavigation(activePage)}

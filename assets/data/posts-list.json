@@ -1,17 +1,74 @@
 [
   {
-    "slug": "local-first-cve-research-notes",
-    "title": "A Local-First Workflow for CVE Research Notes",
-    "excerpt": "A practical template for keeping vulnerability research notes structured, reviewable, and available without depending on a live API.",
-    "publishedAt": "2026-10-25",
-    "updatedAt": "2026-10-25",
+    "slug": "cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion",
+    "title": "The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion",
+    "excerpt": "A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe.",
+    "publishedAt": "2026-10-31",
+    "updatedAt": "2026-10-31",
     "tags": [
       "cve",
-      "research",
-      "workflow"
+      "idor",
+      "woocommerce",
+      "logic-bug",
+      "availability"
     ],
-    "readingMinutes": 4,
+    "readingMinutes": 12,
+    "featured": false,
+    "status": "published",
+    "order": null
+  },
+  {
+    "slug": "cve-2026-62025-tailored-tools-unauthenticated-rce",
+    "title": "My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools",
+    "excerpt": "After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE.",
+    "publishedAt": "2026-10-30",
+    "updatedAt": "2026-10-30",
+    "tags": [
+      "cve",
+      "critical",
+      "rce",
+      "file-upload",
+      "bug-bounty"
+    ],
+    "readingMinutes": 14,
     "featured": true,
-    "status": "published"
+    "status": "published",
+    "order": null
+  },
+  {
+    "slug": "cve-2026-115607-dxp-toolkit-unauthenticated-sqli",
+    "title": "Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit",
+    "excerpt": "A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump.",
+    "publishedAt": "2026-10-28",
+    "updatedAt": "2026-10-28",
+    "tags": [
+      "cve",
+      "sqli",
+      "rest-api",
+      "wordpress",
+      "vulnerability"
+    ],
+    "readingMinutes": 8,
+    "featured": false,
+    "status": "published",
+    "order": null
+  },
+  {
+    "slug": "19-xss-in-24-hours",
+    "title": "19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots",
+    "excerpt": "A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.",
+    "publishedAt": "2026-10-26",
+    "updatedAt": "2026-10-26",
+    "tags": [
+      "wordpress",
+      "xss",
+      "appsec",
+      "gutenberg",
+      "research"
+    ],
+    "readingMinutes": 12,
+    "featured": true,
+    "status": "published",
+    "order": null
   }
 ]

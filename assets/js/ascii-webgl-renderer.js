@@ -429,6 +429,7 @@
     class JazeAsciiWebGL {
         constructor(canvas, options = {}) {
             this.canvas = canvas;
+            this.fontFamily = options.fontFamily || '"IBM Plex Mono", monospace';
             this.gl = canvas.getContext('webgl2', { alpha: true, antialias: false, depth: true, stencil: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
             if (!this.gl) throw new Error('WebGL2 is unavailable. Select the Canvas2D fallback.');
             this.resolution = Math.max(16, Math.min(72, Math.floor(options.implicitResolution || 40)));
@@ -597,7 +598,7 @@
             const ctx = image.getContext('2d');
             ctx.clearRect(0, 0, image.width, image.height);
             ctx.fillStyle = '#fff';
-            ctx.font = `700 ${Math.min(this.cellPixelsY * 0.98, this.cellPixelsX / 0.6)}px "IBM Plex Mono", monospace`;
+            ctx.font = `700 ${Math.min(this.cellPixelsY * 0.98, this.cellPixelsX / 0.6)}px ${this.fontFamily}`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             for (let i = 0; i < GLYPHS.length; i += 1) ctx.fillText(GLYPHS[i], i * tileWidth + 2 + this.cellPixelsX / 2, 2 + this.cellPixelsY / 2);

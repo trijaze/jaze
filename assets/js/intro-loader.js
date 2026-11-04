@@ -1,19 +1,15 @@
 (function initSpatialIntroSystem() {
     'use strict';
 
-    // Ensure page always starts at top (0, 0) and prevents browser from jumping to CVE on refresh
-    if ('scrollRestoration' in history) {
-        try {
-            history.scrollRestoration = 'manual';
-        } catch (_) {}
-    }
-    window.scrollTo(0, 0);
-
     const PI = Math.PI;
     const TAU = PI * 2;
     const SHADE_BYTES = new Uint8Array([32, 46, 58, 45, 61, 43, 42, 35, 37, 64]);
-    const INTRO_DURATION_MS = 3000;
     const FIXED_PITCH = -0.26;
+    // Restore the pre-font-gate apparent framing (reference cell ratio:
+    // 1.20956 / 1.31999). Keep this art-direction scale independent of font
+    // metrics instead of restoring the old stale renderer-cell mismatch.
+    // Apply once in calibration, for every model/engine/perspective/viewport.
+    const MODEL_VISUAL_SCALE = 0.9163;
 
     const spatialBg = document.querySelector('[data-spatial-bg]');
     const webglCanvas = document.getElementById('spatial-webgl');
@@ -21,10 +17,10 @@
     const spatialOutput = document.querySelector('[data-spatial-output]');
     const starButton = document.getElementById('singularity-star');
     const starTooltip = document.querySelector('.singularity-star__tooltip') || document.getElementById('star-tooltip');
-    const introLoader = document.getElementById('intro-loader');
-    const loaderClock = document.querySelector('[data-loader-clock]');
+    const introController = window.JazeIntro;
+    const startup = window.JazeStartup;
+    let asciiFontFamily = '"IBM Plex Mono", monospace';
     const loaderName = document.querySelector('[data-loader-name]');
-    const loaderProgress = document.querySelector('[data-loader-progress]');
     const heroTitle = document.querySelector('.jaze-logo-line--main') || document.getElementById('hero-title');
 
     if (!spatialBg) return;
@@ -61,7 +57,7 @@
         let lastModelId = null;
         try {
             lastModelId = sessionStorage.getItem('jaze_last_model') || localStorage.getItem('jaze_last_model');
-        } catch (e) {}
+        } catch (e) { }
 
         const pool = CANDIDATE_MODELS.filter(m => m.id !== lastModelId);
         const candidateList = pool.length > 0 ? pool : CANDIDATE_MODELS;
@@ -72,7 +68,7 @@
     try {
         sessionStorage.setItem('jaze_last_model', currentModelId);
         localStorage.setItem('jaze_last_model', currentModelId);
-    } catch (e) {}
+    } catch (e) { }
 
     if (loaderName) {
         loaderName.textContent = selectedSpecimen.name;
@@ -86,7 +82,10 @@
     //   Exterior (thu nhỏ): cameraZ 2.4, scale 1.0, surfaceFill 35% (0.35), color #148500 (20, 133, 0)
     //   Interior (phóng to sâu): cameraZ 1.18, scale 1.35, surfaceFill 100% (1.00), color #24d700 (36, 215, 0)
     let activeEngine = 'webgl';
-    let introFinished = !introLoader;
+    const initialIntro = introController?.getSnapshot();
+    let introFinished = !initialIntro || !['idle', 'playing'].includes(initialIntro.status);
+    let engineReady = false;
+    let frameId = null;
     let viewMode = introFinished ? 'interior' : 'exterior';
     const initZoom = getZoomInParams();
 
@@ -111,7 +110,6 @@
     let currentTiltX = 0;
     let currentTiltY = 0;
 
-    let introStartTime = 0;
     let lastTime = 0;
 
     if (introFinished && spatialBg) {
@@ -160,7 +158,7 @@
         const measureCanvas = document.createElement('canvas');
         const mctx = measureCanvas.getContext('2d');
         if (mctx) {
-            mctx.font = `bold ${fontSize.toFixed(2)}px "IBM Plex Mono", monospace`;
+            mctx.font = `bold ${fontSize.toFixed(2)}px ${asciiFontFamily}`;
             const m = mctx.measureText('M');
             cellW = Math.max(1.15, m.width || fontSize * 0.60);
         } else {
@@ -398,7 +396,7 @@
             focal = Math.min(focalX, maxFocalY);
         }
 
-        fitScaleX = focal / cellW;
+        fitScaleX = (focal * MODEL_VISUAL_SCALE) / cellW;
         cols = Math.max(1, Math.floor(width / cellW));
         rows = Math.max(1, Math.floor(height / cellH));
     }
@@ -415,6 +413,49 @@
         canvas2d.style.width = `${width}px`;
         canvas2d.style.height = `${height}px`;
         ctx2d = canvas2d.getContext('2d');
+        if (!ctx2d) throw new Error('Canvas2D is unavailable.');
+    }
+
+    function updateControlReady() {
+        if (!starButton) return;
+        const enabled = engineReady && introFinished;
+        // Keep the decorative center star during the cinematic intro, but do
+        // not expose a keyboard/pointer control until the scene is usable.
+        starButton.hidden = !engineReady;
+        starButton.disabled = !enabled;
+        starButton.classList.toggle('singularity-star--interactive', enabled);
+    }
+
+    function requestFrame() {
+        if (frameId === null && engineReady && !document.hidden) frameId = window.requestAnimationFrame(tick);
+    }
+
+    function sceneUpdate(update) {
+        try { update(); requestFrame(); } catch (error) { stopRendering(error); }
+    }
+
+    function stopRendering(error) {
+        engineReady = false;
+        activeEngine = 'static';
+        if (frameId !== null) window.cancelAnimationFrame(frameId);
+        frameId = null;
+        if (webglCanvas) webglCanvas.style.display = 'none';
+        if (canvas2d) canvas2d.style.display = 'none';
+        updateControlReady();
+        introController?.fail();
+        if (error) console.warn('[Jaze 3D] Using static background:', error);
+    }
+
+    function useCanvasFallback() {
+        activeEngine = 'canvas';
+        if (webglCanvas) webglCanvas.style.display = 'none';
+        if (!canvas2d) throw new Error('No Canvas fallback element.');
+        if (!pointData) generateFallbackModel(currentModelId);
+        ensureCanvas2dBuffers();
+        canvas2d.style.display = 'block';
+        if (spatialOutput) spatialOutput.style.display = 'none';
+        engineReady = true;
+        updateControlReady();
     }
 
     // Engine Selection and Initialization
@@ -423,7 +464,8 @@
             try {
                 webglRenderer = new window.JazeAsciiWebGL(webglCanvas, {
                     implicitResolution: 40,
-                    particleCount: 80000
+                    particleCount: 80000,
+                    fontFamily: asciiFontFamily
                 });
                 webglRenderer.setModel(currentModelId);
                 webglRenderer.resize({
@@ -435,9 +477,11 @@
                     supersample
                 });
                 activeEngine = 'webgl';
+                engineReady = true;
                 webglCanvas.style.display = 'block';
                 if (canvas2d) canvas2d.style.display = 'none';
                 if (spatialOutput) spatialOutput.style.display = 'none';
+                updateControlReady();
                 return;
             } catch (err) {
                 console.warn('[Jaze 3D] WebGL2 failed, falling back to Canvas2D:', err);
@@ -445,14 +489,7 @@
         }
 
         // Fallback to Canvas2D
-        activeEngine = 'canvas';
-        if (webglCanvas) webglCanvas.style.display = 'none';
-        if (canvas2d) {
-            canvas2d.style.display = 'block';
-            if (!pointData) generateFallbackModel(currentModelId);
-            ensureCanvas2dBuffers();
-        }
-        if (spatialOutput) spatialOutput.style.display = 'none';
+        useCanvasFallback();
     }
 
     // Switch Model Dynamically
@@ -463,15 +500,17 @@
         try {
             sessionStorage.setItem('jaze_last_model', currentModelId);
             localStorage.setItem('jaze_last_model', currentModelId);
-        } catch (e) {}
+        } catch (e) { }
         if (loaderName) loaderName.textContent = found.name;
-        updateScaleCalibration();
-        if (activeEngine === 'webgl' && webglRenderer && !webglRenderer.getStats().lost) {
-            webglRenderer.setModel(currentModelId);
-        } else if (activeEngine === 'canvas') {
-            generateFallbackModel(currentModelId);
-            ensureCanvas2dBuffers();
-        }
+        sceneUpdate(() => {
+            updateScaleCalibration();
+            if (activeEngine === 'webgl' && webglRenderer && !webglRenderer.getStats().lost) {
+                webglRenderer.setModel(currentModelId);
+            } else if (activeEngine === 'canvas') {
+                generateFallbackModel(currentModelId);
+                ensureCanvas2dBuffers();
+            }
+        });
     }
     window.switchModel = switchModel;
 
@@ -504,6 +543,7 @@
         } else if (activeEngine === 'canvas') {
             ensureCanvas2dBuffers();
         }
+        requestFrame();
     }
 
     // Singularity Star Positioning: Anchored exactly to the center of JAZE main text
@@ -545,6 +585,7 @@
 
     // Perspective Toggle (Zoom In <-> Zoom Out)
     function togglePerspective() {
+        if (!engineReady || !introFinished) return;
         if (viewMode === 'interior') {
             // Switch to Exterior (Overview / Thu nhỏ)
             viewMode = 'exterior';
@@ -583,56 +624,44 @@
             currentR = targetR; currentG = targetG; currentB = targetB;
             currentPixelShiftY = targetPixelShiftY;
         }
+        requestFrame();
     }
 
-    // Intro Completion Choreography
-    function completeIntro() {
-        if (introFinished) return;
+    // The controller owns reveal/timing. Scene synchronization also handles an
+    // engine arriving AFTER a skip/watchdog, not just a one-shot DOM event.
+    function syncIntroState(state) {
+        if (state.status === 'idle' || state.status === 'playing') return;
+        const wasFinished = introFinished;
         introFinished = true;
-
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-
-        document.body.classList.remove('intro-active');
         spatialBg.classList.remove('site-spatial-bg--intro');
-
-        if (introLoader) {
-            introLoader.classList.add('intro-loader--dissolving');
-            window.setTimeout(() => {
-                introLoader.classList.add('intro-loader--hidden');
-            }, 800);
+        if (!wasFinished) {
+            viewMode = 'interior';
+            const zoom = getZoomInParams();
+            targetCameraZ = zoom.cameraZ;
+            targetScaleMultiplier = zoom.scaleMultiplier;
+            targetSurfaceFill = zoom.surfaceFill;
+            if (state.reason !== 'complete' || reducedMotion.matches) {
+                currentCameraZ = targetCameraZ;
+                currentScaleMultiplier = targetScaleMultiplier;
+                currentSurfaceFill = targetSurfaceFill;
+            }
+            spatialBg.classList.remove('site-spatial-bg--exterior');
+            spatialBg.classList.add('site-spatial-bg--interior');
         }
-
-        // Revealing web in interior zoom-in state (adaptive dive for mobile & desktop)
-        viewMode = 'interior';
-        const zoom = getZoomInParams();
-        targetCameraZ = zoom.cameraZ;
-        targetScaleMultiplier = zoom.scaleMultiplier;
-        targetSurfaceFill = zoom.surfaceFill;
-        spatialBg.classList.remove('site-spatial-bg--exterior');
-        spatialBg.classList.add('site-spatial-bg--interior');
-
         updateStarPosition();
-
         if (starButton) {
-            starButton.classList.add('singularity-star--interactive');
             starButton.setAttribute('aria-label', 'View 3D exterior overview');
             starButton.setAttribute('title', 'Click: Zoom out to fit screen bounds');
-            if (starTooltip) {
-                starTooltip.textContent = 'Zoom Out';
-            }
+            if (starTooltip) starTooltip.textContent = 'Zoom Out';
         }
+        updateControlReady();
+        requestFrame();
     }
 
     // Event Listeners
     if (starButton) {
         starButton.addEventListener('click', togglePerspective);
     }
-
-    window.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && !introFinished) {
-            completeIntro();
-        }
-    });
 
     window.addEventListener('pointermove', event => {
         if (!introFinished || !finePointer.matches || reducedMotion.matches) return;
@@ -642,34 +671,31 @@
         targetTiltY = clamp(nx * 0.18, -0.20, 0.20);
     }, { passive: true });
 
-    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('resize', () => sceneUpdate(handleResize), { passive: true });
     window.addEventListener('load', updateStarPosition, { passive: true });
 
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => {
+    // Homepage fonts are committed before initialization; never refresh its
+    // metrics/atlas later, especially after a timeout locked system fonts.
+    if (!startup && document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => sceneUpdate(() => {
             measureCellMetrics();
             updateScaleCalibration();
             updateStarPosition();
             if (webglRenderer) webglRenderer.refreshAtlas();
-        });
+        }));
     }
 
     if (webglCanvas) {
         webglCanvas.addEventListener('webglcontextlost', () => {
-            activeEngine = 'canvas';
-            if (webglCanvas) webglCanvas.style.display = 'none';
-            if (canvas2d) {
-                canvas2d.style.display = 'block';
-                if (!pointData) generateFallbackModel(currentModelId);
-                ensureCanvas2dBuffers();
-            }
+            try { useCanvasFallback(); requestFrame(); } catch (error) { stopRendering(error); }
         });
         webglCanvas.addEventListener('webglcontextrestored', () => {
             try {
                 if (webglRenderer) webglRenderer.destroy();
                 initEngine();
+                requestFrame();
             } catch (e) {
-                console.warn('[Jaze 3D] Restore failed:', e);
+                stopRendering(e);
             }
         });
     }
@@ -739,7 +765,8 @@
             if (scY < minActiveRow) minActiveRow = scY;
             if (scY > maxActiveRow) maxActiveRow = scY;
 
-            const diffuse = Math.abs(nx3 * light[0] + ny3 * light[1] + nz3 * light[2]);
+            // Rotation around Z leaves the normal's Z component unchanged.
+            const diffuse = Math.abs(nx3 * light[0] + ny3 * light[1] + nz2 * light[2]);
             const depthFactor = clamp((z2 + 1.2) / 2.4, 0, 1);
             const brightness = clamp(0.12 + diffuse * 0.68 + depthFactor * 0.20, 0, 1);
 
@@ -750,7 +777,7 @@
         ctx2d.save();
         ctx2d.scale(dpr, dpr);
         ctx2d.clearRect(0, 0, width, height);
-        ctx2d.font = `bold ${fontSize.toFixed(2)}px "IBM Plex Mono", monospace`;
+        ctx2d.font = `bold ${fontSize.toFixed(2)}px ${asciiFontFamily}`;
         ctx2d.textAlign = 'left';
         ctx2d.textBaseline = 'top';
         ctx2d.fillStyle = `rgb(${Math.round(rgb[0])}, ${Math.round(rgb[1])}, ${Math.round(rgb[2])})`;
@@ -768,9 +795,9 @@
 
     // Main 60 FPS Animation Loop
     function tick(timestamp) {
-        window.requestAnimationFrame(tick);
-        if (!introStartTime) introStartTime = timestamp;
-        const elapsed = timestamp - introStartTime;
+        frameId = null;
+        if (!engineReady || document.hidden) return;
+        const elapsed = introController?.getSnapshot().elapsedMs || 0;
         const dt = lastTime ? clamp((timestamp - lastTime) / 1000, 0, 0.05) : 0.016;
         lastTime = timestamp;
 
@@ -779,19 +806,6 @@
 
         // Intro Phase (0s - 3s)
         if (!introFinished) {
-            const progress = clamp(elapsed / INTRO_DURATION_MS, 0, 1);
-            const remaining = Math.max(0, (INTRO_DURATION_MS - elapsed) / 1000);
-
-            if (loaderClock) {
-                const secs = String(Math.floor(remaining)).padStart(2, '0');
-                const ms = String(Math.floor((remaining % 1) * 100)).padStart(2, '0');
-                loaderClock.textContent = `00:${secs}.${ms}`;
-            }
-
-            if (loaderProgress) {
-                loaderProgress.style.width = `${(progress * 100).toFixed(1)}%`;
-            }
-
             // Cinematic choreography:
             // 0s - 1s (elapsed < 1000): Normal rotation at overview bounds (cameraZ 2.4, 35% fill)
             // 1s - 3s (1000 <= elapsed < 3000): Camera smoothly zooms into adaptive interior point (100% fill)
@@ -808,9 +822,6 @@
                 targetSurfaceFill = 0.35 + (zoom.surfaceFill - 0.35) * ease;
             }
 
-            if (elapsed >= INTRO_DURATION_MS) {
-                completeIntro();
-            }
         }
 
         // Color & Brightness: Pure Cyber Neon Green (Zero Yellow Cast)
@@ -837,9 +848,10 @@
         currentPixelShiftY += (targetPixelShiftY - currentPixelShiftY) * cameraBlend;
         const ndcOffsetY = 0;
 
-        currentR += (targetR - currentR) * (1 - Math.exp(-4 * dt));
-        currentG += (targetG - currentG) * (1 - Math.exp(-4 * dt));
-        currentB += (targetB - currentB) * (1 - Math.exp(-4 * dt));
+        const colorBlend = reducedMotion.matches ? 1 : 1 - Math.exp(-4 * dt);
+        currentR += (targetR - currentR) * colorBlend;
+        currentG += (targetG - currentG) * colorBlend;
+        currentB += (targetB - currentB) * colorBlend;
 
         currentTiltX += (targetTiltX - currentTiltX) * (1 - Math.exp(-6 * dt));
         currentTiltY += (targetTiltY - currentTiltY) * (1 - Math.exp(-6 * dt));
@@ -852,31 +864,40 @@
         const rotX = FIXED_PITCH + currentTiltX;
         const rotZ = currentTiltY * 0.12;
 
-        if (activeEngine === 'webgl' && webglRenderer && !webglRenderer.getStats().lost) {
-            webglRenderer.render({
-                rotX,
-                rotY,
-                rotZ,
-                cameraZ: currentCameraZ,
-                scaleMultiplier: currentScaleMultiplier,
-                fitScaleX,
-                color: [currentR, currentG, currentB],
-                surfaceFill: currentSurfaceFill,
-                renderStyle: 'particles',
-                offsetY: ndcOffsetY
-            });
-        } else if (activeEngine === 'canvas' && ctx2d) {
-            renderCanvasFallback(
-                rotX,
-                rotY,
-                rotZ,
-                currentCameraZ,
-                currentScaleMultiplier,
-                currentSurfaceFill,
-                [currentR, currentG, currentB],
-                currentPixelShiftY
-            );
+        try {
+            if (activeEngine === 'webgl' && webglRenderer && !webglRenderer.getStats().lost) {
+                webglRenderer.render({
+                    rotX,
+                    rotY,
+                    rotZ,
+                    cameraZ: currentCameraZ,
+                    scaleMultiplier: currentScaleMultiplier,
+                    fitScaleX,
+                    color: [currentR, currentG, currentB],
+                    surfaceFill: currentSurfaceFill,
+                    renderStyle: 'particles',
+                    offsetY: ndcOffsetY
+                });
+            } else if (activeEngine === 'canvas' && ctx2d) {
+                renderCanvasFallback(
+                    rotX,
+                    rotY,
+                    rotZ,
+                    currentCameraZ,
+                    currentScaleMultiplier,
+                    currentSurfaceFill,
+                    [currentR, currentG, currentB],
+                    currentPixelShiftY
+                );
+            }
+        } catch (error) {
+            introController?.fail();
+            if (activeEngine === 'webgl') {
+                try { useCanvasFallback(); } catch (fallbackError) { stopRendering(fallbackError); }
+            } else stopRendering(error);
         }
+        if (!introFinished && engineReady) introController?.start();
+        if (!reducedMotion.matches) requestFrame();
     }
 
     // Expose control API for testing / debugging
@@ -887,7 +908,9 @@
         togglePerspective,
         getViewMode: () => viewMode,
         getRenderer: () => webglRenderer,
+        getEngine: () => activeEngine,
         getLayout: () => ({
+            visualScale: MODEL_VISUAL_SCALE,
             currentPixelShiftY,
             targetPixelShiftY,
             topSpanPx: cachedMaxProjY * fitScaleX * cellW * currentScaleMultiplier,
@@ -902,10 +925,25 @@
     });
 
     // Initialize System in sequence
-    measureCellMetrics();
-    updateScaleCalibration();
-    initEngine();
-    updateStarPosition();
-
-    window.requestAnimationFrame(tick);
+    introController?.subscribe(syncIntroState);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (frameId !== null) window.cancelAnimationFrame(frameId);
+            frameId = null;
+        } else { lastTime = 0; requestFrame(); }
+    });
+    reducedMotion.addEventListener('change', requestFrame);
+    new MutationObserver(requestFrame).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    function initializeScene() {
+        try {
+            asciiFontFamily = getComputedStyle(document.documentElement).getPropertyValue('--font-code').trim() || asciiFontFamily;
+            measureCellMetrics();
+            updateScaleCalibration();
+            initEngine();
+            updateStarPosition();
+            requestFrame();
+        } catch (error) { stopRendering(error); }
+    }
+    if (startup) startup.fontsReady.then(initializeScene).catch(stopRendering);
+    else initializeScene();
 }());

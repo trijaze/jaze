@@ -1,10 +1,156 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-intro="true">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#020c00">
-    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-3qrCDm8MFbDtdC7GjhJtHJn6xS+r8QDtnupuXJoMW6Y=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-3qrCDm8MFbDtdC7GjhJtHJn6xS+r8QDtnupuXJoMW6Y=&#39; &#39;sha256-RrtRdpJqjmiRkel7ei+Sv2rHfmMiGt7ej0V4Iq6sVx0=&#39;; style-src &#39;self&#39; &#39;sha256-UIt0n2nLJT7B8T9if3uGBNvC6GgIc8sbbUcv8n0WtHw=&#39;; worker-src &#39;none&#39;">
+    <style data-startup-critical>/* Inlined and CSP-hashed: the gate cannot race an external stylesheet. */
+html[data-startup] { background: #010400; }
+html[data-startup="preparing"] body {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
+html[data-startup="playing"] .page-main,
+html[data-startup="playing"] .site-header,
+html[data-startup="playing"] .site-footer {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+html[data-fonts="fallback"] {
+    --font-logo: system-ui, sans-serif;
+    --font-tech: system-ui, sans-serif;
+    --font-content: system-ui, sans-serif;
+    --font-display: system-ui, sans-serif;
+    --font-body: system-ui, sans-serif;
+    --font-code: monospace;
+}
+</style>
+    <script data-startup-bootstrap>(function prepareStartup() {
+    'use strict';
+
+    // Inlined (with a build-time CSP hash) before stylesheets/body. HTML stays
+    // readable if scripts are disabled or this bootstrap is blocked.
+    const root = document.documentElement;
+    if (root.dataset.intro !== 'true' || window.JazeStartup) return;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const preparationDeadline = performance.now() + 2500;
+    const anchor = window.location.hash && !/^#model=/i.test(window.location.hash);
+    let phase = 'preparing';
+    let reason = '';
+    let fonts = 'pending';
+    let loadingFonts = false;
+    let preparationTimer;
+    let watchdog;
+    let resolveFonts;
+    const fontsReady = new Promise(resolve => { resolveFonts = resolve; });
+    const listeners = new Set();
+    const requiredFonts = [
+        '400 16px "Anta"',
+        '400 16px "Chakra Petch"', '500 16px "Chakra Petch"',
+        '600 16px "Chakra Petch"', '700 16px "Chakra Petch"',
+        '400 16px "IBM Plex Mono"', '700 16px "IBM Plex Mono"'
+    ];
+
+    function snapshot() { return Object.freeze({ phase, reason, fonts }); }
+    function notify() {
+        const state = snapshot();
+        listeners.forEach(listener => {
+            try { listener(state); } catch (error) { console.warn('[Jaze startup]', error); }
+        });
+    }
+    function settleFonts(value) {
+        if (fonts !== 'pending') return;
+        fonts = value;
+        root.dataset.fonts = value;
+        resolveFonts(value);
+    }
+    function reveal(nextReason = 'complete') {
+        if (phase === 'revealed') return false;
+        // Commit a stable system-font fallback; late network responses cannot
+        // change typography or the ASCII atlas during this navigation.
+        settleFonts('fallback');
+        phase = 'revealed';
+        reason = nextReason;
+        root.dataset.startup = phase;
+        window.clearTimeout(preparationTimer);
+        window.clearTimeout(watchdog);
+        document.body?.classList.remove('intro-active');
+        const loader = document.getElementById('intro-loader');
+        if (loader) loader.hidden = true;
+        document.removeEventListener('load', onStylesheet, true);
+        document.removeEventListener('DOMContentLoaded', loadFonts);
+        document.removeEventListener('visibilitychange', onVisibility);
+        window.removeEventListener('pagehide', onPageHide);
+        window.removeEventListener('keydown', onInput, true);
+        window.removeEventListener('pointerdown', onInput, true);
+        window.removeEventListener('wheel', onInput, true);
+        motion.removeEventListener('change', onMotion);
+        notify();
+        listeners.clear();
+        return true;
+    }
+    function play() {
+        if (phase !== 'preparing' || fonts !== 'ready') return false;
+        if (performance.now() >= preparationDeadline) { reveal('preparation-timeout'); return false; }
+        if (motion.matches || anchor || document.hidden) { reveal('ineligible'); return false; }
+        phase = 'playing';
+        root.dataset.startup = phase;
+        window.clearTimeout(preparationTimer);
+        notify();
+        return true;
+    }
+    function loadFonts() {
+        if (loadingFonts || phase === 'revealed') return;
+        loadingFonts = true;
+        if (!document.fonts?.load) { reveal('font-api-unavailable'); return; }
+        Promise.resolve().then(() => Promise.all(requiredFonts.map(font => document.fonts.load(font)))).then(groups => {
+            if (phase === 'revealed') return;
+            if (groups.some(group => !group.length || group.some(face => face.status !== 'loaded'))) {
+                reveal('font-error'); return;
+            }
+            settleFonts('ready');
+            if (motion.matches) reveal('reduced-motion');
+            else if (anchor) reveal('anchor');
+            else notify();
+        }).catch(() => reveal('font-error'));
+    }
+    function onStylesheet(event) {
+        if (event.target.tagName === 'LINK' && event.target.getAttribute('href') === '/assets/css/base.css') loadFonts();
+    }
+    function onInput(event) { reveal(event.type === 'keydown' && event.key === 'Escape' ? 'escape' : 'interaction'); }
+    function onMotion() { if (motion.matches) reveal('reduced-motion'); }
+    function onVisibility() { if (document.hidden) reveal('hidden'); }
+    function onPageHide() { reveal('pagehide'); }
+
+    window.JazeStartup = Object.freeze({
+        getSnapshot: snapshot, fontsReady, play, reveal,
+        subscribe(listener) {
+            if (phase !== 'revealed') listeners.add(listener);
+            try { listener(snapshot()); } catch (error) { console.warn('[Jaze startup]', error); }
+            return () => listeners.delete(listener);
+        }
+    });
+    // Arm both release paths BEFORE concealing anything. Neither relies on
+    // deferred scripts, WebGL, a font promise, or CSS animations completing.
+    preparationTimer = window.setTimeout(() => reveal('preparation-timeout'), 2500);
+    watchdog = window.setTimeout(() => reveal('startup-watchdog'), 6500);
+    root.dataset.fonts = fonts;
+    root.dataset.startup = phase;
+    document.addEventListener('load', onStylesheet, true);
+    document.addEventListener('DOMContentLoaded', loadFonts, { once: true });
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('keydown', onInput, true);
+    window.addEventListener('pointerdown', onInput, { capture: true, passive: true });
+    window.addEventListener('wheel', onInput, { capture: true, passive: true });
+    motion.addEventListener('change', onMotion);
+    if (document.hidden) reveal('hidden');
+}());
+</script>
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://jaze.v1t.site/">
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -29,6 +175,11 @@
     <link rel="stylesheet" href="/assets/css/cves.css">
     <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/intro-loader.css">
+    <link rel="stylesheet" href="/assets/css/cvss-widths.css">
+    <link rel="preload" href="/assets/fonts/Anta/Anta-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="/assets/fonts/Chakra_Petch/ChakraPetch-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="/assets/fonts/Chakra_Petch/ChakraPetch-Bold.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.ttf" as="font" type="font/ttf" crossorigin>
     <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "ProfilePage",
@@ -58,16 +209,17 @@
     ]
   }
 }</script>
+    <script src="/assets/js/intro-controller.js" defer></script>
     <script src="/assets/js/nav.js" defer></script>
     <script src="/assets/js/ascii-webgl-renderer.js" defer></script>
     <script src="/assets/js/intro-loader.js" defer></script>
     <script src="/assets/js/cve-explorer.js" defer></script>
 </head>
-<body class="intro-active" data-page="profile">
+<body data-page="profile" data-intro="true">
     <div class="site-spatial-bg site-spatial-bg--intro" data-spatial-bg aria-hidden="true">
         <canvas class="site-spatial-canvas site-spatial-canvas--webgl" id="spatial-webgl" data-spatial-webgl aria-hidden="true"></canvas>
-        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true" style="display:none;"></canvas>
-        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true" style="display:none;"></pre>
+        <canvas class="site-spatial-canvas site-spatial-canvas--canvas" id="spatial-canvas" data-spatial-canvas aria-hidden="true"></canvas>
+        <pre class="site-spatial-ascii" data-spatial-output aria-hidden="true"></pre>
     </div>
     <div class="site-backdrop-blur" id="site-backdrop-blur" aria-hidden="true"></div>
 
@@ -102,14 +254,14 @@
     </header>
 
     <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
-    <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior">
+    <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior" hidden disabled>
         <span class="singularity-star__core"></span>
         <span class="singularity-star__aura"></span>
         <span class="singularity-star__tooltip" aria-hidden="true">Toggle 3D View</span>
     </button>
 
     <!-- Minimalist Intro Loader (Countdown only) -->
-    <div class="intro-loader" id="intro-loader" aria-live="polite">
+    <div class="intro-loader" id="intro-loader" aria-live="polite" hidden>
         <span class="intro-loader__clock" data-loader-clock aria-hidden="true">00:03.00</span>
     </div>
 
@@ -1267,9 +1419,19 @@ This issue affects Draft List: from n/a through 2.6.4."
             
                 <div class="home-post-list">
                     
-                        <a class="home-post-row" href="/blog/local-first-cve-research-notes/">
-                            <span>A Local-First Workflow for CVE Research Notes</span>
-                            <span class="reading-time">4 min read</span>
+                        <a class="home-post-row" href="/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/">
+                            <span>The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion</span>
+                            <span class="reading-time">12 min read</span>
+                        </a>
+                    
+                        <a class="home-post-row" href="/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/">
+                            <span>My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools</span>
+                            <span class="reading-time">14 min read</span>
+                        </a>
+                    
+                        <a class="home-post-row" href="/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/">
+                            <span>Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit</span>
+                            <span class="reading-time">8 min read</span>
                         </a>
                     
                 </div>

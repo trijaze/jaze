@@ -158,6 +158,13 @@ body.intro-active .site-spatial-bg {
     transition: filter 0.35s ease;
 }
 
+/* CSS defaults work without scripts and remain overridable by engine CSSOM
+   display changes when it activates the Canvas fallback. */
+.site-spatial-canvas--canvas,
+.site-spatial-ascii {
+    display: none;
+}
+
 .site-spatial-ascii {
     position: absolute;
     top: 50%;

@@ -15,9 +15,15 @@ const {
 } = require('./render-utils');
 const { verifyBuild } = require('./verify-build');
 const { renderPostContent } = require('./render-content');
+const { comparePosts } = require('./content-contracts');
 
 const projectRoot = path.resolve(__dirname, '..');
 const defaultDistRoot = path.join(projectRoot, 'dist');
+
+function renderCvssWidthStyles() {
+    return '/* Generated finite CVSS scale; no inline styles or runtime JS. */\n'
+        + Array.from({ length: 101 }, (_, percent) => `.cvss-fill--${percent} { width: ${percent}%; }`).join('\n') + '\n';
+}
 const STATIC_MOBIUS_FRAME = [
     '                               @@',
     '                          @@@@@@@@@@@@@',
@@ -90,7 +96,7 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
         || (state === 'PUBLISHED' ? 'Recorded' : 'Pending');
     const headingTag = headingLevel === 1 ? 'h1' : 'h2';
     const scoreVal = score !== null ? score.toFixed(1) : 'N/A';
-    const meterPercent = score !== null ? Math.min(100, Math.max(0, score * 10)) : 0;
+    const meterPercent = score !== null ? Math.round(score * 10) : null;
 
     return `
 <article class="cve-detail-article cve-detail" aria-labelledby="detail-title-${escapeHtml(id)}" data-cve-detail-record data-cve-id="${escapeHtml(id)}" data-cve-placeholder="${String(cve.isPlaceholder)}">
@@ -147,9 +153,9 @@ function renderCveDetailContent(cve, { isTemplate = false, includeRawJson = true
                             <span class="cvss-score-val severity-${escapeHtml(severity.toLowerCase())}">${scoreVal}</span>
                             <span class="cvss-severity-label severity-${escapeHtml(severity.toLowerCase())}">${escapeHtml(severity)}</span>
                         </div>
-                        <div class="cvss-meter-bar">
-                            <div class="cvss-meter-fill severity-bg-${escapeHtml(severity.toLowerCase())}" style="width: ${meterPercent}%;"></div>
-                        </div>
+                        ${score !== null ? `<div class="cvss-meter-bar" role="meter" aria-label="CVSS score for ${escapeHtml(id)}" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${score}" aria-valuetext="${scoreVal} out of 10 (${escapeHtml(severity)})">
+                            <div class="cvss-meter-fill cvss-fill--${meterPercent} severity-bg-${escapeHtml(severity.toLowerCase())}" aria-hidden="true"></div>
+                        </div>` : ''}
                     </div>
                     ${vector ? `
                     <div class="cvss-vector-wrap">
@@ -251,7 +257,7 @@ function renderHomePage(siteData, cves) {
     const publishedCount = cves.filter(c => c.state === 'PUBLISHED').length;
     const pendingCount = cves.length - publishedCount;
     const recentCves = cves.slice(0, 8);
-    const latestPosts = siteData.publishedPosts.slice(0, 3);
+    const latestPosts = [...siteData.publishedPosts].sort(comparePosts).slice(0, 3);
     const profileSummary = profile.bio
         || 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.';
 
@@ -287,14 +293,14 @@ function renderHomePage(siteData, cves) {
 
     const body = `
     <!-- Persistent Center Star Anchor (Invariant Micro Star & Perspective Switcher) -->
-    <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior">
+    <button class="singularity-star" id="singularity-star" type="button" aria-label="Toggle 3D perspective: Interior / Exterior" title="Toggle 3D perspective: Interior / Exterior" hidden disabled>
         <span class="singularity-star__core"></span>
         <span class="singularity-star__aura"></span>
         <span class="singularity-star__tooltip" aria-hidden="true">Toggle 3D View</span>
     </button>
 
     <!-- Minimalist Intro Loader (Countdown only) -->
-    <div class="intro-loader" id="intro-loader" aria-live="polite">
+    <div class="intro-loader" id="intro-loader" aria-live="polite" hidden>
         <span class="intro-loader__clock" data-loader-clock aria-hidden="true">00:03.00</span>
     </div>
 
@@ -641,9 +647,7 @@ function renderCveDetailPage(cve) {
 }
 
 function renderBlogArchivePage(siteData) {
-    const posts = [...siteData.publishedPosts].sort((a, b) =>
-        String(b.publishedAt).localeCompare(String(a.publishedAt)) || a.title.localeCompare(b.title, 'en')
-    );
+    const posts = [...siteData.publishedPosts].sort(comparePosts);
     const tags = [...new Set(posts.flatMap(post => post.tags))].sort((a, b) => a.localeCompare(b, 'en'));
     const structuredData = [
         {
@@ -695,10 +699,11 @@ function renderBlogArchivePage(siteData) {
                     data-title="${escapeHtml(post.title)}"
                     data-excerpt="${escapeHtml(post.excerpt)}"
                     data-date="${escapeHtml(post.publishedAt)}"
+                    data-order="${post.order !== null ? post.order : ''}"
                     data-tags="${escapeHtml(post.tags.join('|'))}">
                     <div class="post-card__meta">
                         <span>${post.readingMinutes} min read</span>
-                        ${post.featured ? '<span>Featured</span>' : ''}
+                        ${post.featured ? '<span class="post-card__badge">Featured</span>' : ''}
                     </div>
                     <h2 class="post-card__title"><a href="/blog/${escapeHtml(post.slug)}/">${escapeHtml(post.title)}</a></h2>
                     <p class="post-card__excerpt">${escapeHtml(post.excerpt)}</p>
@@ -882,9 +887,7 @@ async function generateSite(options = {}) {
     const backupRoot = `${distRoot}.bak-${transactionId}`;
     const siteData = await loadSiteData();
     const cves = siteData.cves.map(createCveView).sort(compareCvesDescending);
-    const posts = [...siteData.publishedPosts].sort((a, b) =>
-        String(b.publishedAt).localeCompare(String(a.publishedAt)) || a.title.localeCompare(b.title, 'en')
-    );
+    const posts = [...siteData.publishedPosts].sort(comparePosts);
     let hadExistingBuild = false;
     let installed = false;
 
@@ -894,6 +897,7 @@ async function generateSite(options = {}) {
     try {
         // 1. Copy static assets and root favicon
         await copyDirectory(path.join(projectRoot, 'assets'), path.join(stagingRoot, 'assets'));
+        await writePage(stagingRoot, 'assets/css/cvss-widths.css', renderCvssWidthStyles());
         try {
             await fs.copyFile(path.join(projectRoot, 'favicon.ico'), path.join(stagingRoot, 'favicon.ico'));
         } catch (error) {
@@ -982,5 +986,7 @@ if (require.main === module) {
 }
 
 module.exports = Object.freeze({
-    generateSite
+    generateSite,
+    renderCveDetailContent,
+    renderCvssWidthStyles
 });

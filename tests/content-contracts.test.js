@@ -4,10 +4,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const profileData = require('../assets/data/profile.json');
 const postsListData = require('../assets/data/posts-list.json');
-const samplePostDocument = require('../assets/data/posts/local-first-cve-research-notes.json');
+const samplePostDocument = require('../assets/data/posts/19-xss-in-24-hours.json');
 const {
     CONTENT_BLOCK_TYPES,
     POST_STATUSES,
+    comparePosts,
     escapeHtml,
     getPublishedPosts,
     isSafeContentUrl,
@@ -103,6 +104,13 @@ function createDocument(slug = 'finding-an-example-bug') {
                     { label: 'External advisory', url: 'https://example.com/advisory' },
                     { label: 'Related CVE', url: '/cves/CVE-2026-10001/' }
                 ]
+            },
+            {
+                type: 'table',
+                headers: ['Finding', 'Severity'],
+                alignments: ['left', 'right'],
+                rows: [['AFU', 'Critical'], ['SQLi', 'High']],
+                caption: 'Findings summary'
             }
         ]
     };
@@ -233,7 +241,57 @@ test('post index rejects duplicate slugs and invalid slug, date, tag, status, or
     );
 });
 
-test('all eight typed content blocks normalize without interpreting code as document HTML', () => {
+test('post index supports optional custom order field and validates bounds', () => {
+    const posts = normalizePostsList([
+        createPost({ slug: 'post-1', order: 1 }),
+        createPost({ slug: 'post-2', order: null }),
+        createPost({ slug: 'post-3' })
+    ]);
+
+    assert.equal(posts[0].order, 1);
+    assert.equal(posts[1].order, null);
+    assert.equal(posts[2].order, null);
+
+    assert.throws(
+        () => normalizePostsList([createPost({ order: 0 })]),
+        /order must be an integer from 1 to 10000/
+    );
+    assert.throws(
+        () => normalizePostsList([createPost({ order: -5 })]),
+        /order must be an integer from 1 to 10000/
+    );
+    assert.throws(
+        () => normalizePostsList([createPost({ order: 10001 })]),
+        /order must be an integer from 1 to 10000/
+    );
+    assert.throws(
+        () => normalizePostsList([createPost({ order: 1.5 })]),
+        /order must be an integer from 1 to 10000/
+    );
+    assert.throws(
+        () => normalizePostsList([createPost({ order: 'first' })]),
+        /order must be an integer from 1 to 10000/
+    );
+});
+
+test('comparePosts prioritizes explicit order ascending then falls back to publishedAt descending', () => {
+    const list = [
+        { slug: 'date-old', order: null, publishedAt: '2026-10-01', title: 'Old Post' },
+        { slug: 'ordered-2', order: 2, publishedAt: '2026-09-01', title: 'Second Post' },
+        { slug: 'date-new', order: null, publishedAt: '2026-10-25', title: 'New Post' },
+        { slug: 'ordered-1', order: 1, publishedAt: '2026-08-01', title: 'First Post' }
+    ];
+
+    const sorted = [...list].sort(comparePosts);
+    assert.deepEqual(sorted.map(p => p.slug), [
+        'ordered-1',
+        'ordered-2',
+        'date-new',
+        'date-old'
+    ]);
+});
+
+test('all nine typed content blocks normalize without interpreting code as document HTML', () => {
     const document = normalizePostDocument(createDocument());
 
     assert.deepEqual(document.content.map(block => block.type), CONTENT_BLOCK_TYPES);
@@ -245,6 +303,7 @@ test('all eight typed content blocks normalize without interpreting code as docu
     assert.equal(document.content.find(block => block.type === 'image').width, 1280);
     assert.equal(document.content.find(block => block.type === 'image').height, 720);
     assert.equal(document.content.find(block => block.type === 'quote').sourceUrl, 'https://example.com/source');
+    assert.equal(document.content.find(block => block.type === 'table').caption, 'Findings summary');
 });
 
 test('content blocks reject raw HTML fields, untyped HTML, invalid structure, and unsafe URLs', () => {
@@ -375,13 +434,14 @@ test('dataset validation rejects missing, mismatched, and orphaned post document
 
 test('checked-in sample post is valid and HTML escaping covers executable markup', () => {
     const posts = normalizePostsList(postsListData);
-    assert.equal(posts.length, 1);
-    assert.equal(posts[0].slug, 'local-first-cve-research-notes');
-    assert.equal(getPublishedPosts(posts).length, 1);
+    assert.ok(posts.length >= 1);
+    const samplePost = posts.find(p => p.slug === '19-xss-in-24-hours');
+    assert.ok(samplePost);
+    assert.ok(getPublishedPosts(posts).length >= 1);
     const document = normalizePostDocument(samplePostDocument, {
-        expectedSlug: posts[0].slug
+        expectedSlug: samplePost.slug
     });
-    assert.equal(document.slug, posts[0].slug);
+    assert.equal(document.slug, samplePost.slug);
     assert.ok(document.content.length > 0);
     assert.equal(
         escapeHtml('<script data-x="1">\'unsafe\' & more</script>'),
