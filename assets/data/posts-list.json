@@ -1,5 +1,23 @@
 [
   {
+    "slug": "19-xss-in-24-hours",
+    "title": "19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots",
+    "excerpt": "A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.",
+    "publishedAt": "2026-10-26",
+    "updatedAt": "2026-10-26",
+    "tags": [
+      "wordpress",
+      "xss",
+      "appsec",
+      "gutenberg",
+      "research"
+    ],
+    "readingMinutes": 12,
+    "featured": true,
+    "status": "published",
+    "order": 70
+  },
+  {
     "slug": "cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion",
     "title": "The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion",
     "excerpt": "A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe.",
@@ -15,7 +33,7 @@
     "readingMinutes": 12,
     "featured": false,
     "status": "published",
-    "order": 70
+    "order": 60
   },
   {
     "slug": "cve-2026-62025-tailored-tools-unauthenticated-rce",
@@ -33,7 +51,7 @@
     "readingMinutes": 14,
     "featured": true,
     "status": "published",
-    "order": 60
+    "order": 50
   },
   {
     "slug": "cve-2026-115607-dxp-toolkit-unauthenticated-sqli",
@@ -51,25 +69,26 @@
     "readingMinutes": 8,
     "featured": false,
     "status": "published",
-    "order": 50
+    "order": 40
   },
   {
-    "slug": "19-xss-in-24-hours",
-    "title": "19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots",
-    "excerpt": "A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.",
-    "publishedAt": "2026-10-26",
-    "updatedAt": "2026-10-26",
+    "slug": "i-bricked-my-esp32-s3",
+    "title": "I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)",
+    "excerpt": "What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.",
+    "publishedAt": "2026-11-04",
+    "updatedAt": "2026-11-04",
     "tags": [
-      "wordpress",
-      "xss",
-      "appsec",
-      "gutenberg",
-      "research"
+      "esp32",
+      "hardware-security",
+      "flash-encryption",
+      "efuse",
+      "ctf",
+      "recovery"
     ],
-    "readingMinutes": 12,
+    "readingMinutes": 10,
     "featured": true,
     "status": "published",
-    "order": 40
+    "order": 30
   },
   {
     "slug": "v1t-ctf-2026-writeups",
@@ -89,25 +108,6 @@
     "featured": false,
     "status": "published",
     "order": 20
-  },
-  {
-    "slug": "how-dummy-i-am-esp32-s3-recovery",
-    "title": "How Dummy I Am: I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)",
-    "excerpt": "What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.",
-    "publishedAt": "2026-11-04",
-    "updatedAt": "2026-11-04",
-    "tags": [
-      "esp32",
-      "hardware-security",
-      "flash-encryption",
-      "efuse",
-      "ctf",
-      "recovery"
-    ],
-    "readingMinutes": 10,
-    "featured": true,
-    "status": "published",
-    "order": 30
   },
   {
     "slug": "v1t-ctf-2025-writeups",
