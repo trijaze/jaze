@@ -18,6 +18,21 @@ const {
     normalizePathname
 } = require('./render-utils');
 
+const assetHashCache = new Map();
+function getAssetHash(subdir, filename) {
+    const key = `${subdir}/${filename}`;
+    if (assetHashCache.has(key)) return assetHashCache.get(key);
+    try {
+        const filePath = path.join(__dirname, '..', subdir, filename);
+        const content = fs.readFileSync(filePath);
+        const hash = crypto.createHash('sha256').update(content).digest('hex').slice(0, 8);
+        assetHashCache.set(key, hash);
+        return hash;
+    } catch {
+        return '1';
+    }
+}
+
 const DEFAULT_DESCRIPTION = 'Security research profile, technical publications, and verified CVE disclosures by Jaze.';
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/assets/images/jaze_v1t.png`;
 
@@ -164,7 +179,10 @@ function renderDocument({
     const defaultScripts = ['intro-controller.js', 'nav.js', 'ascii-webgl-renderer.js', 'intro-loader.js'];
     const allScripts = [...new Set([...defaultScripts, ...scripts])];
     const scriptTags = allScripts
-        .map(file => `    <script src="/assets/js/${escapeHtml(file)}" defer></script>`)
+        .map(file => {
+            const version = getAssetHash('assets/js', file);
+            return `    <script src="/assets/js/${escapeHtml(file)}?v=${version}" defer></script>`;
+        })
         .join('\n');
     const schemaPayloads = structuredData
         .filter(Boolean)

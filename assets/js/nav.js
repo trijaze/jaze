@@ -218,14 +218,27 @@
     }
 
     function initFeedMeModal() {
-        const dialog = document.getElementById('feed-me-dialog');
-        if (!dialog) return;
-
         let isClosing = false;
 
+        function getDialog() {
+            return document.getElementById('feed-me-dialog');
+        }
+
         function openModal() {
+            const dialog = getDialog();
+            if (!dialog) return;
+
             isClosing = false;
             dialog.classList.remove('is-closing');
+
+            if (!dialog.dataset.cancelBound) {
+                dialog.dataset.cancelBound = 'true';
+                dialog.addEventListener('cancel', event => {
+                    event.preventDefault();
+                    closeModalWithAnimation();
+                });
+            }
+
             if (typeof dialog.showModal === 'function') {
                 dialog.showModal();
             } else {
@@ -234,7 +247,8 @@
         }
 
         function closeModalWithAnimation() {
-            if (isClosing || !dialog.open) return;
+            const dialog = getDialog();
+            if (!dialog || isClosing || !dialog.open) return;
             isClosing = true;
             dialog.classList.add('is-closing');
 
@@ -257,18 +271,11 @@
                         finishClose();
                     }
                 };
-                surface.addEventListener('animationend', onAnimationEnd);
+                surface.addEventListener('animationend', onAnimationEnd, { once: true });
             }
 
-            // Safety timeout fallback (180ms) in case animationend does not fire
             window.setTimeout(finishClose, 180);
         }
-
-        // Intercept native Escape key on dialog to play smooth close animation
-        dialog.addEventListener('cancel', event => {
-            event.preventDefault();
-            closeModalWithAnimation();
-        });
 
         document.addEventListener('click', event => {
             const openTrigger = event.target.closest('[data-open-feed-me]');
@@ -285,8 +292,19 @@
                 return;
             }
 
-            if (event.target === dialog) {
+            const dialog = getDialog();
+            if (dialog && event.target === dialog) {
                 closeModalWithAnimation();
+            }
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                const dialog = getDialog();
+                if (dialog && dialog.open) {
+                    event.preventDefault();
+                    closeModalWithAnimation();
+                }
             }
         });
     }
