@@ -142,6 +142,135 @@ function createHeadingId(text, seen) {
     return count === 1 ? base : `${base}-${count}`;
 }
 
+function parseMermaidFlowchart(rawCode) {
+    if (!rawCode) return null;
+    const lines = rawCode.split('\n').map(l => l.trim()).filter(Boolean);
+    const header = lines[0] || '';
+    const match = /^(?:flowchart|graph)\s+([A-Z]{2})/i.exec(header);
+    if (!match) return null;
+    const direction = match[1].toUpperCase();
+
+    const nodes = new Map();
+    const edges = [];
+    const nodeClasses = new Map();
+
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (/^classDef\s+/i.test(line)) continue;
+
+        const classMatch = /^class\s+([A-Za-z0-9_,\s-]+)\s+([A-Za-z0-9_-]+);?$/.exec(line);
+        if (classMatch) {
+            const targets = classMatch[1].split(',').map(s => s.trim());
+            targets.forEach(t => nodeClasses.set(t, classMatch[2].toLowerCase()));
+            continue;
+        }
+
+        const edgeMatch = /^([A-Za-z0-9_-]+)\s*(?:-->|-.->|==>|---)\s*(?:\|(?:\"([^\"]*)\"|([^|]*))\|)?\s*([A-Za-z0-9_-]+)$/.exec(line);
+        if (edgeMatch) {
+            const from = edgeMatch[1];
+            const label = (edgeMatch[2] !== undefined ? edgeMatch[2] : edgeMatch[3]) || '';
+            const to = edgeMatch[4];
+            edges.push({ from, to, label: label.trim() });
+            continue;
+        }
+
+        const nodeMatch = /^([A-Za-z0-9_-]+)\s*(?:\[\"([\s\S]*?)\"\]|\[([\s\S]*?)\]|\(\"([\s\S]*?)\"\)|\(([\s\S]*?)\)|\{\"([\s\S]*?)\"\}|\{([\s\S]*?)\})$/.exec(line);
+        if (nodeMatch) {
+            const id = nodeMatch[1];
+            const rawLabel = nodeMatch[2] ?? nodeMatch[3] ?? nodeMatch[4] ?? nodeMatch[5] ?? nodeMatch[6] ?? nodeMatch[7] ?? id;
+            nodes.set(id, { id, rawLabel });
+            continue;
+        }
+    }
+
+    if (nodes.size === 0) return null;
+    return { direction, nodes, edges, nodeClasses };
+}
+
+function renderMermaidDiagram(code, caption = null) {
+    const parsed = parseMermaidFlowchart(code);
+    if (!parsed) return null;
+
+    const { direction, nodes, edges, nodeClasses } = parsed;
+
+    const edgeMap = new Map();
+    for (const edge of edges) {
+        if (!edgeMap.has(edge.from)) edgeMap.set(edge.from, []);
+        edgeMap.get(edge.from).push(edge);
+    }
+
+    const nodeArray = Array.from(nodes.values());
+    const renderedSteps = [];
+
+    nodeArray.forEach(node => {
+        const clsName = nodeClasses.get(node.id) || 'normal';
+        const labelLines = node.rawLabel.split(/\\n|\n/).map(l => l.trim()).filter(Boolean);
+        const title = labelLines[0] || node.id;
+        const details = labelLines.slice(1);
+
+        const detailsHtml = details.map(line => {
+            if (/^\(.*\)$/.test(line)) {
+                return `<div class="flowchart-node__tag">${escapeHtml(line)}</div>`;
+            }
+            return `<div class="flowchart-node__sub">${escapeHtml(line)}</div>`;
+        }).join('');
+
+        renderedSteps.push(`
+            <div class="flowchart-step flowchart-tone-${escapeHtml(clsName)}" id="step-${escapeHtml(node.id)}">
+                <div class="flowchart-node">
+                    <div class="flowchart-node__header">
+                        <span class="flowchart-node__indicator" aria-hidden="true"></span>
+                        <strong class="flowchart-node__title">${escapeHtml(title)}</strong>
+                    </div>
+                    ${detailsHtml ? `<div class="flowchart-node__body">${detailsHtml}</div>` : ''}
+                </div>
+            </div>
+        `);
+
+        const outgoing = edgeMap.get(node.id);
+        if (outgoing && outgoing.length) {
+            outgoing.forEach(edge => {
+                const badgeHtml = edge.label ? `<span class="flowchart-connector__badge">${escapeHtml(edge.label)}</span>` : '';
+                renderedSteps.push(`
+                    <div class="flowchart-connector" aria-hidden="true">
+                        <div class="flowchart-connector__track">
+                            <span class="flowchart-connector__pulse"></span>
+                        </div>
+                        ${badgeHtml}
+                        <svg class="flowchart-connector__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                    </div>
+                `);
+            });
+        }
+    });
+
+    const captionHtml = caption ? `<figcaption class="flowchart-caption">${escapeHtml(caption)}</figcaption>` : '';
+
+    return `<figure class="flowchart-figure" role="region" aria-label="Flowchart diagram" data-code-block>
+        <div class="flowchart-header">
+            <div class="flowchart-header__info">
+                <svg class="flowchart-header__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span class="flowchart-header__label">STATE TRANSITION FLOWCHART</span>
+            </div>
+            <button class="copy-code" type="button" data-copy-code aria-label="Copy Mermaid diagram source">Copy</button>
+        </div>
+        <div class="flowchart-canvas flowchart-dir-${direction.toLowerCase()}">
+            ${renderedSteps.join('\n')}
+        </div>
+        ${captionHtml}
+        <pre class="visually-hidden"><code class="language-mermaid">${escapeHtml(code)}</code></pre>
+    </figure>`;
+}
+
 function renderBlock(block, context) {
     switch (block.type) {
         case 'paragraph': {
@@ -164,6 +293,10 @@ function renderBlock(block, context) {
             return `<${tag}${cls}>${block.items.map(item => `<li>${renderInlineMarkdown(item)}</li>`).join('')}</${tag}>`;
         }
         case 'code': {
+            if (block.language === 'mermaid') {
+                const diagram = renderMermaidDiagram(block.code, block.caption);
+                if (diagram) return diagram;
+            }
             const label = block.filename || block.language;
             const caption = block.caption ? `<figcaption>${escapeHtml(block.caption)}</figcaption>` : '';
             return `<figure class="code-block" data-code-block>

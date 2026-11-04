@@ -230,12 +230,103 @@ python -m espefuse --chip esp32s3 -p COM10 summary</code></pre>
 <p>In physical silicon, eFuses have a fundamental limitation: <strong>you can only burn a 0 into a 1.</strong> You can never, ever turn a 1 back into a 0. If Flash Encryption were governed by a single bit (<code>0</code> = OFF, <code>1</code> = ON), the very first time you tested encryption on a dev board, that board would be permanently locked into encryption mode until the end of time.</p>
 <p>To prevent developers from creating millions of accidental electronic paperweights, Espressif introduced a clever mechanism for <strong>Development Mode</strong>: <strong>Bit-Count Parity.</strong></p>
 <p>The chip doesn&#39;t check if the counter is non-zero. Instead, the hardware bootloader counts the <strong>number of set bits (1s)</strong> in <code>SPI_BOOT_CRYPT_CNT</code>:</p>
-<figure class="code-block" data-code-block>
-                <div class="code-block__header">
-                    <span>mermaid</span>
-                    <button class="copy-code" type="button" data-copy-code>Copy</button>
+<figure class="flowchart-figure" role="region" aria-label="Flowchart diagram" data-code-block>
+        <div class="flowchart-header">
+            <div class="flowchart-header__info">
+                <svg class="flowchart-header__icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span class="flowchart-header__label">STATE TRANSITION FLOWCHART</span>
+            </div>
+            <button class="copy-code" type="button" data-copy-code aria-label="Copy Mermaid diagram source">Copy</button>
+        </div>
+        <div class="flowchart-canvas flowchart-dir-td">
+            
+            <div class="flowchart-step flowchart-tone-normal" id="step-State0">
+                <div class="flowchart-node">
+                    <div class="flowchart-node__header">
+                        <span class="flowchart-node__indicator" aria-hidden="true"></span>
+                        <strong class="flowchart-node__title">0b000 (0 bits set)</strong>
+                    </div>
+                    <div class="flowchart-node__body"><div class="flowchart-node__sub">Count = EVEN</div><div class="flowchart-node__sub">Encryption: OFF</div><div class="flowchart-node__tag">(Factory Default)</div></div>
                 </div>
-                <pre><code class="language-mermaid">flowchart TD
+            </div>
+        
+
+                    <div class="flowchart-connector" aria-hidden="true">
+                        <div class="flowchart-connector__track">
+                            <span class="flowchart-connector__pulse"></span>
+                        </div>
+                        <span class="flowchart-connector__badge">Burn 1st bit (Bootloader)</span>
+                        <svg class="flowchart-connector__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                    </div>
+                
+
+            <div class="flowchart-step flowchart-tone-warning" id="step-State1">
+                <div class="flowchart-node">
+                    <div class="flowchart-node__header">
+                        <span class="flowchart-node__indicator" aria-hidden="true"></span>
+                        <strong class="flowchart-node__title">0b001 (1 bit set)</strong>
+                    </div>
+                    <div class="flowchart-node__body"><div class="flowchart-node__sub">Count = ODD</div><div class="flowchart-node__sub">Encryption: ON</div><div class="flowchart-node__tag">(Where I was stuck!)</div></div>
+                </div>
+            </div>
+        
+
+                    <div class="flowchart-connector" aria-hidden="true">
+                        <div class="flowchart-connector__track">
+                            <span class="flowchart-connector__pulse"></span>
+                        </div>
+                        <span class="flowchart-connector__badge">Burn 2nd bit (Recovery!)</span>
+                        <svg class="flowchart-connector__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                    </div>
+                
+
+            <div class="flowchart-step flowchart-tone-success" id="step-State2">
+                <div class="flowchart-node">
+                    <div class="flowchart-node__header">
+                        <span class="flowchart-node__indicator" aria-hidden="true"></span>
+                        <strong class="flowchart-node__title">0b011 (2 bits set)</strong>
+                    </div>
+                    <div class="flowchart-node__body"><div class="flowchart-node__sub">Count = EVEN</div><div class="flowchart-node__sub">Encryption: OFF</div><div class="flowchart-node__tag">(The Escape Hatch!)</div></div>
+                </div>
+            </div>
+        
+
+                    <div class="flowchart-connector" aria-hidden="true">
+                        <div class="flowchart-connector__track">
+                            <span class="flowchart-connector__pulse"></span>
+                        </div>
+                        <span class="flowchart-connector__badge">Burn 3rd bit (No return)</span>
+                        <svg class="flowchart-connector__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </svg>
+                    </div>
+                
+
+            <div class="flowchart-step flowchart-tone-danger" id="step-State3">
+                <div class="flowchart-node">
+                    <div class="flowchart-node__header">
+                        <span class="flowchart-node__indicator" aria-hidden="true"></span>
+                        <strong class="flowchart-node__title">0b111 (3 bits set)</strong>
+                    </div>
+                    <div class="flowchart-node__body"><div class="flowchart-node__sub">Count = ODD</div><div class="flowchart-node__sub">Encryption: ON</div><div class="flowchart-node__tag">(Permanent Release Mode)</div></div>
+                </div>
+            </div>
+        
+        </div>
+        
+        <pre class="visually-hidden"><code class="language-mermaid">flowchart TD
     State0[&quot;0b000 (0 bits set)\nCount = EVEN\nEncryption: OFF\n(Factory Default)&quot;]
     State1[&quot;0b001 (1 bit set)\nCount = ODD\nEncryption: ON\n(Where I was stuck!)&quot;]
     State2[&quot;0b011 (2 bits set)\nCount = EVEN\nEncryption: OFF\n(The Escape Hatch!)&quot;]
@@ -254,8 +345,7 @@ python -m espefuse --chip esp32s3 -p COM10 summary</code></pre>
     class State1 warning;
     class State2 success;
     class State3 danger;</code></pre>
-                
-            </figure>
+    </figure>
 <p>Look at that state table:</p>
 <ul><li><strong>0 bits set (<code>0b000</code> = 0):</strong> Even count → <strong>Flash Encryption DISABLED</strong> (Factory state).</li><li><strong>1 bit set (<code>0b001</code> = 1):</strong> Odd count → <strong>Flash Encryption ENABLED</strong> (Where my dumb self was stuck).</li><li><strong>2 bits set (<code>0b011</code> = 3):</strong> Even count → <strong>Flash Encryption DISABLED</strong> 🎉</li><li><strong>3 bits set (<code>0b111</code> = 7):</strong> Odd count → <strong>Flash Encryption ENABLED</strong> (Game over, all fuses spent).</li></ul>
 <p>Do you see the miracle?</p>

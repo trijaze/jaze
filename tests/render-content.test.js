@@ -125,3 +125,23 @@ test('math equation rendering correctly converts LaTeX formulas into accessible 
     assert.match(result.html, /Plaintext\[i\] = ENC_TOTAL\[i\] ⊕ \(i  &amp;  0xFF\) ⊕ Key\[i \(mod 16\)\]/);
     assert.match(result.html, /<code>\$total = \$a \+ \$b;<\/code>/);
 });
+
+test('mermaid code blocks render accessible visual state transition flowcharts', () => {
+    const result = renderPostContent({
+        slug: 'flowchart-test',
+        content: [{
+            type: 'code',
+            language: 'mermaid',
+            code: 'flowchart TD\nStateA["Node A\\nSubtitle"]\nStateB["Node B"]\nStateA -->|"Step 1"| StateB\nclass StateA warning;\nclass StateB success;'
+        }]
+    });
+
+    assert.match(result.html, /<figure class="flowchart-figure" role="region" aria-label="Flowchart diagram"/);
+    assert.match(result.html, /STATE TRANSITION FLOWCHART/);
+    assert.match(result.html, /class="flowchart-step flowchart-tone-warning" id="step-StateA"/);
+    assert.match(result.html, /<strong class="flowchart-node__title">Node A<\/strong>/);
+    assert.match(result.html, /<div class="flowchart-node__sub">Subtitle<\/div>/);
+    assert.match(result.html, /class="flowchart-step flowchart-tone-success" id="step-StateB"/);
+    assert.match(result.html, /<span class="flowchart-connector__badge">Step 1<\/span>/);
+    assert.match(result.html, /<svg class="flowchart-connector__arrow"/);
+});

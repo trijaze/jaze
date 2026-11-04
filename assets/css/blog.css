@@ -525,6 +525,211 @@
     white-space: nowrap;
 }
 
+/* Flowchart & Mermaid State Diagram Styles */
+.flowchart-figure {
+    margin-block: var(--space-6);
+    margin-inline: 0;
+    border: var(--border-thin);
+    border-radius: var(--radius-md);
+    background: var(--surface-inset);
+    overflow: hidden;
+}
+
+.flowchart-header {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    background: rgba(14, 38, 14, 0.75);
+    border-bottom: var(--border-thin);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+}
+
+.flowchart-header__info {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.flowchart-header__icon {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.flowchart-canvas {
+    padding: var(--space-6) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    background: radial-gradient(circle at 50% 20%, rgba(36, 215, 0, 0.04), transparent 70%);
+}
+
+.flowchart-step {
+    width: 100%;
+    max-width: 480px;
+}
+
+.flowchart-node {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(8, 20, 10, 0.85);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flowchart-node:hover {
+    transform: translateY(-2px);
+}
+
+.flowchart-node__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+}
+
+.flowchart-node__indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.flowchart-node__title {
+    font-family: var(--font-mono, monospace);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.flowchart-node__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: var(--font-mono, monospace);
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+}
+
+.flowchart-node__sub {
+    color: var(--text-soft);
+}
+
+.flowchart-node__tag {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.95;
+}
+
+/* Tone Variations */
+.flowchart-tone-normal .flowchart-node {
+    border-color: rgba(36, 215, 0, 0.35);
+}
+.flowchart-tone-normal .flowchart-node__indicator {
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(36, 215, 0, 0.6);
+}
+.flowchart-tone-normal .flowchart-node__title {
+    color: var(--accent);
+}
+
+.flowchart-tone-warning .flowchart-node {
+    border-color: rgba(210, 153, 34, 0.8);
+    background: rgba(45, 27, 0, 0.7);
+    box-shadow: 0 0 20px rgba(210, 153, 34, 0.15);
+}
+.flowchart-tone-warning .flowchart-node__indicator {
+    background: #d29922;
+    box-shadow: 0 0 8px #d29922;
+}
+.flowchart-tone-warning .flowchart-node__title,
+.flowchart-tone-warning .flowchart-node__tag {
+    color: #f0883e;
+}
+
+.flowchart-tone-success .flowchart-node {
+    border-color: rgba(35, 134, 54, 0.9);
+    background: rgba(4, 38, 15, 0.75);
+    box-shadow: 0 0 24px rgba(35, 134, 54, 0.25);
+}
+.flowchart-tone-success .flowchart-node__indicator {
+    background: #3fb950;
+    box-shadow: 0 0 10px #3fb950;
+}
+.flowchart-tone-success .flowchart-node__title,
+.flowchart-tone-success .flowchart-node__tag {
+    color: #3fb950;
+}
+
+.flowchart-tone-danger .flowchart-node {
+    border-color: rgba(248, 81, 73, 0.8);
+    background: rgba(61, 8, 8, 0.75);
+    box-shadow: 0 0 20px rgba(248, 81, 73, 0.2);
+}
+.flowchart-tone-danger .flowchart-node__indicator {
+    background: #f85149;
+    box-shadow: 0 0 8px #f85149;
+}
+.flowchart-tone-danger .flowchart-node__title,
+.flowchart-tone-danger .flowchart-node__tag {
+    color: #f85149;
+}
+
+/* Connectors */
+.flowchart-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-block: var(--space-2);
+}
+
+.flowchart-connector__track {
+    width: 2px;
+    height: 18px;
+    background: rgba(36, 215, 0, 0.35);
+    position: relative;
+}
+
+.flowchart-connector__badge {
+    margin-block: 4px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    border: 1px dashed rgba(36, 215, 0, 0.45);
+    background: rgba(10, 30, 12, 0.9);
+    color: var(--accent);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.flowchart-connector__arrow {
+    color: var(--accent);
+    margin-top: -2px;
+}
+
+.flowchart-caption {
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-align: center;
+    border-top: var(--border-thin);
+}
+
 .post-references ul {
     padding-left: var(--space-5);
 }
