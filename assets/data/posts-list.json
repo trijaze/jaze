@@ -70,5 +70,43 @@
     "featured": true,
     "status": "published",
     "order": null
+  },
+  {
+    "slug": "v1t-ctf-2026-writeups",
+    "title": "V1T CTF 2026 writeup",
+    "excerpt": "A deep dive into five advanced forensic, hardware, and cryptographic challenges from V1T CTF 2026: Green Goblin, Nice Try, 10X54, Barely Legal Experience, and XTS-AES.",
+    "publishedAt": "2026-07-02",
+    "updatedAt": "2026-07-02",
+    "tags": [
+      "ctf",
+      "writeup",
+      "forensics",
+      "hardware",
+      "reverse-engineering",
+      "v1t"
+    ],
+    "readingMinutes": 22,
+    "featured": false,
+    "status": "published",
+    "order": null
+  },
+  {
+    "slug": "v1t-ctf-2025-writeups",
+    "title": "V1T CTF 2025 writeup",
+    "excerpt": "A comprehensive technical breakdown of four signature challenges from V1T CTF 2025: 67, Fuck Da Binary, Thirsty Sick, and Tryna crack?. Deep dive into AES bitplane carving, BinaryFuck execution, Scapy packet reassembly, and bkcrack plaintext attacks.",
+    "publishedAt": "2025-11-06",
+    "updatedAt": "2025-11-06",
+    "tags": [
+      "ctf",
+      "writeup",
+      "steganography",
+      "cryptography",
+      "forensics",
+      "v1t"
+    ],
+    "readingMinutes": 18,
+    "featured": false,
+    "status": "published",
+    "order": null
   }
 ]

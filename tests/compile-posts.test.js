@@ -118,3 +118,23 @@ test('parseMarkdownToBlocks parses task lists with checkboxes', () => {
     ]);
 });
 
+test('parseMarkdownToBlocks correctly parses images with alt, url, and optional caption', () => {
+    const md = `## Evidence
+
+![Stegsolve bit plane 6](/assets/images/posts/v1t-ctf-2025/67-bitplane6.png "Bit plane analysis")
+
+Following observation.`;
+
+    const blocks = parseMarkdownToBlocks(md);
+    assert.equal(blocks.length, 3);
+    assert.equal(blocks[0].type, 'heading');
+    assert.equal(blocks[1].type, 'image');
+    assert.equal(blocks[1].alt, 'Stegsolve bit plane 6');
+    assert.equal(blocks[1].src, '/assets/images/posts/v1t-ctf-2025/67-bitplane6.png');
+    assert.equal(blocks[1].caption, 'Bit plane analysis');
+    assert.ok(blocks[1].width > 0);
+    assert.ok(blocks[1].height > 0);
+    assert.equal(blocks[2].type, 'paragraph');
+    assert.equal(blocks[2].text, 'Following observation.');
+});
+

@@ -3,9 +3,72 @@
 const { escapeHtml } = require('./render-utils');
 const { isSafeContentUrl } = require('./content-contracts');
 
+function formatMathEquation(raw, isAlreadyEscaped = false) {
+    if (!raw) return '';
+    let str = String(raw).trim();
+
+    // 1. Protect escaped literal underscores and characters
+    str = str.replace(/\\_/g, '@@UNDERSCORE@@');
+    str = str.replace(/\\text\{([^}]+)\}/g, '$1');
+    str = str.replace(/\\(?:mathbf|mathrm|mathit)\{([^}]+)\}/g, '$1');
+    str = str.replace(/\\&/g, '&');
+    str = str.replace(/\\#/g, '#');
+    str = str.replace(/\\%/g, '%');
+
+    // 2. Escape HTML characters safely if not already escaped
+    if (!isAlreadyEscaped) {
+        str = escapeHtml(str);
+    }
+
+    // 3. LaTeX math symbols -> clean unicode
+    str = str.replace(/\\(?:oplus|bigoplus)/g, '⊕');
+    str = str.replace(/\\times/g, '×');
+    str = str.replace(/\\parallel/g, '∥');
+    str = str.replace(/\\(?:rightarrow|to)/g, '→');
+    str = str.replace(/\\leftarrow/g, '←');
+    str = str.replace(/\\(?:leftrightarrow)/g, '↔');
+    str = str.replace(/\\(?:le|leq)/g, '≤');
+    str = str.replace(/\\(?:ge|geq)/g, '≥');
+    str = str.replace(/\\neq/g, '≠');
+    str = str.replace(/\\approx/g, '≈');
+    str = str.replace(/\\Delta/g, 'Δ');
+    str = str.replace(/\\gg/g, '≫');
+    str = str.replace(/\\ll/g, '≪');
+    str = str.replace(/\\sum/g, '∑');
+    str = str.replace(/\\prod/g, '∏');
+    str = str.replace(/\\pmod\{([^}]+)\}/g, '(mod $1)');
+    str = str.replace(/\\bmod\{([^}]+)\}/g, 'mod $1');
+    str = str.replace(/\\(?:quad|qquad)/g, '&emsp;');
+
+    // 4. Subscripts and superscripts
+    str = str.replace(/_\{([^}]+)\}/g, '<sub>$1</sub>');
+    str = str.replace(/\b([a-zA-Z])_([a-zA-Z0-9])\b/g, '$1<sub>$2</sub>');
+    str = str.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>');
+    str = str.replace(/\b([a-zA-Z0-9]+)\^([a-zA-Z0-9]+)\b/g, '$1<sup>$2</sup>');
+
+    // 5. Restore literal underscores
+    str = str.replace(/@@UNDERSCORE@@/g, '_');
+
+    // 6. Clean up any remaining LaTeX backslashes before spaces or letters
+    str = str.replace(/\\[ ,;]/g, ' ');
+    str = str.replace(/\\[a-zA-Z]+/g, '');
+
+    return str;
+}
+
 function renderInlineMarkdown(text) {
     if (!text) return '';
     let escaped = escapeHtml(text);
+
+    // Embedded display math ($$...$$)
+    escaped = escaped.replace(/\$\$([^\$]+)\$\$/g, (_match, mathInner) => {
+        return `<div class="math-block" role="region" aria-label="Mathematical formula"><div class="math-formula">${formatMathEquation(mathInner, true)}</div></div>`;
+    });
+
+    // Inline math: $...$ with LaTeX commands or subscript notation
+    escaped = escaped.replace(/\$((?:\\[a-zA-Z]+|[a-zA-Z0-9]+_[a-zA-Z0-9{}]+)[^$\n]*?)\$/g, (_match, mathInner) => {
+        return `<span class="math-inline">${formatMathEquation(mathInner, true)}</span>`;
+    });
 
     // Task list checkboxes
     escaped = escaped.replace(/^\[ \]\s+/, '<input type="checkbox" disabled aria-hidden="true"> ');
@@ -57,8 +120,14 @@ function createHeadingId(text, seen) {
 
 function renderBlock(block, context) {
     switch (block.type) {
-        case 'paragraph':
+        case 'paragraph': {
+            const trimmed = block.text.trim();
+            if (trimmed.startsWith('$$') && trimmed.endsWith('$$') && trimmed.length >= 4) {
+                const mathInner = trimmed.slice(2, -2).trim();
+                return `<div class="math-block" role="region" aria-label="Mathematical formula"><div class="math-formula">${formatMathEquation(mathInner, false)}</div></div>`;
+            }
             return `<p>${renderInlineMarkdown(block.text)}</p>`;
+        }
         case 'heading': {
             const id = createHeadingId(block.text, context.headingIds);
             context.toc.push({ id, level: block.level, text: block.text });

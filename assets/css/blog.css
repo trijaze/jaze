@@ -478,6 +478,53 @@
     margin: 0;
 }
 
+.math-block {
+    margin-block: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-inset);
+    border: var(--border-thin);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+    text-align: center;
+}
+
+.math-formula {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: clamp(0.925rem, 1.25vw, 1.05rem);
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+}
+
+.math-formula sub,
+.math-inline sub {
+    font-size: 0.75em;
+    vertical-align: sub;
+    color: var(--text-soft);
+}
+
+.math-formula sup,
+.math-inline sup {
+    font-size: 0.75em;
+    vertical-align: super;
+    color: var(--text-soft);
+}
+
+.math-inline {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 0.12em 0.35em;
+    border-radius: var(--radius-sm);
+    background: rgba(25, 168, 0, 0.08);
+    border: 1px solid rgba(25, 168, 0, 0.22);
+    color: var(--accent);
+    white-space: nowrap;
+}
+
 .post-references ul {
     padding-left: var(--space-5);
 }

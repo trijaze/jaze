@@ -84,3 +84,23 @@ test('table blocks render accessible HTML table with alignments and captions', (
     assert.match(result.html, /<code>move_uploaded_file\(\)<\/code>/);
     assert.match(result.html, /<strong>Critical<\/strong>/);
 });
+
+test('math equation rendering correctly converts LaTeX formulas into accessible HTML blocks', () => {
+    const result = renderPostContent({
+        slug: 'math-test',
+        content: [
+            {
+                type: 'paragraph',
+                text: '$$\\text{Token}[i] = \\text{AUTH\\_MAGIC}[i] \\oplus \\text{Nonce}[i] \\oplus \\text{Key}[i]$$'
+            },
+            {
+                type: 'paragraph',
+                text: 'Outer layer is keyed by $\\text{SHA256}(\\text{MAC} \\parallel \\text{Nonce})$.'
+            }
+        ]
+    });
+
+    assert.match(result.html, /<div class="math-block" role="region" aria-label="Mathematical formula">/);
+    assert.match(result.html, /Token\[i\] = AUTH_MAGIC\[i\] ⊕ Nonce\[i\] ⊕ Key\[i\]/);
+    assert.match(result.html, /<span class="math-inline">SHA256\(MAC ∥ Nonce\)<\/span>/);
+});

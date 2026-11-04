@@ -183,6 +183,38 @@ function parseAlignment(dividerCell) {
     return 'left';
 }
 
+function getImageDimensions(filePath) {
+    try {
+        if (!fs.existsSync(filePath)) return null;
+        const buf = fs.readFileSync(filePath);
+        if (buf.length >= 24 && buf[0] === 0x89 && buf.toString('ascii', 1, 4) === 'PNG') {
+            const width = buf.readUInt32BE(16);
+            const height = buf.readUInt32BE(20);
+            if (width > 0 && height > 0) return { width, height };
+        }
+        if (buf.length >= 4 && buf[0] === 0xff && buf[1] === 0xd8) {
+            let offset = 2;
+            while (offset < buf.length - 8) {
+                if (buf[offset] !== 0xff) {
+                    offset++;
+                    continue;
+                }
+                const marker = buf[offset + 1];
+                if (marker === 0xc0 || marker === 0xc2) {
+                    const height = buf.readUInt16BE(offset + 5);
+                    const width = buf.readUInt16BE(offset + 7);
+                    if (width > 0 && height > 0) return { width, height };
+                }
+                const len = buf.readUInt16BE(offset + 2);
+                offset += 2 + len;
+            }
+        }
+    } catch {
+        // Fallback gracefully without throwing
+    }
+    return null;
+}
+
 function parseMarkdownToBlocks(markdown) {
     const lines = markdown.replace(/\r\n/g, '\n').split('\n');
     const blocks = [];
@@ -405,6 +437,36 @@ function parseMarkdownToBlocks(markdown) {
             continue;
         }
 
+        // Standalone Images: ![alt text](url "optional caption")
+        if (trimmed.startsWith('![')) {
+            const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/);
+            if (imgMatch) {
+                const alt = imgMatch[1].trim() || 'Challenge artifact';
+                const src = imgMatch[2].trim();
+                const caption = imgMatch[3] ? imgMatch[3].trim() : null;
+
+                const imgBlock = {
+                    type: 'image',
+                    src,
+                    alt
+                };
+                if (caption) imgBlock.caption = caption;
+
+                if (src.startsWith('/')) {
+                    const localPath = path.join(__dirname, '..', src.replace(/^\//, ''));
+                    const dims = getImageDimensions(localPath);
+                    if (dims) {
+                        imgBlock.width = dims.width;
+                        imgBlock.height = dims.height;
+                    }
+                }
+
+                blocks.push(imgBlock);
+                i++;
+                continue;
+            }
+        }
+
         // Lists (unordered, ordered, and task lists)
         const isUnordered = trimmed.startsWith('- ') || trimmed.startsWith('* ');
         const isOrdered = /^\d+\.\s+/.test(trimmed);
@@ -461,12 +523,40 @@ function parseMarkdownToBlocks(markdown) {
             continue;
         }
 
+        // Standalone Math Blocks: $$...$$
+        if (trimmed.startsWith('$$')) {
+            if (trimmed.endsWith('$$') && trimmed.length >= 4) {
+                blocks.push({
+                    type: 'paragraph',
+                    text: trimmed
+                });
+                i++;
+                continue;
+            }
+            // Multiline $$ ... $$
+            i++;
+            const mathLines = [trimmed];
+            while (i < lines.length && !lines[i].trim().endsWith('$$')) {
+                mathLines.push(lines[i].trim());
+                i++;
+            }
+            if (i < lines.length) {
+                mathLines.push(lines[i].trim());
+                i++;
+            }
+            blocks.push({
+                type: 'paragraph',
+                text: mathLines.join(' ')
+            });
+            continue;
+        }
+
         // Paragraph
         const paraLines = [];
         while (i < lines.length) {
             const cur = lines[i];
             const curTrimmed = cur.trim();
-            if (!curTrimmed || curTrimmed === '---' || curTrimmed.startsWith('#') || curTrimmed.startsWith('```') || curTrimmed.startsWith('>') || curTrimmed.startsWith('- ') || curTrimmed.startsWith('* ') || /^\d+\.\s+/.test(curTrimmed)) {
+            if (!curTrimmed || curTrimmed === '---' || curTrimmed.startsWith('#') || curTrimmed.startsWith('```') || curTrimmed.startsWith('>') || curTrimmed.startsWith('- ') || curTrimmed.startsWith('* ') || /^\d+\.\s+/.test(curTrimmed) || curTrimmed.startsWith('![') || curTrimmed.startsWith('$$')) {
                 break;
             }
             if (curTrimmed.includes('|') && i + 1 < lines.length && isTableDivider(lines[i + 1])) {

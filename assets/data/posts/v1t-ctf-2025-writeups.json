@@ -1,0 +1,798 @@
+{
+  "slug": "v1t-ctf-2025-writeups",
+  "content": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Preface"
+    },
+    {
+      "type": "paragraph",
+      "text": "CTF competitions are rarely just about running an automated tool or running a dictionary attack. The most memorable challenges are puzzles that force you to look closely at the foundational data formats—the byte-level structures of ZIP archives, the IHDR chunk signatures of PNG files, the bitplanes of uncompressed RGB channels, and the exact packet framing of raw network captures."
+    },
+    {
+      "type": "paragraph",
+      "text": "During **V1T CTF 2025**, our team encountered a series of forensic, steganographic, and cryptographic challenges that demanded creative reverse-engineering:"
+    },
+    {
+      "type": "table",
+      "headers": [
+        "Challenge",
+        "Category",
+        "Core Technique",
+        "Key Tools",
+        "Final Flag"
+      ],
+      "rows": [
+        [
+          "**67**",
+          "Stego / Crypto",
+          "Bitplane 6 & 7 extraction + AES-192-CBC",
+          "`exiftool`, `Stegsolve`, Python",
+          "`v1t{50rry_f0r_7h3_gu355y}`"
+        ],
+        [
+          "**Fuck Da Binary**",
+          "Reverse / Esoteric",
+          "Unikey SHA-256 matching + BinaryFuck VM",
+          "`exiftool`, `7z`, `tr`, BinaryFuck",
+          "`V1t{this_is_way_too_easy}`"
+        ],
+        [
+          "**Thirsty Sick 🥵💦**",
+          "Forensics / Network",
+          "Scapy TCP carving + 36-byte deinterleaving",
+          "`Wireshark`, `scapy`, `xxd`, `rev`",
+          "`V1t{ju57_4_fun_1_l1k3_p3nnyw0r7_b7w}`"
+        ],
+        [
+          "**Tryna crack?**",
+          "Forensics / Crypto",
+          "ZipCrypto KPA + PNG IHDR height extension",
+          "`zipinfo`, `bkcrack`, `xxd`, `sha512sum`",
+          "`V1t{7083748baa3a42dc0a93811...0373}`"
+        ]
+      ],
+      "alignments": [
+        "left",
+        "center",
+        "left",
+        "left",
+        "left"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "This writeup documents the step-by-step methodology, investigative thought processes, and custom scripts developed to solve all four challenges."
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Challenge 1: 67 (Steganography & AES Bitplane Carving)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The challenge begins with a single archive: `challenge.zip`."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1. Initial Metadata Reconnaissance"
+    },
+    {
+      "type": "paragraph",
+      "text": "Before jumping into unzipping, checking the archive's metadata using `exiftool` reveals critical contextual hints:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(venv)─(kali㉿kali)-[]\n└─$ exiftool challenge.zip \nFile Name                       : challenge.zip\nFile Size                       : 33 kB\nComment                         : u AlrEady know the ruleS | (36-4) + (36-4) = 67 - 3.\nFile Type                       : ZIP\nZip Compressed Size             : 33190\nZip Uncompressed Size           : 34385\nZip File Name                   : six7_6seven.png"
+    },
+    {
+      "type": "paragraph",
+      "text": "The comment in the ZIP metadata immediately catches our eye:"
+    },
+    {
+      "type": "quote",
+      "text": "`\"u AlrEady know the ruleS | (36-4) + (36-4) = 67 - 3.\"`"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice the deliberate capitalization: **A**, **E**, and **S** spell out **AES**."
+    },
+    {
+      "type": "paragraph",
+      "text": "Furthermore, evaluating the mathematical riddle `(36-4) + (36-4) = 67 - 3` simplifies directly to `32 + 32 = 64`. In cryptographic terms, this strongly points toward a 64-hex-character (32-byte) payload, with key and IV parameters."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2. File Extraction & Visual Glitch Inspection"
+    },
+    {
+      "type": "paragraph",
+      "text": "Extracting the archive gives us an image titled `six7_6seven.png`:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-six7-6seven.png",
+      "alt": "Initial challenge image",
+      "caption": "six7_6seven.png — Notice the glitched pixel artifacts concentrated in the upper-left corner",
+      "width": 498,
+      "height": 372
+    },
+    {
+      "type": "paragraph",
+      "text": "While the main canvas looks like a standard graphic, the top-left corner exhibits unnatural pixel corruption—a classic footprint of spatial-domain least significant bit (LSB) or bitplane steganography."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3. Bitplane Analysis in Stegsolve"
+    },
+    {
+      "type": "paragraph",
+      "text": "Opening the image in `Stegsolve` and flipping through the bitplanes across Red, Green, and Blue channels reveals that meaningful data exists exclusively in **Bit Plane 6** and **Bit Plane 7**:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-bitplane6.png",
+      "alt": "Bit plane 6 visualization",
+      "caption": "Stegsolve RGB Bit Plane 6 — Clear binary patterning is visible",
+      "width": 244,
+      "height": 32
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-bitplane7.png",
+      "alt": "Bit plane 7 visualization",
+      "caption": "Stegsolve RGB Bit Plane 7 — High-entropy structured payload visible",
+      "width": 236,
+      "height": 35
+    },
+    {
+      "type": "paragraph",
+      "text": "Extracting these planes individually and in combination produces distinct hexadecimal outputs:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-extract6.png",
+      "alt": "Extracted plane 6 data",
+      "caption": "Raw hex dump from Bit Plane 6",
+      "width": 715,
+      "height": 503
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-extract7.png",
+      "alt": "Extracted plane 7 data",
+      "caption": "Raw hex dump from Bit Plane 7",
+      "width": 722,
+      "height": 517
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-extract67.png",
+      "alt": "2-bit plane 67 extraction",
+      "caption": "Combined 2-bit extraction (6 and 7) exposing plaintext strings",
+      "width": 716,
+      "height": 498
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspecting the dumps:"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Bit Plane 6 Dump:**"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "6663633064383463 6362383966376132  fcc0d84c cb89f7a2\n3134366563356464 6533323434393763  146ec5dd e324497c\n6753774645555555 5555555554646743  gSwFEUUU UUUUTdgC"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Bit Plane 7 Dump:**"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "3935613439653439 3861663539643030  95a49e49 8af59d00\n3830316461343730 6439363037343130  801da470 d9607410\n9abfba0306767676 767676767030dbff  .....vvv vvvvp0.."
+    },
+    {
+      "type": "paragraph",
+      "text": "**Combined 2-Bit Extraction (Planes 6 & 7):**"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "696e675f6f6e202d 2036373637363736  ing_on -  6767676\n3736373637363736 37202d20796f755f  76767676 7 - you_\n6b6e6f775f777466 5f69735f676f696e  know_wtf _is_goin\n675f6f6e202d2036 3736373637363736  g_on - 6 76767676"
+    },
+    {
+      "type": "paragraph",
+      "text": "From this combined output, a clear ASCII string emerges: `\"you_know_wtf_is_going_on - 6767676767676767\"`"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "4. AES-CBC Parameter Assembly & Decryption"
+    },
+    {
+      "type": "paragraph",
+      "text": "We now have all cryptographic components:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "**Ciphertext (32 bytes / 64 hex chars):** Formed by concatenating the 16-byte hex chunk from Plane 6 with the 16-byte hex chunk from Plane 7: `fcc0d84ccb89f7a2146ec5dde324497c95a49e498af59d00801da470d9607410`",
+        "**AES Key (24 bytes / AES-192):** `you_know_wtf_is_going_on`",
+        "**Initialization Vector (IV, 16 bytes):** `6767676767676767`"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Feeding these parameters into CyberChef or a Python AES-CBC decryptor:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/67-decrypted.png",
+      "alt": "Decrypted flag",
+      "caption": "AES-CBC decryption revealing the flag",
+      "width": 1260,
+      "height": 316
+    },
+    {
+      "type": "paragraph",
+      "text": "**Flag:** `v1t{50rry_f0r_7h3_gu355y}`"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Challenge 2: Fuck Da Binary (Software Hashes & BinaryFuck VM)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The challenge provides an archive named `idontlikebinaries.zip`."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1. Archive Inspection & Metadata Riddle"
+    },
+    {
+      "type": "paragraph",
+      "text": "Running `exiftool` on the downloaded file:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(venv)─(kali㉿kali)-[]\n└─$ exiftool idontlikebinaries.zip \nFile Name                       : idontlikebinaries.zip\nComment                         : i love S*cking H*es A*s more than 255 times\nZip File Name                   : challenge.7z"
+    },
+    {
+      "type": "paragraph",
+      "text": "The metadata contains a playful vulgarity: `\"i love S*cking H*es A*s more than 255 times\"`. Capital letters **S**, **H**, **A** combined with **255 + 1** = **SHA256**."
+    },
+    {
+      "type": "paragraph",
+      "text": "Extracting `idontlikebinaries.zip` yields an inner encrypted archive: `challenge.7z`."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/fdb-challenge.png",
+      "alt": "Password protected archive",
+      "caption": "challenge.7z requiring a password for extraction",
+      "width": 632,
+      "height": 843
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2. Identifying the Target Binary"
+    },
+    {
+      "type": "paragraph",
+      "text": "The challenge prompt provided an evocative backstory:"
+    },
+    {
+      "type": "quote",
+      "text": "*\"I usually secure important files using password hashes derived from the software I frequently use or tools that hold personal significance to me. Let me introduce you to Unikey",
+      "attribution": "it’s more than just a typing tool, it represents the creativity and ingenuity of Vietnamese developers... Go check the latest version, u gonna love it.\"*"
+    },
+    {
+      "type": "paragraph",
+      "text": "The directive is unmistakable:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "Identify the software: **UniKey**",
+        "Target: The **latest official installer/executable**",
+        "Password: **SHA-256 hash** of the executable."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Downloading the latest official `UniKeyNT.exe` and calculating its SHA-256 digest:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(venv)─(kali㉿kali)-[]\n└─$ sha256sum UniKeyNT.exe \nb732b1c198e7b0ebfcb0ef2f5d99f1888b5900460c1fa36ea27d47e8386684b1  UniKeyNT.exe"
+    },
+    {
+      "type": "paragraph",
+      "text": "Using this hash as the password to extract `challenge.7z`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(venv)─(kali㉿kali)-[]\n└─$ 7z x challenge.7z -pb732b1c198e7b0ebfcb0ef2f5d99f1888b5900460c1fa36ea27d47e8386684b1\nExtracting archive: challenge.7z\n--\nPath = challenge.7z\nType = 7z\nMethod = LZMA2:12 7zAES\nEverything is Ok"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3. Deobfuscating `sus.txt` & BinaryFuck"
+    },
+    {
+      "type": "paragraph",
+      "text": "The extraction yields a single file: `sus.txt`."
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "==============================>>==>=====>===========>=======================>================================>>=>>=>>=>>==>>>>=>==>==>==>===>==>==>==>==>==>==>==>==>==>==>==>==>==>>===>>=>>..."
+    },
+    {
+      "type": "paragraph",
+      "text": "The entire content consists exclusively of two characters: `=` and `>`. Translating `=` to `0` and `>` to `1` using `tr`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(venv)─(kali㉿kali)-[]\n└─$ tr '=>' '01' < sus.txt > sus_bits.txt"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/fdb-ciphertext-identifier.png",
+      "alt": "Binary ciphertext identification",
+      "caption": "Ciphertext identifier detecting binary stream",
+      "width": 1016,
+      "height": 370
+    },
+    {
+      "type": "paragraph",
+      "text": "With the challenge title *\"Fuck Da Binary\"* and a raw binary stream, this matches **BinaryFuck**—an esoteric programming language that maps 3-bit binary triplets directly onto the 8 Brainfuck instructions:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "`000` -> `>`",
+        "`001` -> `<`",
+        "`010` -> `+`",
+        "`011` -> `-`",
+        "`100` -> `.`",
+        "`101` -> `,`",
+        "`110` -> `[`",
+        "`111` -> `]`"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Executing `sus_bits.txt` through a BinaryFuck VM:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/fdb-decoded.png",
+      "alt": "BinaryFuck decoded output",
+      "caption": "BinaryFuck execution yielding the decoded flag",
+      "width": 988,
+      "height": 485
+    },
+    {
+      "type": "paragraph",
+      "text": "**Flag:** `V1t{this_is_way_too_easy}`"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Challenge 3: Thirsty Sick 🥵💦 (Network Carving & Stream Deinterleaving)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The challenge archive `360degree.zip` unpacks with a humorous comment:"
+    },
+    {
+      "type": "quote",
+      "text": "`\"i am very Thirsty and feeling Sick\"`"
+    },
+    {
+      "type": "paragraph",
+      "text": "Phonetically, *\"Thirsty Sick\"* is a clear pun on **\"Thirty Six\" (36)**."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1. Wireshark PCAP Analysis"
+    },
+    {
+      "type": "paragraph",
+      "text": "Extracting the ZIP produces `capture.pcap`. Opening it in Wireshark shows continuous TCP streams transmitting uniform 476-byte packets:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-samelengthpacket.png",
+      "alt": "Same length packets in Wireshark",
+      "caption": "Wireshark packet view showing streams with uniform lengths",
+      "width": 1166,
+      "height": 263
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspecting individual TCP packet payloads:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-packet-1.png",
+      "alt": "Packet 1 inspection",
+      "caption": "Packet 1 payload stream",
+      "width": 1274,
+      "height": 289
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-packet-2.png",
+      "alt": "Packet 2 inspection",
+      "caption": "Packet 2 payload stream",
+      "width": 1251,
+      "height": 182
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-packet-3.png",
+      "alt": "Packet 3 inspection",
+      "caption": "Packet 3 payload stream",
+      "width": 1283,
+      "height": 207
+    },
+    {
+      "type": "paragraph",
+      "text": "Each packet carries an HTTP-like header: `Content-Length: 360`, followed by exactly 360 hex characters. Examining the hex data in packet 0 reveals the magic header `504b0304` (`PK\\x03\\x04`), confirming that the network traffic is transmitting a fragmented ZIP archive!"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-zip-header.png",
+      "alt": "ZIP header in packet 0",
+      "caption": "Packet 0 header showing PK ZIP magic bytes",
+      "width": 942,
+      "height": 203
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2. PCAP Stream Reassembly with Scapy"
+    },
+    {
+      "type": "paragraph",
+      "text": "We write a Scapy script to harvest all 360-character hexadecimal payloads and concatenate them:"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "from scapy.all import rdpcap, TCP, Raw\nimport re\n\nPCAP_FILE = \"capture.pcap\"\nOUTPUT_FILE = \"hex_strings.txt\"\nHEX_PATTERN = re.compile(r'Content-Length:\\s*360\\s*([0-9a-fA-F]{360})', re.DOTALL)\nhex_strings = []\n\npackets = rdpcap(PCAP_FILE)\nfor pkt in packets:\n    if pkt.haslayer(TCP) and pkt.haslayer(Raw):\n        payload = pkt[Raw].load\n        if len(payload) == 476:\n            try:\n                data = payload.decode('utf-8', errors='ignore')\n            except Exception:\n                continue\n            match = HEX_PATTERN.search(data)\n            if match:\n                hex_strings.append(match.group(1))\n\nwith open(OUTPUT_FILE, 'w') as f:\n    f.write(''.join(hex_strings))\n\nprint(f\"Extracted {len(hex_strings)} blocks into {OUTPUT_FILE}\")"
+    },
+    {
+      "type": "paragraph",
+      "text": "Converting the reassembled hex into a binary ZIP file and unzipping it gives us a mysterious file named `mixed`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "$ xxd -r -p hex_strings.txt file.zip\n$ unzip file.zip\nArchive: file.zip\n  inflating: mixed"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3. Deinterleaving the 36-Byte Blocks (PNG Recovery)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Inspecting `mixed` with `xxd` reveals that it begins with the standard PNG magic header: `89504E470D0A1A0A`. However, search for the PNG trailer `IEND` (`AE426082`) shows it appears prematurely in the middle of the file."
+    },
+    {
+      "type": "paragraph",
+      "text": "The total hex string contains **37,620 characters**. Dividing by 36: `37620 / 36 = 1045` blocks!"
+    },
+    {
+      "type": "paragraph",
+      "text": "The file is an interleaved multiplex of two separate files, sliced into **36-character (18-byte) chunks**:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "**Even blocks (0, 2, 4...)**: Belong to the PNG image.",
+        "**Odd blocks (1, 3, 5...)**: Belong to a second payload."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "We script the deinterleaver in Python, halting the PNG stream as soon as `AE426082` is encountered:"
+    },
+    {
+      "type": "code",
+      "language": "python",
+      "code": "INPUT_FILE = \"hex_mixed.txt\"\nPNG_OUTPUT = \"png_hex.txt\"\nOTHER_OUTPUT = \"other_hex.txt\"\nBLOCK_SIZE = 36\nPNG_TAIL = \"AE426082\"\n\nwith open(INPUT_FILE, 'r') as f:\n    data = f.read().strip().upper()\n\npng_parts = []\nother_parts = []\npng_ended = False\n\nfor i in range(0, len(data), BLOCK_SIZE):\n    block = data[i:i + BLOCK_SIZE]\n    if len(block) < BLOCK_SIZE:\n        other_parts.append(block)\n        break\n    if i % (BLOCK_SIZE * 2) == 0:  # Even blocks -> PNG\n        if not png_ended:\n            png_parts.append(block)\n            combined = ''.join(png_parts)\n            if PNG_TAIL in combined:\n                pos = combined.find(PNG_TAIL) + len(PNG_TAIL)\n                png_parts = [combined[:pos]]\n                png_ended = True\n        else:\n            other_parts.append(block)\n    else:  # Odd blocks -> Other file\n        other_parts.append(block)\n\nwith open(PNG_OUTPUT, 'w') as f:\n    f.write(''.join(png_parts))\nwith open(OTHER_OUTPUT, 'w') as f:\n    f.write(''.join(other_parts))"
+    },
+    {
+      "type": "paragraph",
+      "text": "Converting `png_hex.txt` to `png_file.png` renders the **first half of the flag**:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-png-file.png",
+      "alt": "First half of flag in PNG",
+      "caption": "png_file.png — Displaying the first half of the flag",
+      "width": 671,
+      "height": 282
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "4. Stream Inversion & JPEG Recovery"
+    },
+    {
+      "type": "paragraph",
+      "text": "Now for the remaining `other_hex.txt`. The challenge description offered a poetic clue:"
+    },
+    {
+      "type": "quote",
+      "text": "*\"I chopped it into many pieces, put it back together, extracted it, tore it down again, twisted it, and rebuilt it once more.\"*"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "*Chopped it into pieces*: The PCAP network segments.",
+        "*Put it back together*: Rebuilding the ZIP.",
+        "*Tore it down again*: Deinterleaving the 36-byte blocks.",
+        "*Twisted it*: Reversing the entire character sequence!"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Reversing `other_hex.txt` using the Linux utility `rev`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "$ rev other_hex.txt > upsidedown.txt"
+    },
+    {
+      "type": "paragraph",
+      "text": "Examining `upsidedown.txt`:"
+    },
+    {
+      "type": "code",
+      "language": "text",
+      "code": "FFD8FFE000104A464946..."
+    },
+    {
+      "type": "paragraph",
+      "text": "The reversed data starts with `FF D8 FF E0` (the standard JPEG JFIF header) and terminates with `FF D9` (JPEG EOI)! Converting this hex string into `jpeg_file.jpg` reveals the **second half of the flag**:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/thirsty-jpeg-file.jpg",
+      "alt": "Second half of flag in JPEG",
+      "caption": "jpeg_file.jpg — Displaying the second half of the flag",
+      "width": 674,
+      "height": 283
+    },
+    {
+      "type": "paragraph",
+      "text": "Stitching both halves together:"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Flag:** `V1t{ju57_4_fun_1_l1k3_p3nnyw0r7_b7w}`"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Challenge 4: Tryna crack? (ZipCrypto KPA & IHDR Height Repair)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The challenge file is `challenge.zip`."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1. Archive Inspection: The ZipCrypto Vulnerability"
+    },
+    {
+      "type": "paragraph",
+      "text": "Examining the archive structure using `zipinfo`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(kali㉿kali)-[]\n└─$ zipinfo challenge.zip\nArchive:  challenge.zip\nZip file size: 19934 bytes, number of entries: 1\n-rw-rw-rw-  3.0 unx    19718 BX stor 25-Oct-16 09:16 quackquackquack.png\n1 file, 19718 bytes uncompressed, 19718 bytes compressed:  0.0%"
+    },
+    {
+      "type": "paragraph",
+      "text": "Two critical details stand out:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "`BX stor`: The compression method is **stored** (`0.0%` compression). The compressed ciphertext corresponds byte-for-byte to the plaintext.",
+        "The encryption scheme is legacy **ZipCrypto** (PKZIP stream cipher)."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Because PNG files have a standardized 8-byte file signature (`89 50 4E 47 0D 0A 1A 0A`) followed immediately by the 4-byte chunk type `IHDR` (`49 48 44 52`), we have at least 12 contiguous bytes of **known plaintext**. This makes the archive entirely vulnerable to a **Known-Plaintext Attack (KPA)**."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2. Recovering Encryption Keys via `bkcrack`"
+    },
+    {
+      "type": "paragraph",
+      "text": "We create a 9-byte plaintext probe containing the PNG header and the start of IHDR, then launch `bkcrack`:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(kali㉿kali)-[]\n└─$ /bkcrack -C challenge.zip -c quackquackquack.png -p png.bin -d decrypted.png\nbkcrack 1.7.1 - 2024-12-21\n[05:25:47] Z reduction using 9 bytes of known plaintext\n100.0 % (9 / 9)\n[05:25:47] Attack on 783459 Z values at index 6\nKeys: 4672d551 bcb3adcb c76d52c5\nFound a solution. Stopping.\n[05:46:38] Keys\n4672d551 bcb3adcb c76d52c5\n[05:46:38] Writing deciphered data decrypted.png\nWrote deciphered data (not compressed)."
+    },
+    {
+      "type": "paragraph",
+      "text": "Within minutes, `bkcrack` reconstructs the internal cipher keys (`4672d551 bcb3adcb c76d52c5`) and outputs the decrypted PNG: `quackquackquack.png`."
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/crack-quackquackquack.png",
+      "alt": "Decrypted duck image",
+      "caption": "Decrypted image displaying a rubber duck with a truncated canvas",
+      "width": 806,
+      "height": 184
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3. Exposing the Honeypot Decoy"
+    },
+    {
+      "type": "paragraph",
+      "text": "Running `exiftool` on the recovered image yields an explicit comment:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(kali㉿kali)-[]\n└─$ exiftool quackquackquack.png\nUser Comment : password for zip file =)))) D4mn_br0_H0n3y_p07_7yp3_5h1d"
+    },
+    {
+      "type": "paragraph",
+      "text": "Notice the string: `H0n3y_p07` (Honeypot). Entering this directly as the flag fails. It is a deliberate decoy designed to punish careless hunters."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "4. Chunk Tampering: Expanding the PNG IHDR Height"
+    },
+    {
+      "type": "paragraph",
+      "text": "Looking at the raw hex structure of the PNG IHDR chunk:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "$ xxd quackquackquack.png | head -n 3\n00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR\n00000010: 0000 0326 0000 00b8 0806 0000 00bc a986  ...&............"
+    },
+    {
+      "type": "paragraph",
+      "text": "In the IHDR specification:"
+    },
+    {
+      "type": "list",
+      "style": "unordered",
+      "items": [
+        "Bytes `0x10-0x13` represent image width: `0000 0326` (806 px)",
+        "Bytes `0x14-0x17` represent image height: `0000 00b8` (184 px)"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "The author artificially cropped the rendering window by shrinking the height parameter in the header. The actual decompressed IDAT scanlines contain far more visual data than the declared 184 pixels."
+    },
+    {
+      "type": "paragraph",
+      "text": "Modifying the height field from `0000 00b8` to `0000 032b` (811 pixels) expands the viewport downward:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/crack-quackquackquack-fixed.png",
+      "alt": "Extended image revealing hidden text",
+      "caption": "quackquackquack_fixed.png — Extended canvas revealing hidden text and Morse code",
+      "width": 806,
+      "height": 811
+    },
+    {
+      "type": "paragraph",
+      "text": "The expanded canvas displays a humorous admission:"
+    },
+    {
+      "type": "quote",
+      "text": "*\"just kidding the real flag is the password in SHA512\"*"
+    },
+    {
+      "type": "paragraph",
+      "text": "Beneath the text lies a row of Morse code: `... .... .- ..... .---- ..---`"
+    },
+    {
+      "type": "paragraph",
+      "text": "Decoding the Morse code:"
+    },
+    {
+      "type": "image",
+      "src": "/assets/images/posts/v1t-ctf-2025/crack-morse-dcode.png",
+      "alt": "Morse code decoded in dcode",
+      "caption": "Decoding Morse symbols: S-H-A-5-1-2",
+      "width": 722,
+      "height": 287
+    },
+    {
+      "type": "paragraph",
+      "text": "The Morse confirms: **`SHA512`**."
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "5. Final Flag Computation"
+    },
+    {
+      "type": "paragraph",
+      "text": "We take the honeypot password string discovered in the Exif metadata (`D4mn_br0_H0n3y_p07_7yp3_5h1d`) and calculate its SHA-512 digest:"
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "┌──(kali㉿kali)-[]\n└─$ echo -n \"D4mn_br0_H0n3y_p07_7yp3_5h1d\" | sha512sum\n7083748baa3a42dc0a93811e4f5150e7ae1a050a0929f8c304f707c8c44fc95d86c476d11c9e56709edc30eba5f2d82396f426d93870b56b1a9573eaac8d0373  -"
+    },
+    {
+      "type": "paragraph",
+      "text": "Wrapping the SHA-512 digest in the `V1t{...}` flag wrapper:"
+    },
+    {
+      "type": "paragraph",
+      "text": "**Flag:** `V1t{7083748baa3a42dc0a93811e4f5150e7ae1a050a0929f8c304f707c8c44fc95d86c476d11c9e56709edc30eba5f2d82396f426d93870b56b1a9573eaac8d0373}`"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "Technical Summary & Core Takeaways"
+    },
+    {
+      "type": "paragraph",
+      "text": "Solving these four challenges highlights several core principles of practical security analysis:"
+    },
+    {
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**Metadata Is Never Incidental**: In every single challenge (`67`, `Fuck Da Binary`, `Thirsty Sick`, and `Tryna crack?`), critical cryptographic parameters and algorithmic directions were embedded directly into ZIP comments and Exif tags.",
+        "**Recognizing Encryption Bounds**: ZipCrypto's internal state can be mathematically collapsed with as few as 9 bytes of known plaintext when compression is disabled. Modern security architectures should always mandate AES-256 (WinZip AE-2) or authenticated encryption.",
+        "**Stream Deinterleaving & Modular Arithmetic**: Network forensics often requires looking beyond standard protocol parsers. When files are interleaved in fixed byte blocks, modular index filtering (`i % (BLOCK_SIZE * 2)`) provides clean algorithmic separation.",
+        "**Header Integrity vs. Stream Content**: Image viewers blindly trust declared chunk headers. When analyzing suspicious PNGs or JPEGs, inspecting raw scanline volume against declared dimensions frequently exposes hidden data."
+      ]
+    }
+  ]
+}
