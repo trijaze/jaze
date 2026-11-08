@@ -12,7 +12,7 @@
       <link>https://jaze.v1t.site/blog/19-xss-in-24-hours/</link>
       <guid isPermaLink="true">https://jaze.v1t.site/blog/19-xss-in-24-hours/</guid>
       <pubDate>Mon, 26 Oct 2026 00:00:00 GMT</pubDate>
-      <description>A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.</description>
+      <description>A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets creates persistent client-side sinks in React components.</description>
       <category>wordpress</category>
       <category>xss</category>
       <category>appsec</category>
@@ -24,7 +24,7 @@
       <link>https://jaze.v1t.site/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/</link>
       <guid isPermaLink="true">https://jaze.v1t.site/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/</guid>
       <pubDate>Sat, 31 Oct 2026 00:00:00 GMT</pubDate>
-      <description>A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe.</description>
+      <description>How trusting client-supplied attachment IDs in WooCommerce photo reviews turned standard comment cleanup into an unauthenticated arbitrary post deletion vulnerability.</description>
       <category>cve</category>
       <category>idor</category>
       <category>woocommerce</category>
@@ -36,7 +36,7 @@
       <link>https://jaze.v1t.site/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/</link>
       <guid isPermaLink="true">https://jaze.v1t.site/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/</guid>
       <pubDate>Fri, 30 Oct 2026 00:00:00 GMT</pubDate>
-      <description>After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE.</description>
+      <description>A technical audit of an extensible form framework uncovering unauthenticated file uploads with path traversal and race-condition exploitation, yielding CVE-2026-62025 (CVSS 9.0).</description>
       <category>cve</category>
       <category>critical</category>
       <category>rce</category>
@@ -48,7 +48,7 @@
       <link>https://jaze.v1t.site/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/</link>
       <guid isPermaLink="true">https://jaze.v1t.site/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/</guid>
       <pubDate>Wed, 28 Oct 2026 00:00:00 GMT</pubDate>
-      <description>A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump.</description>
+      <description>A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an in-band database disclosure.</description>
       <category>cve</category>
       <category>sqli</category>
       <category>rest-api</category>
@@ -60,7 +60,7 @@
       <link>https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/</link>
       <guid isPermaLink="true">https://jaze.v1t.site/blog/i-bricked-my-esp32-s3/</guid>
       <pubDate>Wed, 04 Nov 2026 00:00:00 GMT</pubDate>
-      <description>What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.</description>
+      <description>A technical post-mortem on ESP32-S3 hardware flash encryption, eFuses, JTAG lockouts, and how Espressif&#39;s parity-based counter mechanism allowed chip recovery.</description>
       <category>esp32</category>
       <category>hardware-security</category>
       <category>flash-encryption</category>

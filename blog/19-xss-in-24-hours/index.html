@@ -4,25 +4,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#020c00">
-    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-EjUN8GRGSRCXjp15shhZbYAlxf8eaSsS5Vd63TnXZLo=&#39; &#39;sha256-gJQXl7fUm6dXm0Q3cdVnzHMqzElSNgYBkaFceHoKgHg=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
+    <meta http-equiv="Content-Security-Policy" content="default-src &#39;self&#39;; base-uri &#39;none&#39;; connect-src &#39;self&#39; https://cveawg.mitre.org; font-src &#39;self&#39;; form-action &#39;self&#39;; frame-src &#39;none&#39;; img-src &#39;self&#39; data: https:; object-src &#39;none&#39;; script-src &#39;self&#39; &#39;sha256-TQM8+ADdNjeB8n3WpmLWrG49Ibjl5fPsY1yRgFgTulc=&#39; &#39;sha256-gJQXl7fUm6dXm0Q3cdVnzHMqzElSNgYBkaFceHoKgHg=&#39;; style-src &#39;self&#39;; worker-src &#39;none&#39;">
 
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://jaze.v1t.site/blog/19-xss-in-24-hours/">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="alternate" type="application/rss+xml" title="Jaze research feed" href="/feed.xml">
     <title>19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots — Jaze</title>
-    <meta name="description" content="A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the e…">
+    <meta name="description" content="A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets…">
     <meta name="author" content="Jaze">
     <meta property="og:site_name" content="Jaze Security Research">
     <meta property="og:type" content="article">
     <meta property="og:title" content="19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots — Jaze">
-    <meta property="og:description" content="A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the e…">
+    <meta property="og:description" content="A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets…">
     <meta property="og:url" content="https://jaze.v1t.site/blog/19-xss-in-24-hours/">
     <meta property="og:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
     <meta property="og:image:alt" content="Jaze security research profile">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots — Jaze">
-    <meta name="twitter:description" content="A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the e…">
+    <meta name="twitter:description" content="A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets…">
     <meta name="twitter:image" content="https://jaze.v1t.site/assets/images/jaze_v1t.png">
     <link rel="stylesheet" href="/assets/css/tokens.css">
     <link rel="stylesheet" href="/assets/css/base.css">
@@ -35,7 +35,7 @@
   "@id": "https://jaze.v1t.site/blog/19-xss-in-24-hours/#article",
   "url": "https://jaze.v1t.site/blog/19-xss-in-24-hours/",
   "headline": "19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots",
-  "description": "A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.",
+  "description": "A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets creates persistent client-side sinks in React components.",
   "datePublished": "2026-10-26",
   "dateModified": "2026-10-26",
   "author": {
@@ -124,30 +124,26 @@
         <header class="post-header">
             <p class="section-kicker">Research note</p>
             <h1>19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots</h1>
-            <p class="post-deck">A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.</p>
+            <p class="post-deck">A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets creates persistent client-side sinks in React components.</p>
             <div class="post-meta">
                 <span>12 min read</span>
             </div>
             <ul class="tag-list" aria-label="Topics"><li class="tag">wordpress</li><li class="tag">xss</li><li class="tag">appsec</li><li class="tag">gutenberg</li><li class="tag">research</li></ul>
         </header>
         <div class="post-layout">
-            <nav class="post-toc" aria-label="On this page"><strong>On this page</strong><ul><li data-level="2"><a href="#preface">Preface</a></li><li data-level="2"><a href="#1-the-anatomy-of-modern-wordpress-architectures">1. The Anatomy of Modern WordPress Architectures</a></li><li data-level="2"><a href="#2-breaking-down-the-19-vulnerability-flow-signatures">2. Breaking Down the 19 Vulnerability Flow Signatures</a></li><li data-level="3"><a href="#category-a-the-react-dangerouslysetinnerhtml-hydration-flaw">Category A: The React `dangerouslySetInnerHTML` Hydration Flaw</a></li><li data-level="4"><a href="#the-architecture-flow">The Architecture Flow:</a></li><li data-level="4"><a href="#plugins-exhibiting-this-signature">Plugins Exhibiting This Signature:</a></li><li data-level="3"><a href="#category-b-missing-protocol-allowlist-on-client-side-links-href-iframe">Category B: Missing Protocol Allowlist on Client-Side Links (`href` &amp; `iframe`)</a></li><li data-level="4"><a href="#the-architecture-flow-2">The Architecture Flow:</a></li><li data-level="4"><a href="#plugins-exhibiting-this-signature-2">Plugins Exhibiting This Signature:</a></li><li data-level="3"><a href="#category-c-unsanitized-options-bags-in-media-players-page-builders">Category C: Unsanitized Options Bags in Media Players &amp; Page Builders</a></li><li data-level="4"><a href="#the-architecture-flow-3">The Architecture Flow:</a></li><li data-level="4"><a href="#plugins-exhibiting-this-signature-3">Plugins Exhibiting This Signature:</a></li><li data-level="3"><a href="#category-d-administrative-ui-rest-collection-reflected-ingestion">Category D: Administrative UI &amp; REST Collection Reflected Ingestion</a></li><li data-level="4"><a href="#the-architecture-flow-4">The Architecture Flow:</a></li><li data-level="4"><a href="#plugins-exhibiting-this-signature-4">Plugins Exhibiting This Signature:</a></li><li data-level="2"><a href="#3-the-methodology-how-to-systematically-trace-these-paths">3. The Methodology: How to Systematically Trace These Paths</a></li><li data-level="3"><a href="#step-1-pinpoint-the-hydration-bridge">Step 1: Pinpoint the Hydration Bridge</a></li><li data-level="3"><a href="#step-2-grep-the-client-side-sinks">Step 2: Grep the Client-Side Sinks</a></li><li data-level="3"><a href="#step-3-verify-the-wordpress-core-boundary">Step 3: Verify the WordPress Core Boundary</a></li><li data-level="2"><a href="#4-the-defensive-engineering-lessons">4. The Defensive Engineering Lessons</a></li><li data-level="3"><a href="#1-never-trust-react-to-validate-urls">1. Never Trust React to Validate URLs</a></li><li data-level="3"><a href="#2-sanitize-on-the-server-before-serialization">2. Sanitize on the Server Before Serialization</a></li><li data-level="3"><a href="#3-replace-dangerouslysetinnerhtml-with-structured-components">3. Replace `dangerouslySetInnerHTML` with Structured Components</a></li><li data-level="3"><a href="#4-use-text-instead-of-html-for-data-ingestion">4. Use `.text()` Instead of `.html()` for Data Ingestion</a></li><li data-level="2"><a href="#5-the-triage-reality-what-actually-happened-to-the-19-reports">5. The Triage Reality: What Actually Happened to the 19 Reports?</a></li><li data-level="2"><a href="#6-personal-reflections">6. Personal Reflections</a></li></ul></nav>
+            <nav class="post-toc" aria-label="On this page"><strong>On this page</strong><ul><li data-level="2"><a href="#preface">Preface</a></li><li data-level="2"><a href="#1-modern-wordpress-block-architecture">1. Modern WordPress Block Architecture</a></li><li data-level="2"><a href="#2-four-common-sink-signatures">2. Four Common Sink Signatures</a></li><li data-level="3"><a href="#category-a-react-dangerouslysetinnerhtml-hydration">Category A: React `dangerouslySetInnerHTML` Hydration</a></li><li data-level="4"><a href="#data-flow">Data Flow:</a></li><li data-level="4"><a href="#examples-of-plugins-with-this-signature">Examples of Plugins with this Signature:</a></li><li data-level="3"><a href="#category-b-missing-protocol-allowlist-on-client-side-links">Category B: Missing Protocol Allowlist on Client-Side Links</a></li><li data-level="4"><a href="#data-flow-2">Data Flow:</a></li><li data-level="4"><a href="#examples-of-plugins-with-this-signature-2">Examples of Plugins with this Signature:</a></li><li data-level="3"><a href="#category-c-unsanitized-options-bags-in-media-players">Category C: Unsanitized Options Bags in Media Players</a></li><li data-level="4"><a href="#data-flow-3">Data Flow:</a></li><li data-level="4"><a href="#examples-of-plugins-with-this-signature-3">Examples of Plugins with this Signature:</a></li><li data-level="3"><a href="#category-d-administrative-ui-and-rest-reflected-ingestion">Category D: Administrative UI and REST Reflected Ingestion</a></li><li data-level="4"><a href="#data-flow-4">Data Flow:</a></li><li data-level="4"><a href="#examples-of-plugins-with-this-signature-4">Examples of Plugins with this Signature:</a></li><li data-level="2"><a href="#3-audit-methodology">3. Audit Methodology</a></li><li data-level="3"><a href="#step-1-locate-the-hydration-bridge">Step 1: Locate the Hydration Bridge</a></li><li data-level="3"><a href="#step-2-trace-client-side-sinks">Step 2: Trace Client-Side Sinks</a></li><li data-level="3"><a href="#step-3-verify-role-boundaries">Step 3: Verify Role Boundaries</a></li><li data-level="2"><a href="#4-defensive-engineering-recommendations">4. Defensive Engineering Recommendations</a></li><li data-level="3"><a href="#1-enforce-protocol-allowlists-for-urls">1. Enforce Protocol Allowlists for URLs</a></li><li data-level="3"><a href="#2-sanitize-attributes-before-server-serialization">2. Sanitize Attributes Before Server Serialization</a></li><li data-level="3"><a href="#3-replace-raw-html-injection-with-curated-components">3. Replace Raw HTML Injection with Curated Components</a></li><li data-level="3"><a href="#4-use-text-instead-of-html-for-data-ingestion">4. Use `.text()` Instead of `.html()` for Data Ingestion</a></li><li data-level="2"><a href="#5-triage-breakdown">5. Triage Breakdown</a></li><li data-level="2"><a href="#6-takeaway">6. Takeaway</a></li></ul></nav>
             <article class="post-prose"><h2 id="preface">Preface</h2>
-<p>19 reports in 24 hours 🤯.</p>
-<p>A few weeks ago, I had a bug hunting experience that surprised me in two very different ways.</p>
-<p>I found 19 issues in one day once I realized the same trick worked across different plugins. This was my first time finding this many bugs in a row. I honestly wasn’t expecting that, especially when it feels like AI is everywhere in bug bounty lately.</p>
-<p>Finding 19 Cross-Site Scripting vulnerabilities across 19 different plugins within a single day might sound flashy from the outside, but anyone who has spent real time auditing WordPress code knows the truth: it wasn&#39;t genius, and there was nothing superhuman about it.</p>
-<p>It was simply a novel experience for me—a day where a specific architectural pattern clicked, the code signatures became glaringly repetitive, and tracing source-to-sink flows turned into a consistent, methodical routine.</p>
-<p>I am sharing these notes not as a trophy case, but as a technical post-mortem, an architectural audit guide, and an honest reflection. We will look at how modern WordPress plugins—especially those bridging PHP server-side renderers with modern React frontends, Elementor widgets, and administrative export tables—repeatedly fall victim to the exact same architectural blindspots.</p>
-<p><em>Note: In accordance with responsible disclosure practices and to focus purely on the defensive engineering lessons, no exploit payloads or specific attack strings are disclosed in this document. We focus strictly on the entry points, the data flows, the sink mechanisms, and the root-cause code patterns.</em></p>
-<h2 id="1-the-anatomy-of-modern-wordpress-architectures">1. The Anatomy of Modern WordPress Architectures</h2>
-<p>A few years ago, WordPress XSS was simple: someone called <code>echo $_GET[&#39;msg&#39;]</code> without <code>esc_html()</code>.</p>
-<p>Today, the ecosystem looks very different. The WordPress editor has evolved into the Block Editor (Gutenberg), third-party page builders like Elementor dominate theme development, and administrative dashboards are increasingly built with decoupled JavaScript frontends (React, Vue, jQuery micro-frameworks).</p>
-<p>This architectural evolution has shifted where vulnerabilities live:</p>
-<ol><li><strong>The Server-to-Client Data Bridge (<code>data-attributes</code>):</strong> Server-side renderers (<code>render.php</code>) serialize block attributes as JSON and attach them to wrapper elements. PHP considers this &quot;safe&quot; because it calls <code>wp_json_encode()</code> and <code>esc_attr()</code>.</li><li><strong>The Client-Side Hydration Sink:</strong> Client-side React scripts boot up on <code>DOMContentLoaded</code>, read the DOM attribute via <code>JSON.parse(element.dataset.attributes)</code>, and mount components.</li><li><strong>The Blind Faith in Stored Block Attributes:</strong> Developers assume that because Gutenberg block attributes are saved inside post content comments (<code>&lt;!-- wp:block {...} --&gt;</code>), they are inherently clean. In reality, any authenticated user with draft editing privileges (<strong>Contributor+</strong>) can send arbitrary JSON objects in block delimiters.</li></ol>
-<p>Once you understand this three-step pipeline, you realize that hundreds of plugins share the exact same structural flaw.</p>
-<h2 id="2-breaking-down-the-19-vulnerability-flow-signatures">2. Breaking Down the 19 Vulnerability Flow Signatures</h2>
-<p>Across the 19 plugins audited during this sprint, the root causes fell cleanly into four distinct vulnerability signatures.</p>
+<p>During a recent research sprint through the WordPress plugin repository, I identified 19 Cross-Site Scripting vulnerabilities across 19 different plugins within a 24-hour window.</p>
+<p>The high volume was not the result of novel exploit payloads, but rather a recurring architectural pattern: modern WordPress plugins serializing Gutenberg block attributes into DOM data attributes, which client-side React components then ingest unsafely.</p>
+<p>Once the data flow between PHP server-side renderers, DOM dataset bridges, and React hydration sinks became clear, finding these issues became a matter of systematic source-to-sink tracing.</p>
+<p>These notes document the root causes, the sink categories, the audit methodology, and defensive engineering recommendations for securing modern WordPress block architectures.</p>
+<p><em>Note: In accordance with responsible disclosure practices and to focus on defensive engineering, no exploit payloads or attack strings are disclosed in this document. We focus strictly on the entry points, data flows, sink mechanisms, and root-cause code patterns.</em></p>
+<h2 id="1-modern-wordpress-block-architecture">1. Modern WordPress Block Architecture</h2>
+<p>Historically, WordPress XSS often stemmed from straightforward PHP output flaws such as unescaped <code>echo $_GET[&#39;param&#39;]</code>.</p>
+<p>Modern WordPress plugins frequently bridge PHP server-side renderers with client-side JavaScript frameworks (React, Vue, or frontend widget libraries). This architecture introduces a specific data flow:</p>
+<ol><li><strong>The Server-to-Client Data Bridge (<code>data-attributes</code>):</strong> Server-side renderers (<code>render.php</code>) serialize block attributes as JSON and attach them to wrapper elements. Developers often treat this as safe because <code>wp_json_encode()</code> and <code>esc_attr()</code> are applied.</li><li><strong>The Client-Side Hydration Sink:</strong> Client-side React scripts initialize on <code>DOMContentLoaded</code>, read attributes via <code>JSON.parse(element.dataset.attributes)</code>, and mount components.</li><li><strong>Trust in Stored Block Attributes:</strong> Block attributes stored inside post content comments (<code>&lt;!-- wp:block {...} --&gt;</code>) are not sanitized by WordPress core KSES filters. Any user with post-editing capabilities (<strong>Contributor+</strong>) can submit arbitrary JSON values within these block delimiters.</li></ol>
+<h2 id="2-four-common-sink-signatures">2. Four Common Sink Signatures</h2>
+<p>Across the 19 plugins audited, the root causes grouped into four recurring signatures:</p>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
                     <span>text</span>
@@ -172,28 +168,27 @@
 +-----------------------------------------------------------------------------------------+</code></pre>
                 
             </figure>
-<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">Signature</th><th scope="col" style="text-align: left;">Vulnerability Pattern</th><th scope="col" style="text-align: left;">Server Origin</th><th scope="col" style="text-align: left;">DOM / Client Sink</th><th scope="col" style="text-align: center;">Severity</th></tr></thead><tbody><tr><td style="text-align: left;">Sig 1</td><td style="text-align: left;">React <code>dangerouslySetInnerHTML</code></td><td style="text-align: left;"><code>wp_json_encode($attrs)</code></td><td style="text-align: left;"><code>data-attributes</code> → React Component</td><td style="text-align: center;">High</td></tr>
+<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">Signature</th><th scope="col" style="text-align: left;">Vulnerability Pattern</th><th scope="col" style="text-align: left;">Server Origin</th><th scope="col" style="text-align: left;">DOM / Client Sink</th><th scope="col" style="text-align: center;">Severity</th></tr></thead><tbody><tr><td style="text-align: left;">Sig 1</td><td style="text-align: left;">React <code>dangerouslySetInnerHTML</code></td><td style="text-align: left;"><code>wp_json_encode($attrs)</code></td><td style="text-align: left;"><code>data-attributes</code> -&gt; React Component</td><td style="text-align: center;">High</td></tr>
 <tr><td style="text-align: left;">Sig 2</td><td style="text-align: left;">Protocol Validation Bypass</td><td style="text-align: left;">Unsanitized URL attribute</td><td style="text-align: left;"><code>&lt;a href={link}&gt;</code> / <code>window.location</code></td><td style="text-align: center;">Medium</td></tr>
 <tr><td style="text-align: left;">Sig 3</td><td style="text-align: left;">Widget Options Bag Injection</td><td style="text-align: left;">Unsanitized config payload</td><td style="text-align: left;">ArtPlayer / Plyr / Carousel DOM</td><td style="text-align: center;">High</td></tr>
 <tr><td style="text-align: left;">Sig 4</td><td style="text-align: left;">Admin AJAX / Export Reflection</td><td style="text-align: left;">Stored post titles / REST</td><td style="text-align: left;">jQuery <code>.html()</code> in admin dashboard</td><td style="text-align: center;">Medium</td></tr></tbody></table></div>
-<h3 id="category-a-the-react-dangerouslysetinnerhtml-hydration-flaw">Category A: The React `dangerouslySetInnerHTML` Hydration Flaw</h3>
-<p>This was the single most common pattern discovered across Gutenberg block collections.</p>
-<h4 id="the-architecture-flow">The Architecture Flow:</h4>
-<ol><li><strong>Source:</strong> A block attribute defined in <code>block.json</code> (e.g., <code>title</code>, <code>desc</code>, <code>prefixText</code>, <code>icon.svg</code>).</li><li><strong>Storage:</strong> The Contributor creates a post or draft containing raw block attributes inside the Gutenberg post content.</li><li><strong>Server-Side Render (<code>build/render.php</code>):</strong></li></ol>
+<h3 id="category-a-react-dangerouslysetinnerhtml-hydration">Category A: React `dangerouslySetInnerHTML` Hydration</h3>
+<p>This was the most frequent pattern found in Gutenberg block libraries.</p>
+<h4 id="data-flow">Data Flow:</h4>
+<ol><li><strong>Source:</strong> A block attribute defined in <code>block.json</code> (such as <code>title</code>, <code>desc</code>, <code>prefixText</code>, or <code>icon.svg</code>).</li><li><strong>Storage:</strong> The Contributor creates a post or draft containing raw block attributes inside Gutenberg post comments.</li><li><strong>Server-Side Render (<code>build/render.php</code>):</strong></li></ol>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
                     <span>php</span>
                     <button class="copy-code" type="button" data-copy-code>Copy</button>
                 </div>
-                <pre><code class="language-php">   // Pattern seen in b-blocks, advanced-post-block, b-slider, button-block, text-typing:
-   $json_attributes = wp_json_encode( $attributes );
+                <pre><code class="language-php">   $json_attributes = wp_json_encode( $attributes );
    ?&gt;
    &lt;div &lt;?php echo get_block_wrapper_attributes(); ?&gt;
         data-attributes=&quot;&lt;?php echo esc_attr( $json_attributes ); ?&gt;&quot;&gt;
    &lt;/div&gt;</code></pre>
                 
             </figure>
-<p><em>Why developers think it&#39;s safe:</em> <code>esc_attr()</code> protects the HTML attribute itself. The page source does not execute HTML tags here.</p>
+<p><code>esc_attr()</code> protects the HTML attribute itself, but once parsed on the client side, the underlying JSON strings remain unescaped.</p>
 <ol><li><strong>Client-Side Sink (<code>build/view.js</code>):</strong></li></ol>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
@@ -204,38 +199,36 @@
        const wrapper = document.querySelector(&quot;.wp-block-custom&quot;);
        const attributes = JSON.parse(wrapper.dataset.attributes);
        
-       // SINK: Directly injecting user-controlled properties into the DOM
        root.render(
            &lt;div dangerouslySetInnerHTML={{ __html: attributes.icon?.svg }} /&gt;
        );
    });</code></pre>
                 
             </figure>
-<h4 id="plugins-exhibiting-this-signature">Plugins Exhibiting This Signature:</h4>
-<ul><li><strong><code>b-blocks</code> (<code>build/accordion-block/render.php</code>):</strong> Block attributes serialized into <code>data-attributes</code>, hydrated by React and injected via <code>dangerouslySetInnerHTML</code> into accordion titles and contents.</li><li><strong><code>advanced-post-block</code> (<code>build/render.php</code>):</strong> The <code>readMore.icon</code> attribute parsed on the frontend in the Read More component and passed directly to raw HTML injection.</li><li><strong><code>b-slider</code> (<code>build/render.php</code>):</strong> The post slider renderer passes the full attributes object. When <code>sourceType</code> is set to post items, the button text property is pushed directly to <code>dangerouslySetInnerHTML</code>.</li><li><strong><code>before-after-image-compare</code> (<code>build/render.php</code>):</strong> The <code>beforeLabel</code> and <code>afterLabel</code> attributes are parsed from <code>dataset.attributes</code> and rendered via raw inner HTML.</li><li><strong><code>button-block</code> (<code>build/render.php</code>):</strong> Unsets the <code>securityPassword</code> attribute, but leaves the nested <code>icon.svg</code> object completely intact, which React mounts via <code>dangerouslySetInnerHTML</code>.</li><li><strong><code>text-typing</code> (<code>build/render.php</code>):</strong> Attributes <code>prefixText</code> and <code>suffixText</code> are parsed from the DOM dataset and injected directly into the React DOM tree without escaping.</li><li><strong><code>panorama</code> (<code>build/blocks/product-spot/render.php</code>):</strong> Hotspot marker icons are parsed on the client side and passed to <code>dangerouslySetInnerHTML: { __html: hotspot.icon }</code>.</li><li><strong><code>stepped-content</code>:</strong> Step navigation headings and step descriptions follow the same block attribute hydration cycle into unescaped DOM nodes.</li></ul>
-<h3 id="category-b-missing-protocol-allowlist-on-client-side-links-href-iframe">Category B: Missing Protocol Allowlist on Client-Side Links (`href` &amp; `iframe`)</h3>
-<p>In this pattern, developers assumed that because an attribute was rendered as an HTML attribute rather than HTML markup, standard attribute escaping (<code>esc_attr</code> or React JSX string binding) was sufficient.</p>
-<h4 id="the-architecture-flow-2">The Architecture Flow:</h4>
-<ol><li><strong>Source:</strong> A URL attribute (e.g., <code>gallery[].link</code>, <code>btnLink</code>, <code>item.content</code>).</li><li><strong>Transformation:</strong> The string is bound to the <code>href</code> attribute of an anchor tag <code>&lt;a&gt;</code> or the <code>src</code> attribute of an <code>&lt;iframe&gt;</code>.</li><li><strong>The Blindspot:</strong> React JSX automatically escapes characters like <code>&lt;</code> and <code>&gt;</code>, preventing tag breakouts. <strong>However, React does NOT inspect URL protocol schemes.</strong> If a string begins with a non-web scheme, React writes <code>href=&quot;...&quot;</code> verbatim.</li><li><strong>The Sink:</strong> When a user clicks the button or views the iframe, the browser invokes script execution.</li></ol>
-<h4 id="plugins-exhibiting-this-signature-2">Plugins Exhibiting This Signature:</h4>
-<ul><li><strong><code>3d-image-gallery</code> (<code>build/render.php</code>):</strong> The <code>gallery[].link</code> attribute is passed through <code>wp_json_encode()</code>. On the frontend, the carousel library renders each slide wrapped in an <code>&lt;a&gt;</code> tag whose <code>href</code> is assigned directly from the JSON link property without validating against <code>http://</code> or <code>https://</code>.</li><li><strong><code>embed-lottie-player</code> (<code>build/render.php</code>):</strong> The block&#39;s <code>link</code> attribute is passed to React&#39;s <code>createElement(&quot;a&quot;, { href: link })</code> without protocol verification.</li><li><strong><code>content-slider-block</code> (<code>build/render.php</code>):</strong> The slider button link (<code>slides[].btnLink</code>) is parsed from <code>data-attributes</code> and passed directly into <code>href: btnLink</code>. The developer attempted to sanitize slide text, but forgot protocol validation on button destinations.</li><li><strong><code>icon-list-block</code> (<code>build/render.php</code>):</strong> Server-side sanitization runs <code>esc_url_raw()</code> on <code>lists[].link</code>, but client-side rendering uses a custom regex that preserves links on nested tags without enforcing protocol allowlists.</li><li><strong><code>lightbox-block</code> (<code>build/render.php</code>):</strong> In <code>build/view.js</code>, when rendering external media, the component mounts an <code>&lt;iframe&gt;</code> whose <code>src</code> attribute is populated directly with unvalidated <code>item.content</code>.</li></ul>
-<h3 id="category-c-unsanitized-options-bags-in-media-players-page-builders">Category C: Unsanitized Options Bags in Media Players &amp; Page Builders</h3>
-<p>This category involves plugins integrating complex third-party JavaScript libraries (such as Plyr, ArtPlayer, or custom video wrappers) or Page Builder extensions.</p>
-<h4 id="the-architecture-flow-3">The Architecture Flow:</h4>
-<ol><li><strong>Source:</strong> Plugin settings, Elementor widget options, or block settings dictionaries.</li><li><strong>The Flaw:</strong> Developers often sanitize the primary fields (e.g., video URL, poster image), but leave the generic &quot;options&quot; or &quot;player config&quot; bag uninspected.</li><li><strong>The Sink:</strong> The options dictionary is passed to the underlying player library&#39;s initialization function, which generates internal DOM elements (tooltips, controls, custom overlays).</li></ol>
-<h4 id="plugins-exhibiting-this-signature-3">Plugins Exhibiting This Signature:</h4>
-<ul><li><strong><code>html5-video-player</code> (<code>inc/functions.php</code> &amp; <code>build/blocks/render.php</code>):</strong> The sanitization routine <code>h5vp_process_block_attributes()</code> explicitly cleans <code>source</code>, <code>poster</code>, and <code>styles</code>, but completely ignores <code>$attributes[&#39;options&#39;]</code>. This configuration object is embedded in <code>data-attributes</code> and ingested by the Plyr player instance on the frontend.</li><li><strong><code>media-player-addons-for-elementor</code> (<code>widgets/</code>):</strong> An Elementor widget where poster metadata and video album attributes are stored in <code>_elementor_data</code>. When ArtPlayer initializes the player layout, it pulls the unescaped album poster configuration directly into its DOM rendering pipeline.</li><li><strong><code>advance-custom-html</code> (<code>build/block/render.php</code>):</strong> The plugin renders custom HTML blocks via PHP. In <code>build/block/render.php</code>, the attribute <code>$attributes[&#39;HTML&#39;]</code> is output with an explicit <code>// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped</code> comment, trusting that the user who saved the block has full unfiltered HTML rights, even when authored by a Contributor.</li><li><strong><code>parallax-section</code> (<code>build/render.php</code>):</strong> The server-side renderer applies <code>wp_kses()</code> to block content, but its custom <code>$allowed_html</code> schema explicitly permits <code>iframe</code> elements combined with the <code>srcdoc</code> attribute, allowing full nested HTML contexts to be saved and rendered.</li></ul>
-<h3 id="category-d-administrative-ui-rest-collection-reflected-ingestion">Category D: Administrative UI &amp; REST Collection Reflected Ingestion</h3>
-<p>Not all findings lived on the public frontend. Several lived inside the WordPress administrative interface, where administrative actions processed data generated by lower-privileged users.</p>
-<h4 id="the-architecture-flow-4">The Architecture Flow:</h4>
-<ol><li><strong>Source:</strong> Stored database records (post titles created by Contributors) or REST API collection endpoints.</li><li><strong>The Bridge:</strong> Admin JavaScript making AJAX requests to fetch records for bulk actions, export dialogs, or map marker editors.</li><li><strong>The Sink:</strong> Admin JavaScript taking server responses and inserting them into modal dialogs or table dropdowns using jQuery&#39;s <code>.html()</code>.</li></ol>
-<h4 id="plugins-exhibiting-this-signature-4">Plugins Exhibiting This Signature:</h4>
-<ul><li><strong><code>e2pdf</code> (<code>js/e2pdf.backend.js</code> &amp; <code>Helper_E2pdf_Field::render()</code>):</strong> In the admin bulk export modal, E2Pdf renders a list of post datasets. When building the list of available items, <code>js/e2pdf.backend.js</code> reads post titles returned by the server and calls <code>jQuery(&#39;&lt;label&gt;&#39;).html(option.value)</code>. Because Contributors can create posts with crafted titles, an Administrator opening the PDF export window has their browser execute the injected script.</li><li><strong><code>mapsvg-lite-interactive-vector-maps</code> (<code>POST /wp-json/mapsvg/v1/collection/{collection_name}</code>):</strong> The map marker collection REST API endpoint allows users with <code>edit_posts</code> privileges to save region and marker metadata. When these markers are rendered in administrative popovers or frontend views, the template engine processes unescaped Handlebars expressions (triple curly braces around description), pushing raw database content straight into the DOM.</li></ul>
-<h2 id="3-the-methodology-how-to-systematically-trace-these-paths">3. The Methodology: How to Systematically Trace These Paths</h2>
-<p>Auditing 19 plugins in 24 hours was not about reading hundreds of thousands of lines of code top-to-bottom. It was about developing an efficient mental parser for modern WordPress block architectures.</p>
-<p>Here is the exact three-step audit loop I followed:</p>
-<h3 id="step-1-pinpoint-the-hydration-bridge">Step 1: Pinpoint the Hydration Bridge</h3>
-<p>Whenever you inspect a plugin with Gutenberg blocks, skip the admin settings entirely. Open the <code>build/</code> folder and inspect <code>render.php</code>. Look for one single pattern:</p>
+<h4 id="examples-of-plugins-with-this-signature">Examples of Plugins with this Signature:</h4>
+<ul><li><strong><code>b-blocks</code> (<code>build/accordion-block/render.php</code>):</strong> Block attributes serialized into <code>data-attributes</code>, hydrated by React and injected via <code>dangerouslySetInnerHTML</code> into accordion titles and contents.</li><li><strong><code>advanced-post-block</code> (<code>build/render.php</code>):</strong> The <code>readMore.icon</code> attribute parsed in the Read More component and injected into raw HTML.</li><li><strong><code>b-slider</code> (<code>build/render.php</code>):</strong> When <code>sourceType</code> is set to post items, the button text property is passed directly to <code>dangerouslySetInnerHTML</code>.</li><li><strong><code>before-after-image-compare</code> (<code>build/render.php</code>):</strong> The <code>beforeLabel</code> and <code>afterLabel</code> attributes parsed from <code>dataset.attributes</code> and rendered via unescaped inner HTML.</li><li><strong><code>button-block</code> (<code>build/render.php</code>):</strong> Clears the <code>securityPassword</code> attribute, but leaves the nested <code>icon.svg</code> object intact, which React mounts via <code>dangerouslySetInnerHTML</code>.</li><li><strong><code>text-typing</code> (<code>build/render.php</code>):</strong> Attributes <code>prefixText</code> and <code>suffixText</code> parsed from the DOM dataset and injected into the React tree without escaping.</li><li><strong><code>panorama</code> (<code>build/blocks/product-spot/render.php</code>):</strong> Hotspot marker icons parsed on the client side and passed to <code>dangerouslySetInnerHTML: { __html: hotspot.icon }</code>.</li><li><strong><code>stepped-content</code>:</strong> Step headings and descriptions follow the same block attribute hydration path into unescaped DOM nodes.</li></ul>
+<h3 id="category-b-missing-protocol-allowlist-on-client-side-links">Category B: Missing Protocol Allowlist on Client-Side Links</h3>
+<p>In this pattern, attributes are bound to HTML attributes rather than markup. While React JSX automatically escapes characters like <code>&lt;</code> and <code>&gt;</code>, preventing tag breakouts, it does not inspect URL protocol schemes.</p>
+<h4 id="data-flow-2">Data Flow:</h4>
+<ol><li><strong>Source:</strong> A URL attribute (<code>gallery[].link</code>, <code>btnLink</code>, <code>item.content</code>).</li><li><strong>Binding:</strong> The string is bound to the <code>href</code> attribute of an <code>&lt;a&gt;</code> tag or <code>src</code> of an <code>&lt;iframe&gt;</code>.</li><li><strong>The Gap:</strong> If the string starts with <code>javascript:</code>, React writes the attribute verbatim.</li><li><strong>Execution:</strong> User interaction (clicking the link or loading the frame) executes the script.</li></ol>
+<h4 id="examples-of-plugins-with-this-signature-2">Examples of Plugins with this Signature:</h4>
+<ul><li><strong><code>3d-image-gallery</code> (<code>build/render.php</code>):</strong> The <code>gallery[].link</code> attribute passed through <code>wp_json_encode()</code>. On the frontend, each slide is wrapped in an <code>&lt;a&gt;</code> tag whose <code>href</code> is assigned directly without verifying <code>http://</code> or <code>https://</code>.</li><li><strong><code>embed-lottie-player</code> (<code>build/render.php</code>):</strong> The block&#39;s <code>link</code> attribute is passed to React&#39;s <code>createElement(&quot;a&quot;, { href: link })</code> without protocol validation.</li><li><strong><code>content-slider-block</code> (<code>build/render.php</code>):</strong> The slider button link (<code>slides[].btnLink</code>) parsed from <code>data-attributes</code> and passed directly into <code>href: btnLink</code>.</li><li><strong><code>icon-list-block</code> (<code>build/render.php</code>):</strong> Server-side sanitization runs <code>esc_url_raw()</code>, but client-side rendering uses custom regex transformations that bypass the allowlist.</li><li><strong><code>lightbox-block</code> (<code>build/render.php</code>):</strong> In <code>build/view.js</code>, an <code>&lt;iframe&gt;</code> has its <code>src</code> populated with unvalidated <code>item.content</code>.</li></ul>
+<h3 id="category-c-unsanitized-options-bags-in-media-players">Category C: Unsanitized Options Bags in Media Players</h3>
+<p>This pattern occurs when plugins integrate third-party JavaScript libraries (such as Plyr or ArtPlayer).</p>
+<h4 id="data-flow-3">Data Flow:</h4>
+<ol><li><strong>Source:</strong> Plugin settings or block settings dictionaries.</li><li><strong>The Gap:</strong> Primary fields (video URL, poster) are sanitized, but a generic &quot;options&quot; or &quot;config&quot; bag is left uninspected.</li><li><strong>The Sink:</strong> The options dictionary is passed to the player library&#39;s initialization function, which renders internal DOM elements (tooltips, controls, overlays).</li></ol>
+<h4 id="examples-of-plugins-with-this-signature-3">Examples of Plugins with this Signature:</h4>
+<ul><li><strong><code>html5-video-player</code> (<code>inc/functions.php</code> &amp; <code>build/blocks/render.php</code>):</strong> <code>h5vp_process_block_attributes()</code> sanitizes <code>source</code>, <code>poster</code>, and <code>styles</code>, but ignores <code>$attributes[&#39;options&#39;]</code>, which is ingested by Plyr on the frontend.</li><li><strong><code>media-player-addons-for-elementor</code> (<code>widgets/</code>):</strong> Elementor widget where metadata is stored in <code>_elementor_data</code>. When ArtPlayer initializes, it processes the unescaped poster configuration directly into its DOM pipeline.</li><li><strong><code>advance-custom-html</code> (<code>build/block/render.php</code>):</strong> The attribute <code>$attributes[&#39;HTML&#39;]</code> is output with a PHPCS ignore comment, allowing Contributor-authored markup to render unfiltered.</li><li><strong><code>parallax-section</code> (<code>build/render.php</code>):</strong> Uses a custom <code>$allowed_html</code> schema with <code>wp_kses()</code> that permits <code>iframe</code> elements combined with <code>srcdoc</code>.</li></ul>
+<h3 id="category-d-administrative-ui-and-rest-reflected-ingestion">Category D: Administrative UI and REST Reflected Ingestion</h3>
+<p>Several findings affected the administrative interface, where actions performed by administrators processed data created by lower-privileged users.</p>
+<h4 id="data-flow-4">Data Flow:</h4>
+<ol><li><strong>Source:</strong> Stored database records (such as post titles created by Contributors) or REST API endpoints.</li><li><strong>The Bridge:</strong> Admin JavaScript making AJAX requests to fetch records for bulk actions or export dialogs.</li><li><strong>The Sink:</strong> Admin JavaScript inserting server responses into dialogs or table dropdowns using jQuery&#39;s <code>.html()</code>.</li></ol>
+<h4 id="examples-of-plugins-with-this-signature-4">Examples of Plugins with this Signature:</h4>
+<ul><li><strong><code>e2pdf</code> (<code>js/e2pdf.backend.js</code> &amp; <code>Helper_E2pdf_Field::render()</code>):</strong> In the bulk export modal, <code>e2pdf.backend.js</code> reads post titles from server responses and executes <code>jQuery(&#39;&lt;label&gt;&#39;).html(option.value)</code>. When an administrator opens the PDF export dialog, post titles authored by Contributors are rendered as HTML.</li><li><strong><code>mapsvg-lite-interactive-vector-maps</code> (<code>POST /wp-json/mapsvg/v1/collection/{collection_name}</code>):</strong> Map marker metadata saved by users with <code>edit_posts</code> permissions is rendered in popovers using unescaped Handlebars expressions (triple curlies).</li></ul>
+<h2 id="3-audit-methodology">3. Audit Methodology</h2>
+<p>Systematically auditing modern WordPress plugins for these issues involves a three-step review loop:</p>
+<h3 id="step-1-locate-the-hydration-bridge">Step 1: Locate the Hydration Bridge</h3>
+<p>Inspect <code>render.php</code> in the plugin&#39;s build directory and look for attribute serialization:</p>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
                     <span>php</span>
@@ -244,25 +237,23 @@
                 <pre><code class="language-php">data-attributes=&#39;&lt;?php echo esc_attr( wp_json_encode( $attributes ) ); ?&gt;&#39;</code></pre>
                 
             </figure>
-<p>If the server serializes raw, unfiltered <code>$attributes</code> into the DOM, you have found an unvalidated bridge. The server has essentially outsourced its security to the client.</p>
-<h3 id="step-2-grep-the-client-side-sinks">Step 2: Grep the Client-Side Sinks</h3>
-<p>Open the compiled frontend JavaScript (<code>view.js</code> or <code>index.js</code>) and search for dangerous DOM operations:</p>
-<ul><li><code>dangerouslySetInnerHTML</code></li><li><code>innerHTML</code></li><li><code>jQuery.html()</code></li><li>Direct property assignments to <code>.src</code> or <code>.href</code></li><li>URL assignments to <code>window.location</code></li></ul>
-<p>Trace backwards from the sink to the parsed <code>dataset.attributes</code> object. If the variable originates from an attribute that a Contributor can set in the editor, you have a confirmed vulnerability.</p>
-<h3 id="step-3-verify-the-wordpress-core-boundary">Step 3: Verify the WordPress Core Boundary</h3>
-<p>Always verify WordPress core&#39;s role in the equation:</p>
-<ul><li>Does WordPress KSES sanitize block attributes? <strong>No.</strong> KSES only inspects the post&#39;s HTML markup; it ignores JSON objects stored within block comment delimiters (<code>&lt;!-- wp:custom-block {...} --&gt;</code>).</li><li>Does <code>esc_attr()</code> protect the React DOM? <strong>No.</strong> <code>esc_attr()</code> only protects the browser&#39;s initial HTML parsing of the attribute tag. Once <code>JSON.parse()</code> reads it, the string is restored to its raw state.</li><li>Can a Contributor save arbitrary block attributes? <strong>Yes.</strong> Contributors have the capability to create posts and submit them for review.</li></ul>
-<p>When all three checks align, the flow is mathematically proven.</p>
-<h2 id="4-the-defensive-engineering-lessons">4. The Defensive Engineering Lessons</h2>
-<p>Why do these bugs keep happening, and how do we fix them permanently?</p>
-<h3 id="1-never-trust-react-to-validate-urls">1. Never Trust React to Validate URLs</h3>
-<p>React protects against tag injection, but it is completely agnostic to URL protocols. Any user-controlled URL rendered into an <code>&lt;a&gt;</code> or <code>&lt;iframe&gt;</code> tag must be passed through a strict protocol allowlist:</p>
+<p>When raw <code>$attributes</code> are passed to <code>wp_json_encode()</code>, the server relies entirely on the client to handle safety.</p>
+<h3 id="step-2-trace-client-side-sinks">Step 2: Trace Client-Side Sinks</h3>
+<p>Search compiled frontend scripts (<code>view.js</code> or <code>index.js</code>) for DOM injection sinks:</p>
+<ul><li><code>dangerouslySetInnerHTML</code></li><li><code>innerHTML</code></li><li><code>jQuery.html()</code></li><li>Direct assignments to <code>.src</code>, <code>.href</code>, or <code>window.location</code></li></ul>
+<p>Trace the variable backwards to verify whether it originates from <code>dataset.attributes</code>.</p>
+<h3 id="step-3-verify-role-boundaries">Step 3: Verify Role Boundaries</h3>
+<ul><li><strong>WordPress KSES:</strong> KSES sanitizes HTML markup, but ignores JSON objects inside block comment delimiters (<code>&lt;!-- wp:custom-block {...} --&gt;</code>).</li><li><strong><code>esc_attr()</code> scope:</strong> <code>esc_attr()</code> protects attribute parsing in the initial HTML document. Once <code>JSON.parse()</code> reads it, the string is restored to its original value.</li><li><strong>Authoring privileges:</strong> Contributors hold the capability to create posts and submit them for review.</li></ul>
+<p>When these conditions align, the path from untrusted input to execution sink is confirmed.</p>
+<h2 id="4-defensive-engineering-recommendations">4. Defensive Engineering Recommendations</h2>
+<h3 id="1-enforce-protocol-allowlists-for-urls">1. Enforce Protocol Allowlists for URLs</h3>
+<p>React protects against tag injection, but does not validate protocols. Validate user-controlled URLs on both server and client:</p>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
                     <span>php</span>
                     <button class="copy-code" type="button" data-copy-code>Copy</button>
                 </div>
-                <pre><code class="language-php">// Server-side fix in render.php:
+                <pre><code class="language-php">// Server-side validation in render.php:
 $clean_url = esc_url_raw( $attributes[&#39;link&#39;], array( &#39;http&#39;, &#39;https&#39; ) );</code></pre>
                 
             </figure>
@@ -271,7 +262,7 @@ $clean_url = esc_url_raw( $attributes[&#39;link&#39;], array( &#39;http&#39;, &#
                     <span>javascript</span>
                     <button class="copy-code" type="button" data-copy-code>Copy</button>
                 </div>
-                <pre><code class="language-javascript">// Client-side fix in React:
+                <pre><code class="language-javascript">// Client-side verification:
 const isSafeUrl = (url) =&gt; {
     try {
         const parsed = new URL(url, window.location.origin);
@@ -282,18 +273,14 @@ const isSafeUrl = (url) =&gt; {
 };</code></pre>
                 
             </figure>
-<h3 id="2-sanitize-on-the-server-before-serialization">2. Sanitize on the Server Before Serialization</h3>
-<p>Do not pass the raw <code>$attributes</code> array to <code>wp_json_encode()</code>. Sanitize and strip unwanted HTML on the PHP side <em>before</em> it ever reaches the DOM:</p>
+<h3 id="2-sanitize-attributes-before-server-serialization">2. Sanitize Attributes Before Server Serialization</h3>
+<p>Do not pass raw <code>$attributes</code> arrays to <code>wp_json_encode()</code>. Sanitize fields in PHP before emitting the DOM attribute:</p>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
                     <span>php</span>
                     <button class="copy-code" type="button" data-copy-code>Copy</button>
                 </div>
-                <pre><code class="language-php">// Bad:
-data-attributes=&quot;&lt;?php echo esc_attr( wp_json_encode( $attributes ) ); ?&gt;&quot;
-
-// Good:
-$clean_attributes = array(
+                <pre><code class="language-php">$clean_attributes = array(
     &#39;title&#39; =&gt; sanitize_text_field( $attributes[&#39;title&#39;] ?? &#39;&#39; ),
     &#39;icon&#39;  =&gt; wp_kses_post( $attributes[&#39;icon&#39;] ?? &#39;&#39; ),
     &#39;link&#39;  =&gt; esc_url_raw( $attributes[&#39;link&#39;] ?? &#39;&#39;, array( &#39;http&#39;, &#39;https&#39; ) ),
@@ -301,10 +288,10 @@ $clean_attributes = array(
 data-attributes=&quot;&lt;?php echo esc_attr( wp_json_encode( $clean_attributes ) ); ?&gt;&quot;</code></pre>
                 
             </figure>
-<h3 id="3-replace-dangerouslysetinnerhtml-with-structured-components">3. Replace `dangerouslySetInnerHTML` with Structured Components</h3>
-<p>If a block needs to support SVG icons, don&#39;t allow users to submit raw SVG XML strings. Instead, provide a curated allowlist of icon names (e.g., <code>&#39;arrow-right&#39;</code>, <code>&#39;star&#39;</code>, <code>&#39;check&#39;</code>) and render pre-compiled, safe SVG components on the frontend.</p>
+<h3 id="3-replace-raw-html-injection-with-curated-components">3. Replace Raw HTML Injection with Curated Components</h3>
+<p>For icons, offer a predefined allowlist of icon identifiers rather than accepting raw SVG XML strings.</p>
 <h3 id="4-use-text-instead-of-html-for-data-ingestion">4. Use `.text()` Instead of `.html()` for Data Ingestion</h3>
-<p>In administrative scripts, whenever inserting dynamic database fields (like post titles, author names, or category labels) into table cells or modal dialogs, use jQuery&#39;s <code>.text()</code> or native <code>textContent</code>:</p>
+<p>When inserting dynamic content into administrative tables or modals, use <code>textContent</code> or jQuery&#39;s <code>.text()</code>:</p>
 <figure class="code-block" data-code-block>
                 <div class="code-block__header">
                     <span>javascript</span>
@@ -317,20 +304,14 @@ jQuery(&#39;&lt;label&gt;&#39;).html(option.value);
 jQuery(&#39;&lt;label&gt;&#39;).text(option.value);</code></pre>
                 
             </figure>
-<h2 id="5-the-triage-reality-what-actually-happened-to-the-19-reports">5. The Triage Reality: What Actually Happened to the 19 Reports?</h2>
-<p>Submitting 19 reports in a single day is only half the journey. The real educational curve started when triage began.</p>
-<p>Around 36% of my reports were rejected. Roughly half of the rejected reports were scope mistakes on my part (the stored XSS required a second action that the program didn’t cover). In other cases, vendors released patched versions roughly an hour after I recorded my PoCs, so the issues were already fixed in production by the time my reports reached the triager. In one case, the reporting platform even sanitized my payload, so it didn’t show up in the report exactly as I’d written it.</p>
-<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">Triage Outcome</th><th scope="col" style="text-align: center;">Count</th><th scope="col" style="text-align: center;">Ratio</th><th scope="col" style="text-align: left;">Key Observations &amp; Root Causes</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>Validated</strong></td><td style="text-align: center;">8</td><td style="text-align: center;">~42%</td><td style="text-align: left;">Cleanly confirmed and rewarded by program triagers</td></tr>
-<tr><td style="text-align: left;"><strong>Duplicates</strong></td><td style="text-align: center;">4</td><td style="text-align: center;">~21%</td><td style="text-align: left;">Valid issues that other researchers had submitted earlier</td></tr>
-<tr><td style="text-align: left;"><strong>Rejected (Scope / Timing / Platform)</strong></td><td style="text-align: center;">7</td><td style="text-align: center;">~36%</td><td style="text-align: left;">Out-of-scope secondary action, 1-hour vendor ninja patches, platform markdown payload sanitization</td></tr></tbody></table></div>
-<p>I’d had reports marked as duplicates before, and I’d also seen issues patched around the time I reported them. But seeing so many happen at once really surprised me and changed how I look at bug bounty.</p>
-<p>In just 24 hours, I went from asking <strong>how?</strong> to asking <strong>why?</strong> ;-;</p>
-<p>This dynamic may be familiar to other hunters, but it was new to me. I still enjoyed the research, learned a few lessons, and came away with <strong>8 validated reports and 4 duplicates</strong>.</p>
-<h2 id="6-personal-reflections">6. Personal Reflections</h2>
-<p>Stepping back from the 24-hour sprint, the experience was deeply grounding.</p>
-<p>It taught me that bug bounty hunting isn&#39;t about guessing clever payloads or hoping for a stroke of luck. It is about understanding <strong>data flow models</strong> and recognizing the systemic blindspots created when two different paradigms—classic PHP templating and modern client-side JavaScript hydration—meet in the middle.</p>
-<p>There will always be new frameworks, new block libraries, and new build tools. But as long as developers pass data across boundaries without defining explicit sanitization contracts, the exact same source-to-sink flows will continue to exist.</p>
-<p>Audit the boundaries. Trace the data. Verify the framework. Everything else is just details.</p></article>
+<h2 id="5-triage-breakdown">5. Triage Breakdown</h2>
+<p>Submitting 19 reports provided useful data on triage outcomes:</p>
+<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">Triage Outcome</th><th scope="col" style="text-align: center;">Count</th><th scope="col" style="text-align: center;">Ratio</th><th scope="col" style="text-align: left;">Observations</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>Validated</strong></td><td style="text-align: center;">8</td><td style="text-align: center;">~42%</td><td style="text-align: left;">Confirmed and accepted by program triagers</td></tr>
+<tr><td style="text-align: left;"><strong>Duplicates</strong></td><td style="text-align: center;">4</td><td style="text-align: center;">~21%</td><td style="text-align: left;">Valid issues submitted earlier by other researchers</td></tr>
+<tr><td style="text-align: left;"><strong>Rejected (Scope / Timing / Platform)</strong></td><td style="text-align: center;">7</td><td style="text-align: center;">~36%</td><td style="text-align: left;">Out-of-scope secondary action requirements, vendor patches deployed shortly before triage, or platform markdown rendering artifacts</td></tr></tbody></table></div>
+<p>Roughly half of the rejections stemmed from scope definitions regarding secondary user interaction. In other cases, vendors released patched versions shortly after report recording.</p>
+<h2 id="6-takeaway">6. Takeaway</h2>
+<p>The main lesson from this audit sprint is that framework boundaries create security gaps. As long as server-side PHP templates hand data to client-side JavaScript without enforcing an explicit sanitization contract, identical source-to-sink flows will continue to appear.</p></article>
         </div>
         <div class="post-feed-strip">
             <span class="post-feed-prompt">Found this research useful?</span>

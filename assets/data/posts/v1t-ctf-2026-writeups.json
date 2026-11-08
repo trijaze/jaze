@@ -8,11 +8,7 @@
     },
     {
       "type": "paragraph",
-      "text": "The 2026 edition of **V1T CTF** pushed past conventional userland vulnerabilities, shifting heavy emphasis toward deep operating system internals, raw RF signal capture, and silicon-level hardware security. Rather than relying on simple tool execution, solving these challenges demanded custom binary parsers, memory reconstruction, and algebraic cryptanalysis."
-    },
-    {
-      "type": "paragraph",
-      "text": "This writeup documents the end-to-end investigation, reverse-engineering methodology, and working solver implementations for five signature challenges:"
+      "text": "This writeup documents the investigation, reverse-engineering methodology, and solver implementations for five challenges from **V1T CTF 2026**, covering memory forensics, registry internals, hardware firmware reconstruction, Bluetooth Low Energy packet analysis, and ESP32-S3 flash encryption reversing:"
     },
     {
       "type": "table",

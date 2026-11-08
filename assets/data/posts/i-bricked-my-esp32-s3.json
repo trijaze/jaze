@@ -4,53 +4,53 @@
     {
       "type": "heading",
       "level": 2,
-      "text": "Preface: The Hubris of the CTF Author"
+      "text": "Preface: The Accidental Lockout"
     },
     {
       "type": "paragraph",
-      "text": "There is a special category of technical humiliation reserved for hardware security enthusiasts."
+      "text": "Locking yourself out of your own hardware using your own security features is a familiar hazard in embedded security."
     },
     {
       "type": "paragraph",
-      "text": "It doesn't happen when an adversary hacks your server. It doesn't happen when a bug hunter finds an IDOR you overlooked. It happens when you spend an entire week designing a ruthless, military-grade hardware challenge for a CTF competition—and then, in a moment of sheer post-challenge exhaustion, **you lock yourself out of your own development board with your own security features.**"
+      "text": "While preparing a hardware challenge for V1T CTF 2026, I enabled hardware Flash Encryption on an ESP32-S3 development board. Once the challenge was packaged and verified, I wanted to reuse the board for an ordinary test sketch."
     },
     {
       "type": "paragraph",
-      "text": "Yes. I am that dummy."
+      "text": "Instead of booting, the board entered an unrecoverable bootloop. Because flash encryption was active at the silicon level, the CPU treated plaintext code as ciphertext and crashed on invalid instructions."
     },
     {
       "type": "paragraph",
-      "text": "Here is the story of how my innocent **\\$3 ESP32-S3 Super Mini** transformed into an unyielding cryptographic fortress that refused to boot any normal firmware, how I stared into the silicon abyss thinking I had created a permanent high-tech keychain, and how a quirky parity-counting trick hidden inside the Espressif Technical Reference Manual gave me one final get-out-of-jail-free card."
+      "text": "This post walks through what happened under the hood, how eFuses govern boot security on the ESP32-S3, and how Espressif's parity-based counter mechanism allowed me to recover the chip without desoldering."
     },
     {
       "type": "heading",
       "level": 2,
-      "text": "1. The Crime: Designing \"XTS-02\""
+      "text": "1. Challenge Setup: Designing \"XTS-02\""
     },
     {
       "type": "paragraph",
-      "text": "It all started innocently enough. For the **V1T CTF 2026** competition, I decided to author a real-world hardware challenge involving the ESP32-S3's hardware Flash Encryption engine (`XTS-AES-128`)."
+      "text": "For V1T CTF 2026, I authored a hardware challenge centered on the ESP32-S3 hardware Flash Encryption engine (`XTS-AES-128`)."
     },
     {
       "type": "paragraph",
-      "text": "The architecture was beautiful:"
+      "text": "The challenge architecture involved:"
     },
     {
       "type": "list",
       "style": "ordered",
       "items": [
         "An ESP-IDF firmware built with `CONFIG_SECURE_FLASH_ENC_ENABLED=y` in Development mode.",
-        "A provisioning Python script (`tools/provision.py`) designed to burn custom vendor keys into `BLOCK_KEY0` and cryptographic metadata into `BLOCK_USR_DATA`.",
-        "Players were supposed to analyze physical dumps, reconstruct partition tables, reverse key derivation routines, and bypass the hardware encryption layer."
+        "A provisioning Python script (`tools/provision.py`) to write vendor keys into `BLOCK_KEY0` and metadata into `BLOCK_USR_DATA`.",
+        "Physical flash dumps for participants to analyze, reverse-engineer key derivation routines, and examine hardware-level encryption boundaries."
       ]
     },
     {
       "type": "paragraph",
-      "text": "To verify that the challenge was completely realistic and reproducible, I pulled my favorite daily-driver dev board from my desk: a tiny, purple **ESP32-S3 Super Mini** (QFN56, Silicon v0.2, 4MB Flash, native USB-C)."
+      "text": "To verify the challenge on actual silicon, I used an **ESP32-S3 Super Mini** (QFN56, Silicon v0.2, 4MB Flash, native USB-C)."
     },
     {
       "type": "paragraph",
-      "text": "I connected it to `COM10`, flashed the firmware, ran the provisioning script with `--commit`, and smiled as the board booted."
+      "text": "I connected the board to `COM10`, flashed the firmware, ran the provisioning script with `--commit`, and verified the boot output:"
     },
     {
       "type": "code",
@@ -59,40 +59,24 @@
     },
     {
       "type": "paragraph",
-      "text": "The flag was verified. The challenge was packaged. High fives all around. I was a cryptographic mastermind."
-    },
-    {
-      "type": "paragraph",
-      "text": "Or so I thought."
+      "text": "The challenge functioned as designed. The flag was verified, and the challenge was archived for the competition."
     },
     {
       "type": "heading",
       "level": 2,
-      "text": "2. The Next Morning: \"Wait, Why Won't It Blink?\""
+      "text": "2. The Next Day: Bootloops and Silicon State"
     },
     {
       "type": "paragraph",
-      "text": "Fast forward 24 hours. The CTF prep was finished, and I needed my little ESP32-S3 board back for a completely ordinary side project—just a simple Arduino sketch to test some sensors over USB Serial."
+      "text": "The next day, I needed the ESP32-S3 board for a different project: a standard Arduino sketch reading sensor data over USB Serial."
     },
     {
       "type": "paragraph",
-      "text": "I opened VSCode, hit upload, and watched the flasher write the new unencrypted application binary."
+      "text": "I opened VSCode, compiled the unencrypted binary, and uploaded it to the board."
     },
     {
       "type": "paragraph",
-      "text": "Then I opened the serial monitor."
-    },
-    {
-      "type": "paragraph",
-      "text": "**Silence.**"
-    },
-    {
-      "type": "paragraph",
-      "text": "I hit the `RST` button."
-    },
-    {
-      "type": "paragraph",
-      "text": "Instead of my friendly `Hello World` loop, the serial console spewed an endless torrent of register panics, illegal instruction exceptions, and infinite watchdog reboots:"
+      "text": "When I opened the serial monitor, the console produced continuous register dumps and watchdog resets:"
     },
     {
       "type": "code",
@@ -101,11 +85,7 @@
     },
     {
       "type": "paragraph",
-      "text": "I rubbed my eyes. *“Okay, no problem, maybe the partition table is scrambled. Let’s just wipe it clean.”*"
-    },
-    {
-      "type": "paragraph",
-      "text": "I ran the universal embedded medicine:"
+      "text": "I ran `erase-flash` using `esptool`:"
     },
     {
       "type": "code",
@@ -114,57 +94,37 @@
     },
     {
       "type": "paragraph",
-      "text": "It erased. I reflashed a clean bootloader. I reflashed the blink sketch."
+      "text": "The erase operation completed, but reflashing a clean bootloader and minimal sketch produced the exact same crash loop."
     },
     {
       "type": "paragraph",
-      "text": "**Panic. Bootloop. Crash.**"
+      "text": "The reason is the distinction between flash memory and **eFuses**. While SPI flash can be erased repeatedly, eFuses are One-Time Programmable (OTP) physical fuses etched into the silicon. Once burned, a bit cannot be cleared back to zero."
     },
     {
       "type": "paragraph",
-      "text": "At that moment, the cold sweat hit me."
-    },
-    {
-      "type": "paragraph",
-      "text": "Flash memory had been erased, but the **eFuses** had not. And unlike flash memory, eFuses are **One-Time Programmable (OTP)** physical microscopic fuses etched into the silicon. Once blown, they are gone forever."
-    },
-    {
-      "type": "paragraph",
-      "text": "My obedient ESP32-S3 bootloader had done exactly what I told it to do the day before:"
+      "text": "The bootloader had executed the security configuration from the day before:"
     },
     {
       "type": "list",
       "style": "ordered",
       "items": [
         "It burned hardware Flash Encryption into the chip.",
-        "It permanently disabled JTAG debugging (`DIS_PAD_JTAG = 1`, `DIS_USB_JTAG = 1`).",
+        "It permanently disabled hardware and USB JTAG debugging (`DIS_PAD_JTAG = 1`, `DIS_USB_JTAG = 1`).",
         "It write-protected the internal AES key block."
       ]
     },
     {
       "type": "paragraph",
-      "text": "Because Flash Encryption was active at the hardware level, every time the CPU tried to fetch an instruction from flash, the internal hardware bus ran it through the **XTS-AES decryption engine**."
-    },
-    {
-      "type": "paragraph",
-      "text": "When I uploaded an ordinary, unencrypted Arduino binary, the hardware dutifully \"decrypted\" my plaintext code into random mathematical garbage! The CPU tried to execute that garbage, choked on an illegal instruction, and crashed. Over. And over. And over."
-    },
-    {
-      "type": "paragraph",
-      "text": "I had effectively turned my only development board into a hardened paperweight."
+      "text": "Because Flash Encryption was enabled in hardware, every CPU instruction fetch passed through the internal **XTS-AES decryption engine**. When plaintext firmware was written to flash, the hardware attempted to decrypt it before execution. The resulting data was invalid machine code, triggering an immediate `IllegalInstruction` exception on Core 0."
     },
     {
       "type": "heading",
       "level": 2,
-      "text": "3. The Autopsy: Don't Throw It in the Trash Just Yet"
+      "text": "3. Querying the Security State"
     },
     {
       "type": "paragraph",
-      "text": "Rule #1 of hardware triage: **When you think you've bricked a chip, stop typing random commands.** Do not randomly pass `--force`. Do not burn random fuses hoping for a miracle."
-    },
-    {
-      "type": "paragraph",
-      "text": "I took a deep breath, plugged `COM10` back in, and queried the silicon security state:"
+      "text": "Before executing further commands, I queried the chip's current eFuse registers using `esptool` and `espefuse`:"
     },
     {
       "type": "code",
@@ -173,7 +133,7 @@
     },
     {
       "type": "paragraph",
-      "text": "The output gave me a roadmap of my own destruction:"
+      "text": "The output summarized the security configuration:"
     },
     {
       "type": "table",
@@ -186,22 +146,22 @@
         [
           "`SECURE_BOOT_EN`",
           "`0`",
-          "Secure Boot was NOT enabled (Thank goodness!)"
+          "Secure Boot was not enabled"
         ],
         [
           "`DIS_DOWNLOAD_MODE`",
           "`0`",
-          "ROM Download mode still works over USB Serial"
+          "ROM Download mode still operates over USB Serial"
         ],
         [
           "`DIS_PAD_JTAG`",
           "`1`",
-          "Hardware JTAG pins permanently dead"
+          "Physical JTAG pins permanently disabled"
         ],
         [
           "`DIS_USB_JTAG`",
           "`1`",
-          "USB JTAG debugging permanently dead"
+          "USB JTAG debugging permanently disabled"
         ],
         [
           "`BLOCK_KEY0`",
@@ -211,7 +171,7 @@
         [
           "`SPI_BOOT_CRYPT_CNT`",
           "`0x1` (writable)",
-          "**Flash Encryption is ENABLED**"
+          "Flash Encryption is ENABLED"
         ]
       ],
       "alignments": [
@@ -222,11 +182,11 @@
     },
     {
       "type": "paragraph",
-      "text": "Notice something tragic? JTAG was truly dead. You cannot un-blow a fuse. The silicon physically severed those pathways."
+      "text": "JTAG was permanently disabled because those fuses cannot be reset."
     },
     {
       "type": "paragraph",
-      "text": "But look closely at the last line:"
+      "text": "However, the key register is `SPI_BOOT_CRYPT_CNT`:"
     },
     {
       "type": "code",
@@ -235,85 +195,69 @@
     },
     {
       "type": "paragraph",
-      "text": "Why on earth is an on/off encryption switch a **3-bit field** (`0b001`) instead of a single 1-bit boolean?"
+      "text": "The register is a 3-bit field rather than a single bit."
     },
     {
       "type": "heading",
       "level": 2,
-      "text": "4. The Epiphany: Espressif's Brilliant Parity Trick"
+      "text": "4. The Mechanism: Bit-Count Parity"
     },
     {
       "type": "paragraph",
-      "text": "Here is where the genius of embedded hardware engineers saved my clumsy hacker soul."
+      "text": "In silicon, OTP fuses can only transition from `0` to `1`. If Flash Encryption were controlled by a single 1-bit flag (`0` = OFF, `1` = ON), testing encryption on a development board would make that board permanently encrypted."
     },
     {
       "type": "paragraph",
-      "text": "In physical silicon, eFuses have a fundamental limitation: **you can only burn a 0 into a 1.** You can never, ever turn a 1 back into a 0. If Flash Encryption were governed by a single bit (`0` = OFF, `1` = ON), the very first time you tested encryption on a dev board, that board would be permanently locked into encryption mode until the end of time."
+      "text": "To allow testing during development, Espressif implemented **Bit-Count Parity** for `SPI_BOOT_CRYPT_CNT` in Development mode."
     },
     {
       "type": "paragraph",
-      "text": "To prevent developers from creating millions of accidental electronic paperweights, Espressif introduced a clever mechanism for **Development Mode**: **Bit-Count Parity.**"
-    },
-    {
-      "type": "paragraph",
-      "text": "The chip doesn't check if the counter is non-zero. Instead, the hardware bootloader counts the **number of set bits (1s)** in `SPI_BOOT_CRYPT_CNT`:"
+      "text": "The hardware bootloader evaluates the **number of set bits (1s)** in the register:"
     },
     {
       "type": "code",
       "language": "mermaid",
-      "code": "flowchart TD\n    State0[\"0b000 (0 bits set)\\nCount = EVEN\\nEncryption: OFF\\n(Factory Default)\"]\n    State1[\"0b001 (1 bit set)\\nCount = ODD\\nEncryption: ON\\n(Where I was stuck!)\"]\n    State2[\"0b011 (2 bits set)\\nCount = EVEN\\nEncryption: OFF\\n(The Escape Hatch!)\"]\n    State3[\"0b111 (3 bits set)\\nCount = ODD\\nEncryption: ON\\n(Permanent Release Mode)\"]\n\n    State0 -->|\"Burn 1st bit (Bootloader)\"| State1\n    State1 -->|\"Burn 2nd bit (Recovery!)\"| State2\n    State2 -->|\"Burn 3rd bit (No return)\"| State3\n\n    classDef normal fill:#161b22,stroke:#30363d,stroke-width:1px,color:#c9d1d9;\n    classDef warning fill:#2d1b00,stroke:#d29922,stroke-width:2px,color:#f0883e;\n    classDef success fill:#04260f,stroke:#238636,stroke-width:2px,color:#3fb950;\n    classDef danger fill:#3d0808,stroke:#f85149,stroke-width:2px,color:#f85149;\n\n    class State0 normal;\n    class State1 warning;\n    class State2 success;\n    class State3 danger;"
+      "code": "flowchart TD\n    State0[\"0b000 (0 bits set)\\nCount = EVEN\\nEncryption: OFF\\n(Factory Default)\"]\n    State1[\"0b001 (1 bit set)\\nCount = ODD\\nEncryption: ON\\n(Current State)\"]\n    State2[\"0b011 (2 bits set)\\nCount = EVEN\\nEncryption: OFF\\n(Recovery Target)\"]\n    State3[\"0b111 (3 bits set)\\nCount = ODD\\nEncryption: ON\\n(Final Release State)\"]\n\n    State0 -->|\"Burn 1st bit (Initial Enable)\"| State1\n    State1 -->|\"Burn 2nd bit (Recovery Step)\"| State2\n    State2 -->|\"Burn 3rd bit (Permanent Mode)\"| State3\n\n    classDef normal fill:#161b22,stroke:#30363d,stroke-width:1px,color:#c9d1d9;\n    classDef warning fill:#2d1b00,stroke:#d29922,stroke-width:2px,color:#f0883e;\n    classDef success fill:#04260f,stroke:#238636,stroke-width:2px,color:#3fb950;\n    classDef danger fill:#3d0808,stroke:#f85149,stroke-width:2px,color:#f85149;\n\n    class State0 normal;\n    class State1 warning;\n    class State2 success;\n    class State3 danger;"
     },
     {
       "type": "paragraph",
-      "text": "Look at that state table:"
+      "text": "State interpretation:"
     },
     {
       "type": "list",
       "style": "unordered",
       "items": [
-        "**0 bits set (`0b000` = 0):** Even count → **Flash Encryption DISABLED** (Factory state).",
-        "**1 bit set (`0b001` = 1):** Odd count → **Flash Encryption ENABLED** (Where my dumb self was stuck).",
-        "**2 bits set (`0b011` = 3):** Even count → **Flash Encryption DISABLED** 🎉",
-        "**3 bits set (`0b111` = 7):** Odd count → **Flash Encryption ENABLED** (Game over, all fuses spent)."
+        "**0 bits set (`0b000` = 0):** Even count -> **Flash Encryption DISABLED** (Factory state).",
+        "**1 bit set (`0b001` = 1):** Odd count -> **Flash Encryption ENABLED** (Locked in development mode).",
+        "**2 bits set (`0b011` = 3):** Even count -> **Flash Encryption DISABLED** (Recovery state).",
+        "**3 bits set (`0b111` = 7):** Odd count -> **Flash Encryption ENABLED** (Final state, no remaining bits)."
       ]
     },
     {
       "type": "paragraph",
-      "text": "Do you see the miracle?"
+      "text": "Because the board was at `0b001`, two unburned bits remained in the register. Since the field was not write-protected, burning one additional bit transitioned the register from `0b001` to `0b011` (decimal 3)."
     },
     {
       "type": "paragraph",
-      "text": "Because my board was only at `0b001`, I still had **two unburned zeroes** in that register! And since the register was not write-protected, I could intentionally burn **one more bit**, transitioning the value from `0b001` to `0b011` (decimal `3`)."
-    },
-    {
-      "type": "paragraph",
-      "text": "Two bits set means an **EVEN** number of bits. The hardware interprets an even count as: **DISABLE FLASH ENCRYPTION.**"
-    },
-    {
-      "type": "paragraph",
-      "text": "The hardware engineers literally gave us one built-in \"undo\" button."
+      "text": "With two bits set, the count is **even**, and the hardware disables flash decryption during boot."
     },
     {
       "type": "heading",
       "level": 2,
-      "text": "5. The Rescue Mission: Step-by-Step"
+      "text": "5. Recovery Procedure"
     },
     {
       "type": "paragraph",
-      "text": "Knowing the theory is great. But executing an irreversible eFuse burn when your heart is pounding is an exercise in pure adrenaline. If I slipped and burned `0b111` instead of `0b011`, the board would be permanently locked forever."
-    },
-    {
-      "type": "paragraph",
-      "text": "Here is the exact battle plan I executed to pull my ESP32-S3 back from the grave."
+      "text": "Here are the steps used to restore plaintext firmware execution."
     },
     {
       "type": "heading",
       "level": 3,
-      "text": "Step 1: Full Flash Preservation (Because We Aren't Savages)"
+      "text": "Step 1: Backup Flash Memory"
     },
     {
       "type": "paragraph",
-      "text": "Before wiping anything, I took two independent 4MB dumps of the flash memory to verify data integrity:"
+      "text": "Before modifying registers, I dumped the current flash image to ensure data integrity:"
     },
     {
       "type": "code",
@@ -322,16 +266,16 @@
     },
     {
       "type": "paragraph",
-      "text": "Both SHA-256 hashes matched identically (`CEB2E79B8F61D346...`). Evidence secured."
+      "text": "Both SHA-256 hashes matched (`CEB2E79B8F61D346...`)."
     },
     {
       "type": "heading",
       "level": 3,
-      "text": "Step 2: Prepare a Clean, Unencrypted Firmware Set"
+      "text": "Step 2: Build a Test Firmware"
     },
     {
       "type": "paragraph",
-      "text": "I built a minimal Arduino sketch (`recovery_smoke_test.ino`) that simply initialized USB CDC serial and reported security status:"
+      "text": "I compiled a minimal Arduino sketch (`recovery_smoke_test.ino`) that reports boot status over serial:"
     },
     {
       "type": "code",
@@ -340,7 +284,7 @@
     },
     {
       "type": "paragraph",
-      "text": "I made sure `sdkconfig` had:"
+      "text": "Verified that the build configuration had encryption disabled:"
     },
     {
       "type": "code",
@@ -350,11 +294,11 @@
     {
       "type": "heading",
       "level": 3,
-      "text": "Step 3: The Moment of Truth — Burning the Parity Bit"
+      "text": "Step 3: Burn the Second Parity Bit"
     },
     {
       "type": "paragraph",
-      "text": "With trembling fingers, I ran the command to transition the counter from `1` to `3`:"
+      "text": "Using `espefuse`, I burned bit 1 to change the register value from `1` to `3`:"
     },
     {
       "type": "code",
@@ -363,7 +307,7 @@
     },
     {
       "type": "paragraph",
-      "text": "The terminal printed the warning:"
+      "text": "The tool confirmed the transition:"
     },
     {
       "type": "code",
@@ -372,7 +316,7 @@
     },
     {
       "type": "paragraph",
-      "text": "I typed `BURN` and hit Enter."
+      "text": "After confirming with `BURN`, the fuse was updated:"
     },
     {
       "type": "code",
@@ -381,25 +325,25 @@
     },
     {
       "type": "paragraph",
-      "text": "I ran `get-security-info` immediately:"
+      "text": "Checking security status confirmed the new state:"
     },
     {
       "type": "code",
-      "language": "text",
-      "code": "Flash Encryption: Disabled (counter: 0x3)"
+      "language": "powershell",
+      "code": "python -m esptool --chip esp32s3 -p COM10 get-security-info\n# Flash Encryption: Disabled (counter: 0x3)"
     },
     {
       "type": "paragraph",
-      "text": "**IT WORKED.** The parity count was now 2 (even). Hardware encryption was officially switched off!"
+      "text": "The parity count was now 2 (even), disabling hardware flash encryption."
     },
     {
       "type": "heading",
       "level": 3,
-      "text": "Step 4: Erase and Re-flash Everything"
+      "text": "Step 4: Erase and Reflash Plaintext Firmware"
     },
     {
       "type": "paragraph",
-      "text": "Now that the chip no longer expected encrypted ciphertext, I gave the flash memory a clean slate:"
+      "text": "With hardware decryption disabled, the flash was cleared and reflashed with standard unencrypted binaries:"
     },
     {
       "type": "code",
@@ -408,17 +352,7 @@
     },
     {
       "type": "paragraph",
-      "text": "And flashed the complete unencrypted firmware stack:"
-    },
-    {
-      "type": "list",
-      "style": "unordered",
-      "items": [
-        "**Clean Bootloader (`0x0000`):** `recovery_smoke_test.ino.bootloader.bin`",
-        "**Partition Table (`0x8000`):** `recovery_smoke_test.ino.partitions.bin`",
-        "**Arduino OTA Init (`0xE000`):** `boot_app0.bin`",
-        "**Application (`0x10000`):** `recovery_smoke_test.ino.bin`"
-      ]
+      "text": "Flashed the bootloader, partition table, OTA initialization, and application:"
     },
     {
       "type": "code",
@@ -426,21 +360,13 @@
       "code": "python -m esptool --chip esp32s3 -p COM10 --baud 460800 write-flash `\n    0x0000 recovery_smoke_test.ino.bootloader.bin `\n    0x8000 recovery_smoke_test.ino.partitions.bin `\n    0xE000 boot_app0.bin `\n    0x10000 recovery_smoke_test.ino.bin"
     },
     {
-      "type": "paragraph",
-      "text": "All 4 chunks passed 100% hash verification."
-    },
-    {
       "type": "heading",
       "level": 3,
-      "text": "Step 5: The Resurrected Heartbeat"
+      "text": "Step 5: Verification"
     },
     {
       "type": "paragraph",
-      "text": "I pressed the physical `RST` button on the board and opened the serial monitor."
-    },
-    {
-      "type": "paragraph",
-      "text": "Line after line, smooth as silk:"
+      "text": "Pressing `RST` produced clean serial output:"
     },
     {
       "type": "code",
@@ -449,59 +375,21 @@
     },
     {
       "type": "paragraph",
-      "text": "No panics. No illegal instructions. No infinite reboots."
-    },
-    {
-      "type": "paragraph",
-      "text": "The patient had survived the surgery."
+      "text": "The board booted without exceptions or watchdog timeouts."
     },
     {
       "type": "heading",
       "level": 2,
-      "text": "6. What Did We Learn? (Besides Being a Dummy)"
+      "text": "6. Key Takeaways"
     },
     {
-      "type": "paragraph",
-      "text": "Looking back at this mini-crisis, I came away with three golden takeaways that every embedded engineer and CTF author should tattoo on their forearm:"
-    },
-    {
-      "type": "heading",
-      "level": 3,
-      "text": "1. Hardware Security Has No \"Undo\" (Unless It's Planned by Design)"
-    },
-    {
-      "type": "paragraph",
-      "text": "When you author CTF challenges on your own personal hardware, remember that the bootloader does not know you are \"just practicing.\" If your code says `burn eFuse`, it will burn that fuse with remorseless silicon finality. My JTAG pins (`DIS_PAD_JTAG`, `DIS_USB_JTAG`) are gone forever. No software trick in the world will ever bring them back."
-    },
-    {
-      "type": "heading",
-      "level": 3,
-      "text": "2. Parity Bits Are a Developer's Best Friend"
-    },
-    {
-      "type": "paragraph",
-      "text": "The fact that Espressif designed `SPI_BOOT_CRYPT_CNT` as an odd-even parity counter instead of a 1-bit boolean switch is an absolute masterclass in developer empathy. They knew people like me would accidentally lock their boards during testing, and they built a mathematical escape route directly into the silicon logic."
-    },
-    {
-      "type": "heading",
-      "level": 3,
-      "text": "3. I Have Exactly Zero Lives Left"
-    },
-    {
-      "type": "paragraph",
-      "text": "My board's `SPI_BOOT_CRYPT_CNT` is currently `0b011` (value 3). If I ever accidentally enable Flash Encryption on this board again, the counter will transition to `0b111` (value 7)."
-    },
-    {
-      "type": "paragraph",
-      "text": "At that point, all three bits will be `1`. There are no more bits to burn. There will be no even parity. There will be no redemption."
-    },
-    {
-      "type": "paragraph",
-      "text": "So if you see me reaching for `--commit` on this ESP32-S3 ever again... please slap the keyboard out of my hands."
-    },
-    {
-      "type": "paragraph",
-      "text": "Happy hacking, and may your eFuses stay unburned!"
+      "type": "list",
+      "style": "ordered",
+      "items": [
+        "**eFuse changes are permanent:** When testing security features, the bootloader treats commands as definitive. Disabling JTAG (`DIS_PAD_JTAG`, `DIS_USB_JTAG`) cannot be reversed by software or flashing routines.",
+        "**Parity counters provide a deliberate development safeguard:** Designing `SPI_BOOT_CRYPT_CNT` as an odd-even parity register rather than a single boolean flag provides an engineered mechanism to disable encryption during testing.",
+        "**Counter state on this unit:** The register on this board is currently `0b011` (value 3). If encryption is enabled again, the value will become `0b111` (value 7), consuming the final bit and permanently enabling flash encryption on this chip."
+      ]
     }
   ]
 }

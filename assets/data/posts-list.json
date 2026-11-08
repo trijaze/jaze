@@ -2,7 +2,7 @@
   {
     "slug": "19-xss-in-24-hours",
     "title": "19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots",
-    "excerpt": "A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.",
+    "excerpt": "A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets creates persistent client-side sinks in React components.",
     "publishedAt": "2026-10-26",
     "updatedAt": "2026-10-26",
     "tags": [
@@ -20,7 +20,7 @@
   {
     "slug": "cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion",
     "title": "The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion",
-    "excerpt": "A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe.",
+    "excerpt": "How trusting client-supplied attachment IDs in WooCommerce photo reviews turned standard comment cleanup into an unauthenticated arbitrary post deletion vulnerability.",
     "publishedAt": "2026-10-31",
     "updatedAt": "2026-10-31",
     "tags": [
@@ -38,7 +38,7 @@
   {
     "slug": "cve-2026-62025-tailored-tools-unauthenticated-rce",
     "title": "My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools",
-    "excerpt": "After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE.",
+    "excerpt": "A technical audit of an extensible form framework uncovering unauthenticated file uploads with path traversal and race-condition exploitation, yielding CVE-2026-62025 (CVSS 9.0).",
     "publishedAt": "2026-10-30",
     "updatedAt": "2026-10-30",
     "tags": [
@@ -56,7 +56,7 @@
   {
     "slug": "cve-2026-115607-dxp-toolkit-unauthenticated-sqli",
     "title": "Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit",
-    "excerpt": "A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump.",
+    "excerpt": "A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an in-band database disclosure.",
     "publishedAt": "2026-10-28",
     "updatedAt": "2026-10-28",
     "tags": [
@@ -74,7 +74,7 @@
   {
     "slug": "i-bricked-my-esp32-s3",
     "title": "I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)",
-    "excerpt": "What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.",
+    "excerpt": "A technical post-mortem on ESP32-S3 hardware flash encryption, eFuses, JTAG lockouts, and how Espressif's parity-based counter mechanism allowed chip recovery.",
     "publishedAt": "2026-11-04",
     "updatedAt": "2026-11-04",
     "tags": [

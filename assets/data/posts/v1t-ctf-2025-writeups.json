@@ -8,11 +8,7 @@
     },
     {
       "type": "paragraph",
-      "text": "CTF competitions are rarely just about running an automated tool or running a dictionary attack. The most memorable challenges are puzzles that force you to look closely at the foundational data formats—the byte-level structures of ZIP archives, the IHDR chunk signatures of PNG files, the bitplanes of uncompressed RGB channels, and the exact packet framing of raw network captures."
-    },
-    {
-      "type": "paragraph",
-      "text": "During **V1T CTF 2025**, our team encountered a series of forensic, steganographic, and cryptographic challenges that demanded creative reverse-engineering:"
+      "text": "This writeup documents the analysis, methodology, and custom scripts developed to solve four forensic, steganographic, and cryptographic challenges from **V1T CTF 2025**:"
     },
     {
       "type": "table",

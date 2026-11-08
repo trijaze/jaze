@@ -32,6 +32,10 @@ function resolveRequestPath(urlValue) {
     const relativePath = pathname.replace(/^\/+/, '');
 
     // Allow direct access to note-jaze/ and gallery routes for ASCII model testing
+    if (relativePath === 'navbar-lab' || relativePath === 'navbar-lab.html' || relativePath === 'lab' || relativePath === 'nav-lab') {
+        const labCandidate = path.join(projectRoot, 'note-jaze', 'navbar-lab.html');
+        if (fs.existsSync(labCandidate)) return labCandidate;
+    }
     if (relativePath === 'gallery' || relativePath === 'gallery.html' || relativePath === 'ascii-model-gallery.html') {
         const galleryCandidate = path.join(projectRoot, 'note-jaze', 'ascii-model-gallery.html');
         if (fs.existsSync(galleryCandidate)) return galleryCandidate;

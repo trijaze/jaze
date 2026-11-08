@@ -117,7 +117,7 @@
             
                 <article class="post-card post-card--featured" data-blog-item
                     data-title="19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots"
-                    data-excerpt="A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps."
+                    data-excerpt="A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets creates persistent client-side sinks in React components."
                     data-date="2026-10-26"
                     data-order="70"
                     data-tags="wordpress|xss|appsec|gutenberg|research">
@@ -126,7 +126,7 @@
                         <span class="post-card__badge">Featured</span>
                     </div>
                     <h2 class="post-card__title"><a href="/blog/19-xss-in-24-hours/">19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots</a></h2>
-                    <p class="post-card__excerpt">A 24-hour sprint through the WordPress plugin repository revealed an eerie pattern: modern Gutenberg hydration and React DOM bridges repeatedly fall into the exact same architectural traps.</p>
+                    <p class="post-card__excerpt">A 24-hour sprint through the WordPress plugin repository revealed a recurring architectural pattern: Gutenberg block attribute serialization into DOM datasets creates persistent client-side sinks in React components.</p>
                     <div class="post-card__footer">
                         <ul class="tag-list" aria-label="Topics"><li class="tag">wordpress</li><li class="tag">xss</li><li class="tag">appsec</li><li class="tag">gutenberg</li><li class="tag">research</li></ul>
                         <a href="/blog/19-xss-in-24-hours/" aria-label="Read 19 XSS in 24 Hours: Notes on Source Tracing, Sinks, and Framework Blindspots">Read note</a>
@@ -135,7 +135,7 @@
             
                 <article class="post-card" data-blog-item
                     data-title="The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion"
-                    data-excerpt="A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe."
+                    data-excerpt="How trusting client-supplied attachment IDs in WooCommerce photo reviews turned standard comment cleanup into an unauthenticated arbitrary post deletion vulnerability."
                     data-date="2026-10-31"
                     data-order="60"
                     data-tags="cve|idor|woocommerce|logic-bug|availability">
@@ -144,7 +144,7 @@
                         
                     </div>
                     <h2 class="post-card__title"><a href="/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/">The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion</a></h2>
-                    <p class="post-card__excerpt">A look beyond obvious code execution sinks: how trusting client-supplied IDs in WooCommerce photo reviews turned WordPress comment cleanup into an unauthenticated database wipe.</p>
+                    <p class="post-card__excerpt">How trusting client-supplied attachment IDs in WooCommerce photo reviews turned standard comment cleanup into an unauthenticated arbitrary post deletion vulnerability.</p>
                     <div class="post-card__footer">
                         <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">idor</li><li class="tag">woocommerce</li><li class="tag">logic-bug</li><li class="tag">availability</li></ul>
                         <a href="/blog/cve-2026-100517-woo-photo-reviews-arbitrary-post-deletion/" aria-label="Read The Ghost Delete: How a Flawed Review Parameter Led to Unauthenticated Arbitrary Post Deletion">Read note</a>
@@ -153,7 +153,7 @@
             
                 <article class="post-card post-card--featured" data-blog-item
                     data-title="My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools"
-                    data-excerpt="After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE."
+                    data-excerpt="A technical audit of an extensible form framework uncovering unauthenticated file uploads with path traversal and race-condition exploitation, yielding CVE-2026-62025 (CVSS 9.0)."
                     data-date="2026-10-30"
                     data-order="50"
                     data-tags="cve|critical|rce|file-upload|bug-bounty">
@@ -162,7 +162,7 @@
                         <span class="post-card__badge">Featured</span>
                     </div>
                     <h2 class="post-card__title"><a href="/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/">My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools</a></h2>
-                    <p class="post-card__excerpt">After hitting a string of duplicate reports, a late-night audit of a developer form framework uncovered raw file moves with zero checks — scoring a 9.0 Critical CVE.</p>
+                    <p class="post-card__excerpt">A technical audit of an extensible form framework uncovering unauthenticated file uploads with path traversal and race-condition exploitation, yielding CVE-2026-62025 (CVSS 9.0).</p>
                     <div class="post-card__footer">
                         <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">critical</li><li class="tag">rce</li><li class="tag">file-upload</li><li class="tag">bug-bounty</li></ul>
                         <a href="/blog/cve-2026-62025-tailored-tools-unauthenticated-rce/" aria-label="Read My First Critical: How an Insecure Form Framework Led to Unauthenticated RCE in Tailored Tools">Read note</a>
@@ -171,7 +171,7 @@
             
                 <article class="post-card" data-blog-item
                     data-title="Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit"
-                    data-excerpt="A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump."
+                    data-excerpt="A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an in-band database disclosure."
                     data-date="2026-10-28"
                     data-order="40"
                     data-tags="cve|sqli|rest-api|wordpress|vulnerability">
@@ -180,7 +180,7 @@
                         
                     </div>
                     <h2 class="post-card__title"><a href="/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/">Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit</a></h2>
-                    <p class="post-card__excerpt">A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an instant, in-band database dump.</p>
+                    <p class="post-card__excerpt">A commented-out authentication check combined with raw string concatenation turned a REST API search parameter into an in-band database disclosure.</p>
                     <div class="post-card__footer">
                         <ul class="tag-list" aria-label="Topics"><li class="tag">cve</li><li class="tag">sqli</li><li class="tag">rest-api</li><li class="tag">wordpress</li><li class="tag">vulnerability</li></ul>
                         <a href="/blog/cve-2026-115607-dxp-toolkit-unauthenticated-sqli/" aria-label="Read Breaking Down CVE-2026-115607: An Unauthenticated UNION SQLi in WordPress DXP ToolKit">Read note</a>
@@ -189,7 +189,7 @@
             
                 <article class="post-card post-card--featured" data-blog-item
                     data-title="I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)"
-                    data-excerpt="What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead."
+                    data-excerpt="A technical post-mortem on ESP32-S3 hardware flash encryption, eFuses, JTAG lockouts, and how Espressif&#39;s parity-based counter mechanism allowed chip recovery."
                     data-date="2026-11-04"
                     data-order="30"
                     data-tags="esp32|hardware-security|flash-encryption|efuse|ctf|recovery">
@@ -198,7 +198,7 @@
                         <span class="post-card__badge">Featured</span>
                     </div>
                     <h2 class="post-card__title"><a href="/blog/i-bricked-my-esp32-s3/">I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)</a></h2>
-                    <p class="post-card__excerpt">What happens when a security researcher builds a hardware CTF challenge with ESP32-S3 flash encryption and inadvertently turns their only dev board into a hardened cryptographic paperweight? A humorous post-mortem on eFuses, JTAG lockouts, and the quirky odd-even counter trick that brought it back from the dead.</p>
+                    <p class="post-card__excerpt">A technical post-mortem on ESP32-S3 hardware flash encryption, eFuses, JTAG lockouts, and how Espressif&#39;s parity-based counter mechanism allowed chip recovery.</p>
                     <div class="post-card__footer">
                         <ul class="tag-list" aria-label="Topics"><li class="tag">esp32</li><li class="tag">hardware-security</li><li class="tag">flash-encryption</li><li class="tag">efuse</li><li class="tag">ctf</li><li class="tag">recovery</li></ul>
                         <a href="/blog/i-bricked-my-esp32-s3/" aria-label="Read I Bricked My ESP32-S3 With My Own CTF Challenge (And How eFuse Parity Saved Me)">Read note</a>
