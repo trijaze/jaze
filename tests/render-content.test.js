@@ -1,7 +1,10 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs/promises');
+const path = require('node:path');
 const test = require('node:test');
+const { getPublishedPosts, normalizePostDocument } = require('../scripts/content-contracts');
 const { renderInlineMarkdown, renderPostContent, slugifyHeading } = require('../scripts/render-content');
 
 test('typed post renderer escapes content and assigns stable unique heading ids', () => {
@@ -80,9 +83,45 @@ test('table blocks render accessible HTML table with alignments and captions', (
 
     assert.match(result.html, /<table class="post-table">/);
     assert.match(result.html, /<caption>Audited Sinks<\/caption>/);
-    assert.match(result.html, /<th scope="col" style="text-align: center;">Target<\/th>/);
+    assert.match(result.html, /<th scope="col" class="table-align-center">Target<\/th>/);
+    for (const alignment of ['left', 'center', 'right']) {
+        assert.match(result.html, new RegExp(`<th scope="col" class="table-align-${alignment}">`));
+        assert.equal((result.html.match(new RegExp(`<td class="table-align-${alignment}">`, 'g')) || []).length, 2);
+    }
+    assert.doesNotMatch(result.html, /\sstyle\s*=/i);
     assert.match(result.html, /<code>move_uploaded_file\(\)<\/code>/);
     assert.match(result.html, /<strong>Critical<\/strong>/);
+});
+
+test('tables retain default alignment when unspecified and never interpolate unknown alignment classes', () => {
+    for (const alignments of [undefined, null, [], ['', null, 'right'], ['justify', 'center" onclick="alert(1)', 'toString']]) {
+        const result = renderPostContent({ slug: 'table-defaults', content: [{
+            type: 'table', headers: ['One', 'Two', 'Three'], rows: [['A', '<img src=x>', 'C']], alignments
+        }] });
+        assert.match(result.html, /<th scope="col">One<\/th>/);
+        assert.match(result.html, /<td>&lt;img src=x&gt;<\/td>/);
+        assert.doesNotMatch(result.html, /\s(?:style|onclick)\s*=|table-align-(?:justify|toString)/i);
+        assert.equal((result.html.match(/class="table-align-/g) || []).length, alignments?.[2] === 'right' ? 2 : 0);
+    }
+});
+
+test('every published table emits only CSP-safe alignment classes supported by blog CSS', async () => {
+    const root = path.resolve(__dirname, '..');
+    const posts = getPublishedPosts(JSON.parse(await fs.readFile(path.join(root, 'assets/data/posts-list.json'), 'utf8')));
+    const css = await fs.readFile(path.join(root, 'assets/css/blog.css'), 'utf8');
+    for (const alignment of ['left', 'center', 'right']) {
+        assert.match(css, new RegExp(`\\.post-table \\.table-align-${alignment}\\s*\\{\\s*text-align:\\s*${alignment};\\s*\\}`));
+    }
+    for (const post of posts) {
+        const document = normalizePostDocument(JSON.parse(await fs.readFile(path.join(root, 'assets/data/posts', `${post.slug}.json`), 'utf8')));
+        const html = renderPostContent(document).html;
+        assert.doesNotMatch(html, /<(?:th|td)\b[^>]*\sstyle\s*=/i, post.slug);
+        for (const alignment of ['left', 'center', 'right']) {
+            const expected = document.content.filter(block => block.type === 'table').reduce((sum, block) =>
+                sum + (block.alignments || []).filter(value => value === alignment).length * (block.rows.length + 1), 0);
+            assert.equal((html.match(new RegExp(`class="table-align-${alignment}"`, 'g')) || []).length, expected, `${post.slug}: ${alignment}`);
+        }
+    }
 });
 
 test('math equation rendering correctly converts LaTeX formulas into accessible HTML blocks', () => {

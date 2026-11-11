@@ -3,6 +3,11 @@
 const { escapeHtml } = require('./render-utils');
 const { isSafeContentUrl } = require('./content-contracts');
 
+function tableAlignmentAttribute(value) {
+    // Finite classes keep table alignment compatible with style-src 'self'.
+    return ['left', 'center', 'right'].includes(value) ? ` class="table-align-${value}"` : '';
+}
+
 function formatMathEquation(raw, isAlreadyEscaped = false) {
     if (!raw) return '';
     let str = String(raw).trim();
@@ -334,12 +339,12 @@ function renderBlock(block, context) {
             const caption = block.caption ? `<caption>${escapeHtml(block.caption)}</caption>` : '';
             const alignments = block.alignments || [];
             const ths = block.headers.map((h, i) => {
-                const align = alignments[i] ? ` style="text-align: ${alignments[i]};"` : '';
+                const align = tableAlignmentAttribute(alignments[i]);
                 return `<th scope="col"${align}>${renderInlineMarkdown(h)}</th>`;
             }).join('');
             const trs = block.rows.map(row => {
                 const tds = row.map((cell, i) => {
-                    const align = alignments[i] ? ` style="text-align: ${alignments[i]};"` : '';
+                    const align = tableAlignmentAttribute(alignments[i]);
                     return `<td${align}>${renderInlineMarkdown(cell)}</td>`;
                 }).join('');
                 return `<tr>${tds}</tr>`;

@@ -858,6 +858,18 @@
     text-align: left;
 }
 
+.post-table .table-align-left {
+    text-align: left;
+}
+
+.post-table .table-align-center {
+    text-align: center;
+}
+
+.post-table .table-align-right {
+    text-align: right;
+}
+
 .post-table caption {
     padding: var(--space-3) var(--space-4);
     caption-side: top;

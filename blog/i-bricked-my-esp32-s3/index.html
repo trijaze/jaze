@@ -198,12 +198,12 @@ python -m espefuse --chip esp32s3 -p COM10 summary</code></pre>
                 
             </figure>
 <p>The output summarized the security configuration:</p>
-<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" style="text-align: left;">eFuse Register</th><th scope="col" style="text-align: left;">Live Value</th><th scope="col" style="text-align: left;">Meaning</th></tr></thead><tbody><tr><td style="text-align: left;"><code>SECURE_BOOT_EN</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">Secure Boot was not enabled</td></tr>
-<tr><td style="text-align: left;"><code>DIS_DOWNLOAD_MODE</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">ROM Download mode still operates over USB Serial</td></tr>
-<tr><td style="text-align: left;"><code>DIS_PAD_JTAG</code></td><td style="text-align: left;"><code>1</code></td><td style="text-align: left;">Physical JTAG pins permanently disabled</td></tr>
-<tr><td style="text-align: left;"><code>DIS_USB_JTAG</code></td><td style="text-align: left;"><code>1</code></td><td style="text-align: left;">USB JTAG debugging permanently disabled</td></tr>
-<tr><td style="text-align: left;"><code>BLOCK_KEY0</code></td><td style="text-align: left;">Protected</td><td style="text-align: left;">Internal AES-XTS key cannot be read or overwritten</td></tr>
-<tr><td style="text-align: left;"><code>SPI_BOOT_CRYPT_CNT</code></td><td style="text-align: left;"><code>0x1</code> (writable)</td><td style="text-align: left;">Flash Encryption is ENABLED</td></tr></tbody></table></div>
+<div class="table-wrap"><table class="post-table"><thead><tr><th scope="col" class="table-align-left">eFuse Register</th><th scope="col" class="table-align-left">Live Value</th><th scope="col" class="table-align-left">Meaning</th></tr></thead><tbody><tr><td class="table-align-left"><code>SECURE_BOOT_EN</code></td><td class="table-align-left"><code>0</code></td><td class="table-align-left">Secure Boot was not enabled</td></tr>
+<tr><td class="table-align-left"><code>DIS_DOWNLOAD_MODE</code></td><td class="table-align-left"><code>0</code></td><td class="table-align-left">ROM Download mode still operates over USB Serial</td></tr>
+<tr><td class="table-align-left"><code>DIS_PAD_JTAG</code></td><td class="table-align-left"><code>1</code></td><td class="table-align-left">Physical JTAG pins permanently disabled</td></tr>
+<tr><td class="table-align-left"><code>DIS_USB_JTAG</code></td><td class="table-align-left"><code>1</code></td><td class="table-align-left">USB JTAG debugging permanently disabled</td></tr>
+<tr><td class="table-align-left"><code>BLOCK_KEY0</code></td><td class="table-align-left">Protected</td><td class="table-align-left">Internal AES-XTS key cannot be read or overwritten</td></tr>
+<tr><td class="table-align-left"><code>SPI_BOOT_CRYPT_CNT</code></td><td class="table-align-left"><code>0x1</code> (writable)</td><td class="table-align-left">Flash Encryption is ENABLED</td></tr></tbody></table></div>
 <p>JTAG was permanently disabled because those fuses cannot be reset.</p>
 <p>However, the key register is <code>SPI_BOOT_CRYPT_CNT</code>:</p>
 <figure class="code-block" data-code-block>
