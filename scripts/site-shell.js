@@ -35,6 +35,9 @@ function getAssetHash(subdir, filename) {
 
 const DEFAULT_DESCRIPTION = 'Security research profile, technical publications, and verified CVE disclosures by Jaze.';
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/assets/images/jaze_v1t.png`;
+// Public ownership-verification token. Keep it in the build source rather than
+// reading private note-jaze files, which are absent from a clean CI checkout.
+const GOOGLE_SITE_VERIFICATION = '9f4REY_tSanIOpOJ4EJSxwsVnXFgbIu16p3kEx38KpI';
 
 function renderNavigation(activePage = '') {
     const navItems = [
@@ -224,7 +227,7 @@ ${hasIntro ? `    <style data-startup-critical>${startupStyle}</style>\n    <scr
     <link rel="alternate" type="application/rss+xml" title="Jaze research feed" href="/feed.xml">
     <title>${escapeHtml(pageTitle)}</title>
     <meta name="description" content="${escapeHtml(pageDescription)}">
-    <meta name="author" content="Jaze">
+${activePage === 'profile' ? `    <meta name="google-site-verification" content="${escapeHtml(GOOGLE_SITE_VERIFICATION)}">\n` : ''}    <meta name="author" content="Jaze">
     <meta property="og:site_name" content="Jaze Security Research">
     <meta property="og:type" content="${escapeHtml(pageType)}">
     <meta property="og:title" content="${escapeHtml(pageTitle)}">

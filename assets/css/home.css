@@ -126,7 +126,7 @@
     }
 }
 
-/* Bio Summary — ALWAYS strictly on a single line across all viewports */
+/* Let the approved longer bio wrap within the existing hero width. */
 .hero-bio {
     color: var(--text-soft);
     font-family: var(--font-tech, 'Chakra Petch', sans-serif);
@@ -135,7 +135,7 @@
     margin: 0 auto;
     width: max-content;
     max-width: 100%;
-    white-space: nowrap !important;
+    white-space: normal;
     line-height: 1.45;
 }
 
@@ -148,7 +148,6 @@
 
 @media (max-width: 48rem) {
     .hero-bio {
-        white-space: nowrap !important;
         font-size: clamp(0.46rem, 2.25vw, 0.74rem);
         letter-spacing: 0;
         padding-inline: var(--space-1);
@@ -157,7 +156,6 @@
 
 @media (max-width: 25rem) {
     .hero-bio {
-        white-space: nowrap !important;
         font-size: clamp(0.40rem, 2.1vw, 0.58rem);
         padding-inline: 0;
     }

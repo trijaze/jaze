@@ -2,10 +2,18 @@
   "memberId": "jaze",
   "displayName": "Jaze",
   "headline": "A Security Researcher From V1T",
-  "bio": "A personal archive of security discoveries, vulnerabilities, and the stories behind them.",
+  "bio": "Jaze is a security researcher and co-founder of V1T. This site documents CVE disclosures, vulnerability research notes, and CTF write-ups.",
   "avatar": "/assets/images/jaze_v1t.png",
   "focus": [],
   "socials": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/trijaze"
+    },
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/trijaze/"
+    },
     {
       "label": "CTFtime",
       "url": "https://ctftime.org/user/172832"

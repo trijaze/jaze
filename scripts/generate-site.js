@@ -260,6 +260,11 @@ function renderHomePage(siteData, cves) {
     const latestPosts = [...siteData.publishedPosts].sort(comparePosts).slice(0, 3);
     const profileSummary = profile.bio
         || 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.';
+    const githubProfile = profile.socials.find(social => social.label.toLowerCase() === 'github');
+    const linkedinProfile = profile.socials.find(social => social.label.toLowerCase() === 'linkedin');
+    // GitHub/LinkedIn already live in the stats strip. Keep all profiles in
+    // sameAs, but avoid adding duplicate links to the existing hero actions.
+    const heroSocials = profile.socials.filter(social => !['github', 'linkedin'].includes(social.label.toLowerCase()));
 
     const structuredData = [
         {
@@ -278,6 +283,7 @@ function renderHomePage(siteData, cves) {
                 '@type': 'Person',
                 '@id': `${SITE_ORIGIN}/#person`,
                 name: profile.displayName || 'Jaze',
+                description: profileSummary,
                 jobTitle: profile.headline || 'A Security Researcher From V1T',
                 url: `${SITE_ORIGIN}/`,
                 image: `${SITE_ORIGIN}${profile.avatar || '/assets/images/jaze_v1t.png'}`,
@@ -324,7 +330,7 @@ function renderHomePage(siteData, cves) {
                         <span class="hero-link__count">(${cves.length})</span>
                     </a>
                     <a class="hero-link" href="/blog/">Blogs</a>
-                    ${profile.socials.map(soc => `
+                    ${heroSocials.map(soc => `
                         <a class="hero-link hero-link--ghost" href="${escapeHtml(soc.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(soc.label)}</a>
                     `).join('')}
                     <button type="button" class="hero-link hero-link--ghost" data-open-feed-me>Feed Me</button>
@@ -340,14 +346,14 @@ function renderHomePage(siteData, cves) {
                     <span class="matrix-tag">TOTAL CVES</span>
                     <span class="matrix-val">${cves.length}</span>
                 </a>
-                <a href="https://github.com/trijaze" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Jaze(trijaze)" aria-label="GitHub: Jaze(trijaze)">
+                ${githubProfile ? `<a href="${escapeHtml(githubProfile.url)}" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Jaze(trijaze)" aria-label="GitHub: Jaze(trijaze)">
                     <span class="matrix-tag">GITHUB</span>
                     <span class="matrix-val">Jaze(trijaze)</span>
-                </a>
-                <a href="https://www.linkedin.com/in/trijaze" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Trí Dũng" aria-label="LinkedIn: Trí Dũng">
+                </a>` : ''}
+                ${linkedinProfile ? `<a href="${escapeHtml(linkedinProfile.url)}" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="Trí Dũng" aria-label="LinkedIn: Trí Dũng">
                     <span class="matrix-tag">LINKEDIN</span>
                     <span class="matrix-val">Trí Dũng</span>
-                </a>
+                </a>` : ''}
                 <a href="https://www.google.com/search?q=who+is+jaze+in+cyber+security" target="_blank" rel="noopener noreferrer" class="matrix-cell" data-scramble="whoami" aria-label="Identity: whoami">
                     <span class="matrix-tag">WHOAMI</span>
                     <span class="matrix-val">whoami</span>
@@ -423,7 +429,7 @@ function renderHomePage(siteData, cves) {
 
     return renderDocument({
         title: 'Jaze — Security Researcher · V1T',
-        description: 'Security research profile, verified CVE disclosures, and vulnerability publications for Jaze at V1T.',
+        description: `${profileSummary} Explore ${cves.length} CVE records.`,
         pathname: '/',
         activePage: 'profile',
         body,

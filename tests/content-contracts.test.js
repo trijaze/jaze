@@ -124,14 +124,15 @@ test('the checked-in profile is truthful, normalized, and linked to a known V1T 
     assert.equal(normalized.memberId, 'jaze');
     assert.equal(normalized.displayName, 'Jaze');
     assert.equal(normalized.headline, 'A Security Researcher From V1T');
-    assert.equal(normalized.bio, 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.');
+    assert.equal(normalized.bio, 'Jaze is a security researcher and co-founder of V1T. This site documents CVE disclosures, vulnerability research notes, and CTF write-ups.');
     assert.deepEqual(normalized.focus, []);
     assert.deepEqual(normalized.availableFor, []);
     assert.equal(normalized.location, null);
-    assert.deepEqual(normalized.socials, [{
-        label: 'CTFtime',
-        url: 'https://ctftime.org/user/172832'
-    }]);
+    assert.deepEqual(normalized.socials, [
+        { label: 'GitHub', url: 'https://github.com/trijaze' },
+        { label: 'LinkedIn', url: 'https://www.linkedin.com/in/trijaze/' },
+        { label: 'CTFtime', url: 'https://ctftime.org/user/172832' }
+    ]);
     assert.equal(Object.hasOwn(normalized, 'cveCount'), false);
     assert.equal(Object.hasOwn(normalized, 'postCount'), false);
 });
