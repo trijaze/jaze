@@ -46,7 +46,10 @@ test('generated homepage shares approved identity data without duplicating hero 
     ]));
     assert.ok(person.sameAs.every(url => !url.includes('google.com/search')));
     assert.equal(person.image, 'https://jaze.v1t.site/assets/images/jaze_v1t.png');
-    assert.ok(html.includes(`<p class="hero-bio">${escapeHtml(data.profile.bio)}</p>`));
+    const archiveSummary = 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.';
+    assert.ok(html.includes(`<p class="hero-bio">${archiveSummary}</p>`));
+    assert.ok(html.includes(`property="og:description" content="${archiveSummary}"`));
+    assert.ok(html.includes(`name="twitter:description" content="${archiveSummary}"`));
     assert.ok(html.includes(`name="description" content="${escapeHtml(`${data.profile.bio} Explore ${data.cves.length} CVE records.`)}"`));
     assert.ok(html.includes(`property="og:image" content="${person.image}"`));
     const hero = html.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)[1];
@@ -63,4 +66,21 @@ test('generated homepage shares approved identity data without duplicating hero 
         assert.equal(readSchemas(postHtml).find(schema => schema['@type'] === 'BlogPosting').author.name, data.profile.displayName);
     }
     await assert.rejects(fs.access(path.join(distRoot, 'note-jaze')));
+});
+
+test('social descriptions can differ from SEO description while other pages keep the default and values stay escaped', () => {
+    const description = 'SEO identity & research';
+    const socialDescription = 'Archive "preview" <not markup> & notes';
+    const options = { description, body: '<main><h1>Test</h1></main>' };
+    const overridden = renderDocument({ ...options, socialDescription });
+    assert.ok(overridden.includes(`name="description" content="${escapeHtml(description)}"`));
+    for (const attribute of ['property="og:description"', 'name="twitter:description"']) {
+        assert.ok(overridden.includes(`${attribute} content="${escapeHtml(socialDescription)}"`));
+        for (const value of [undefined, '', null]) {
+            const fallback = renderDocument({ ...options, socialDescription: value });
+            assert.ok(fallback.includes(`${attribute} content="${escapeHtml(description)}"`));
+        }
+    }
+    assert.doesNotMatch(overridden, /<not markup>/);
+    assert.doesNotThrow(() => validateHtmlDocument(overridden, 'index.html'));
 });

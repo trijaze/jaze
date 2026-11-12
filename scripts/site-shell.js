@@ -154,6 +154,7 @@ function renderFeedMeDialog() {
 function renderDocument({
     title,
     description = DEFAULT_DESCRIPTION,
+    socialDescription,
     pathname = '/',
     activePage = '',
     body,
@@ -169,6 +170,7 @@ function renderDocument({
     const canonical = absoluteUrl(normalizedPath);
     const pageTitle = String(title || 'Jaze — Security Researcher');
     const pageDescription = String(description || DEFAULT_DESCRIPTION);
+    const pageSocialDescription = String(socialDescription || pageDescription);
     const hasIntro = scripts.includes('intro-loader.js') && activePage === 'profile';
     const stylesheetLinks = ['tokens.css', 'base.css', 'nav.css', ...styles, ...(styles.includes('cves.css') ? ['cvss-widths.css'] : [])]
         .map(file => `    <link rel="stylesheet" href="/assets/css/${escapeHtml(file)}">`)
@@ -231,13 +233,13 @@ ${activePage === 'profile' ? `    <meta name="google-site-verification" content=
     <meta property="og:site_name" content="Jaze Security Research">
     <meta property="og:type" content="${escapeHtml(pageType)}">
     <meta property="og:title" content="${escapeHtml(pageTitle)}">
-    <meta property="og:description" content="${escapeHtml(pageDescription)}">
+    <meta property="og:description" content="${escapeHtml(pageSocialDescription)}">
     <meta property="og:url" content="${escapeHtml(canonical)}">
     <meta property="og:image" content="${escapeHtml(image)}">
     <meta property="og:image:alt" content="${escapeHtml(imageAlt)}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(pageTitle)}">
-    <meta name="twitter:description" content="${escapeHtml(pageDescription)}">
+    <meta name="twitter:description" content="${escapeHtml(pageSocialDescription)}">
     <meta name="twitter:image" content="${escapeHtml(image)}">
 ${stylesheetLinks}
 ${fontPreloads}

@@ -258,8 +258,8 @@ function renderHomePage(siteData, cves) {
     const pendingCount = cves.length - publishedCount;
     const recentCves = cves.slice(0, 8);
     const latestPosts = [...siteData.publishedPosts].sort(comparePosts).slice(0, 3);
-    const profileSummary = profile.bio
-        || 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.';
+    const archiveSummary = 'A personal archive of security discoveries, vulnerabilities, and the stories behind them.';
+    const profileSummary = profile.bio || archiveSummary;
     const githubProfile = profile.socials.find(social => social.label.toLowerCase() === 'github');
     const linkedinProfile = profile.socials.find(social => social.label.toLowerCase() === 'linkedin');
     // GitHub/LinkedIn already live in the stats strip. Keep all profiles in
@@ -322,7 +322,7 @@ function renderHomePage(siteData, cves) {
                     <h1 id="hero-title" class="hero-title jaze-logo-line--main" translate="no">JAZE</h1>
                 </div>
 
-                <p class="hero-bio">${escapeHtml(profileSummary)}</p>
+                <p class="hero-bio">${escapeHtml(archiveSummary)}</p>
 
                 <div class="hero-actions">
                     <a class="hero-link hero-link--primary" href="/cves/">
@@ -430,6 +430,7 @@ function renderHomePage(siteData, cves) {
     return renderDocument({
         title: 'Jaze — Security Researcher · V1T',
         description: `${profileSummary} Explore ${cves.length} CVE records.`,
+        socialDescription: archiveSummary,
         pathname: '/',
         activePage: 'profile',
         body,
