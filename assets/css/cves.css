@@ -504,11 +504,11 @@ body[data-page="cves"] {
 
 .cve-id {
     color: #ffffff;
-    font-family: var(--font-code, 'IBM Plex Mono', monospace);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-size: var(--font-size-sm);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
     transition: color var(--duration-fast) var(--ease-enter);
 }
 
@@ -1109,11 +1109,11 @@ body[data-page="cves"] {
 }
 
 .cve-popup-id {
-    font-family: var(--font-code, 'IBM Plex Mono', monospace);
+    font-family: var(--font-tech, 'Chakra Petch', sans-serif);
     font-weight: 700;
     color: #ffffff;
     font-size: var(--font-size-sm);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
 }
 
 .cve-popup-title {
